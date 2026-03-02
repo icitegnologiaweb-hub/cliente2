@@ -424,11 +424,6 @@ def verificar_token_app():
 
         if user["token_ingreso"] == token_ingresado:
 
-            # 🔥 limpiar token después de usarlo
-            supabase.table("usuarios").update({
-                "token_ingreso": None
-            }).eq("id", user["id"]).execute()
-
             # 🔐 Crear sesión REAL
             session.pop("pending_user_id", None)
 
