@@ -202,8 +202,17 @@
                 name="fecha_inicio"
                 id="fechaInicio"
                 required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
-
+                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3" readonly>
+            <div id="previewCuotas"
+                class="hidden bg-[#0b2847] rounded-xl p-4 text-sm max-h-60 overflow-y-auto mt-3">
+            </div>
+                <div class="flex justify-end mt-2">
+                    <button type="button"
+                            onclick="mostrarVistaCuotas()"
+                            class="text-sm bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 transition">
+                        👁 Ver Fechas de Cuotas
+                    </button>
+                </div>
         </div>
 
         <!-- ================= FOTOS ================= -->
@@ -455,6 +464,95 @@ function obtenerUbicacion() {
     );
 }
 
+</script>
+<script>
+function mostrarVistaCuotas() {
+
+    const tipo = document.querySelector("select[name='tipo_prestamo']").value;
+    const cuotas = parseInt(document.getElementById("cuotas").value) || 0;
+    const fechaInicioInput = document.getElementById("fechaInicio").value;
+
+    if (!tipo || cuotas <= 0 || !fechaInicioInput) {
+        alert("Selecciona tipo, cuotas y fecha inicio");
+        return;
+    }
+
+    let preview = document.getElementById("previewCuotas");
+    preview.innerHTML = "";
+    preview.classList.remove("hidden");
+
+    // 🔥 CONSTRUIR FECHA SIN PROBLEMA UTC
+    const partes = fechaInicioInput.split("-");
+    let fechaBase = new Date(
+        parseInt(partes[0]),
+        parseInt(partes[1]) - 1,
+        parseInt(partes[2])
+    );
+
+    let fechaActual = new Date(fechaBase);
+    let cuotasCreadas = 0;
+
+    while (cuotasCreadas < cuotas) {
+
+        let crear = false;
+        let fechaPago;
+
+        // ==========================
+        // 🔵 SEMANAL
+        // ==========================
+        if (tipo === "Semanal") {
+
+            fechaPago = new Date(fechaBase);
+            fechaPago.setDate(fechaBase.getDate() + ((cuotasCreadas + 1) * 7));
+            crear = true;
+        }
+
+        // ==========================
+        // 🟢 DIARIO LUNES A VIERNES
+        // ==========================
+        else if (tipo === "Diario Lunes a Viernes") {
+
+            if (fechaActual.getDay() >= 1 && fechaActual.getDay() <= 5) {
+                fechaPago = new Date(fechaActual);
+                crear = true;
+            }
+        }
+
+        // ==========================
+        // 🟡 DIARIO LUNES A SÁBADO
+        // ==========================
+        else if (tipo === "Diario Lunes a Sábado") {
+
+            if (fechaActual.getDay() >= 1 && fechaActual.getDay() <= 6) {
+                fechaPago = new Date(fechaActual);
+                crear = true;
+            }
+        }
+
+        else {
+            fechaPago = new Date(fechaActual);
+            crear = true;
+        }
+
+        if (crear) {
+
+            const fechaFormateada = fechaPago.toLocaleDateString("es-CO");
+
+            preview.innerHTML += `
+                <div class="flex justify-between border-b border-white/10 py-1">
+                    <span>Cuota ${cuotasCreadas + 1}</span>
+                    <span>${fechaFormateada}</span>
+                </div>
+            `;
+
+            cuotasCreadas++;
+        }
+
+        if (tipo !== "Semanal") {
+            fechaActual.setDate(fechaActual.getDate() + 1);
+        }
+    }
+}
 </script>
 <!-- ================= SCRIPT CALCULO ================= -->
 <script>

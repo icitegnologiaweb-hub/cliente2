@@ -1096,6 +1096,8 @@ def guardar_venta_cobrador():
             ruta_actual=ruta_id,
             form_data=request.form
         )
+
+        
     # ==========================
     # ASIGNAR POSICIÓN AUTOMÁTICA POR RUTA
     # ==========================
@@ -1285,20 +1287,69 @@ def guardar_venta_cobrador():
 
     credito_id = credito_resp.data[0]["id"]
 
+
     # ==========================
-    # CREAR CUOTAS
+    # CREAR CUOTAS SEGÚN TIPO
     # ==========================
 
-    fecha = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+    fecha_base = datetime.strptime(fecha_inicio, "%Y-%m-%d")  # mañana
+    fecha_actual = fecha_base
+    cuotas_creadas = 0
 
-    for i in range(cuotas):
-        supabase.table("cuotas").insert({
-            "credito_id": credito_id,
-            "numero": i + 1,
-            "valor": valor_cuota,
-            "estado": "pendiente",
-            "fecha_pago": (fecha + timedelta(days=i)).date().isoformat()
-        }).execute()
+    while cuotas_creadas < cuotas:
+
+        crear_cuota = False
+
+        # ==========================
+        # 🔵 SEMANAL
+        # Primera cuota = mañana + 7
+        # ==========================
+        if tipo_prestamo == "Semanal":
+
+            fecha_pago = fecha_base + timedelta(days=(cuotas_creadas + 1) * 7)
+            crear_cuota = True
+
+        # ==========================
+        # 🟢 DIARIO LUNES A VIERNES
+        # ==========================
+        elif tipo_prestamo == "Diario Lunes a Viernes":
+
+            if fecha_actual.weekday() < 5:  # 0-4 = Lunes a Viernes
+                fecha_pago = fecha_actual
+                crear_cuota = True
+
+        # ==========================
+        # 🟡 DIARIO LUNES A SÁBADO
+        # ==========================
+        elif tipo_prestamo == "Diario Lunes a Sábado":
+
+            if fecha_actual.weekday() < 6:  # 0-5 = Lunes a Sábado
+                fecha_pago = fecha_actual
+                crear_cuota = True
+
+        # ==========================
+        # 🔹 DEFAULT (Diario normal)
+        # ==========================
+        else:
+
+            fecha_pago = fecha_actual
+            crear_cuota = True
+
+        if crear_cuota:
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": cuotas_creadas + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+            cuotas_creadas += 1
+
+        # 🔥 Solo avanzar día en modo diario
+        if tipo_prestamo != "Semanal":
+            fecha_actual += timedelta(days=1)
+
 
     flash("Venta registrada correctamente", "success")
     return redirect(url_for("ver_ruta", ruta_id=ruta_id))
@@ -1912,9 +1963,11 @@ def caja_cobrador():
     # 🔥 CAPITAL COLOCADO (SALDO ACTUAL DE CRÉDITOS)
     # =====================================================
 
+
     creditos_activos = supabase.table("creditos") \
-        .select("id, valor_total") \
+        .select("id, valor_venta") \
         .eq("ruta_id", ruta_id) \
+        .eq("estado", "activo") \
         .execute()
 
     capital_colocado = 0
@@ -1931,10 +1984,10 @@ def caja_cobrador():
             for p in pagos.data or []
         )
 
-        saldo_credito = float(credito["valor_total"] or 0) - total_pagado
+        saldo_capital = float(credito["valor_venta"] or 0) - total_pagado
 
-        if saldo_credito > 0:
-            capital_colocado += saldo_credito
+        if saldo_capital > 0:
+            capital_colocado += saldo_capital
 
     # =====================================================
     # 1️⃣ SALDO ANTERIOR (HÍBRIDO: CIERRE O HISTÓRICO)
