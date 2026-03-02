@@ -512,7 +512,28 @@ def dashboard_cobrador():
 
     )
 
+@app.route("/editar_venta_maxima", methods=["POST"])
+def editar_venta_maxima():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    ruta_id = request.form.get("ruta_id")
+    venta_maxima = request.form.get("venta_maxima")
+
+    try:
+        venta_maxima = float(venta_maxima)
+    except:
+        flash("Valor inválido", "danger")
+        return redirect(url_for("listar_rutas"))  # ← usa tu vista principal aquí
+
+    supabase.table("rutas").update({
+        "venta_maxima": venta_maxima
+    }).eq("id", ruta_id).execute()
+
+    flash("Venta máxima actualizada correctamente", "success")
+
+    return redirect(url_for("listar_rutas"))  # ← NO ver_ruta
 
 # 🔎 Traer crédito + cliente APP
 @app.route("/credito/<credito_id>")

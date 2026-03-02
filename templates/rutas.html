@@ -79,13 +79,19 @@
     {% endif %}
 </td>
 
-<td class="px-6 py-4 text-center">
+<td class="px-6 py-4 text-center space-x-2">
 
-<button onclick="abrirModalAsignar({{ ruta.id }})"
-class="bg-[#0B3C5D] hover:bg-[#092f47]
-       text-white px-4 py-2 rounded-lg text-xs shadow">
-    Asignar
-</button>
+    <button onclick="abrirModalEditar({{ ruta.id }}, {{ ruta.venta_maxima }})"
+        class="bg-yellow-500 hover:bg-yellow-600
+               text-white px-3 py-2 rounded-lg text-xs shadow">
+        Editar Venta
+    </button>
+
+    <button onclick="abrirModalAsignar({{ ruta.id }})"
+        class="bg-[#0B3C5D] hover:bg-[#092f47]
+               text-white px-3 py-2 rounded-lg text-xs shadow">
+        Asignar
+    </button>
 
 </td>
 
@@ -97,7 +103,51 @@ class="bg-[#0B3C5D] hover:bg-[#092f47]
 </div>
 
 </div>
+<!-- ================= MODAL EDITAR VENTA MAXIMA ================= -->
+<div id="modalEditarVenta"
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
 
+<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative">
+
+<button onclick="cerrarModalEditar()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+    ✕
+</button>
+
+<h2 class="text-xl font-bold text-[#1e293b] mb-6">
+    Editar Venta Máxima
+</h2>
+
+<form method="POST" action="{{ url_for('editar_venta_maxima') }}">
+
+    <input type="hidden" name="ruta_id" id="ruta_id_editar">
+
+    <div class="mb-5">
+        <label class="text-sm text-gray-600">Nueva Venta Máxima</label>
+        <input type="number"
+               name="venta_maxima"
+               id="venta_maxima_editar"
+               required
+               class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500">
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <button type="button"
+                onclick="cerrarModalEditar()"
+                class="px-4 py-2 bg-gray-200 rounded-lg">
+            Cancelar
+        </button>
+
+        <button type="submit"
+                class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+            Guardar
+        </button>
+    </div>
+
+</form>
+
+</div>
+</div>
 <!-- ================= MODAL ASIGNAR COBRADOR ================= -->
 <div id="modalAsignar"
      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
@@ -211,6 +261,18 @@ Asignar
 
 </div>
 </div>
+<script>
+function abrirModalEditar(rutaId, ventaMaxima) {
+    document.getElementById("ruta_id_editar").value = rutaId;
+    document.getElementById("venta_maxima_editar").value = ventaMaxima;
+    document.getElementById("modalEditarVenta").classList.remove("hidden");
+    document.getElementById("modalEditarVenta").classList.add("flex");
+}
+
+function cerrarModalEditar() {
+    document.getElementById("modalEditarVenta").classList.add("hidden");
+}
+</script>
 <script>
 function abrirModalAsignar(rutaId) {
     document.getElementById("ruta_id_asignar").value = rutaId;
