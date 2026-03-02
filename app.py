@@ -530,7 +530,8 @@ def detalle_credito(credito_id):
                 nombre,
                 identificacion,
                 telefono_principal,
-                direccion
+                direccion,
+                codigo_pais
             )
         """) \
         .eq("id", credito_id) \
@@ -1067,6 +1068,7 @@ def guardar_venta_cobrador():
     nombre = request.form.get("nombre")
     direccion = request.form.get("direccion")
     direccion_negocio = request.form.get("direccion_negocio")
+    codigo_pais = request.form.get("codigo_pais") or "57"
     telefono = request.form.get("telefono")
     fecha_inicio = (date.today() + timedelta(days=1)).isoformat()
     tipo_prestamo = request.form.get("tipo_prestamo")
@@ -1127,13 +1129,20 @@ def guardar_venta_cobrador():
 
     if cliente_resp.data:
         cliente_id = cliente_resp.data[0]["id"]
+
+        # 🔥 Actualizar teléfono y país si cambian
+        supabase.table("clientes").update({
+            "telefono_principal": telefono,
+            "codigo_pais": codigo_pais
+        }).eq("id", cliente_id).execute()
     else:
         nuevo_cliente = supabase.table("clientes").insert({
             "identificacion": identificacion,
             "nombre": nombre,
             "direccion": direccion,
             "direccion_negocio": direccion_negocio,
-            "telefono_principal": telefono
+            "telefono_principal": telefono,
+            "codigo_pais": codigo_pais
         }).execute()
 
         if not nuevo_cliente.data:
@@ -1575,7 +1584,6 @@ def caja_oficina():
     fecha_fin = request.args.get("fecha_fin")
 
     hoy = date.today()
-    hoy_iso = hoy.isoformat()
 
     if fecha_inicio and fecha_fin:
         inicio = datetime.fromisoformat(fecha_inicio + "T00:00:00")
@@ -1584,56 +1592,119 @@ def caja_oficina():
         inicio = datetime.combine(hoy, time.min)
         fin = datetime.combine(hoy, time.max)
 
-    # 🔥 TRAER RUTAS DE LA OFICINA
     rutas_db = supabase.table("rutas") \
         .select("id, nombre") \
         .eq("oficina_id", oficina_id) \
         .execute().data or []
 
     lista_rutas = []
-    saldo_total_cajas = 0
+    saldo_total_consolidado = 0
 
     for r in rutas_db:
 
         ruta_id = r["id"]
 
-        # =====================================================
-        # 1️⃣ SALDO ANTERIOR
-        # =====================================================
+        # =============================
+        # CAPITAL ASIGNADO
+        # =============================
 
-        cierre_resp = supabase.table("caja_diaria") \
-            .select("*") \
+        capital_resp = supabase.table("capital") \
+            .select("valor") \
             .eq("ruta_id", ruta_id) \
-            .lt("fecha", inicio.date().isoformat()) \
-            .order("fecha", desc=True) \
-            .limit(1) \
-            .execute()
+            .execute().data or []
 
-        if cierre_resp.data:
-            saldo_anterior = float(cierre_resp.data[0]["saldo_final"])
-        else:
-            saldo_anterior = 0
+        capital_asignado = sum(float(c["valor"] or 0) for c in capital_resp)
 
-        # =====================================================
-        # 2️⃣ COBROS
-        # =====================================================
+        # =============================
+        # CAPITAL COLOCADO (SOLO CAPITAL)
+        # =============================
+
+        creditos_activos = supabase.table("creditos") \
+            .select("id, valor_venta") \
+            .eq("ruta_id", ruta_id) \
+            .eq("estado", "activo") \
+            .execute().data or []
+
+        capital_colocado = 0
+
+        for credito in creditos_activos:
+
+            pagos = supabase.table("pagos") \
+                .select("monto") \
+                .eq("credito_id", credito["id"]) \
+                .execute().data or []
+
+            total_pagado = sum(float(p["monto"] or 0) for p in pagos)
+
+            saldo_capital = float(credito["valor_venta"] or 0) - total_pagado
+
+            if saldo_capital > 0:
+                capital_colocado += saldo_capital
+
+        # =============================
+        # TRANSFERENCIAS
+        # =============================
+
+        transferencias_recibidas = supabase.table("transferencias") \
+            .select("valor") \
+            .eq("ruta_destino", ruta_id) \
+            .execute().data or []
+
+        total_transferencias_recibidas = sum(
+            float(t["valor"] or 0)
+            for t in transferencias_recibidas
+        )
+
+        transferencias_enviadas = supabase.table("transferencias") \
+            .select("valor") \
+            .eq("ruta_origen", ruta_id) \
+            .execute().data or []
+
+        total_transferencias_enviadas = sum(
+            float(t["valor"] or 0)
+            for t in transferencias_enviadas
+        )
+
+        # =============================
+        # GASTOS HISTÓRICOS
+        # =============================
+
+        gastos_totales = supabase.table("gastos") \
+            .select("valor") \
+            .eq("ruta_id", ruta_id) \
+            .execute().data or []
+
+        total_gastos_ruta = sum(
+            float(g["valor"] or 0)
+            for g in gastos_totales
+        )
+
+        # =============================
+        # CAPITAL DISPONIBLE REAL
+        # =============================
+
+        capital_disponible = (
+            capital_asignado
+            + total_transferencias_recibidas
+            - total_transferencias_enviadas
+            - capital_colocado
+            - total_gastos_ruta
+        )
+
+        saldo_total_consolidado += capital_disponible
+
+        # =============================
+        # MOVIMIENTO POR FECHA
+        # =============================
 
         pagos = supabase.table("pagos") \
-            .select("""
-                monto,
-                fecha,
-                creditos!inner(ruta_id)
-            """) \
+            .select("monto, fecha, creditos!inner(ruta_id)") \
             .eq("creditos.ruta_id", ruta_id) \
             .gte("fecha", inicio.isoformat()) \
             .lte("fecha", fin.isoformat()) \
             .execute().data or []
 
         total_cobros = sum(float(p["monto"] or 0) for p in pagos)
-
-        # =====================================================
-        # 3️⃣ PRÉSTAMOS
-        # =====================================================
 
         prestamos = supabase.table("creditos") \
             .select("valor_venta") \
@@ -1644,10 +1715,6 @@ def caja_oficina():
 
         total_prestamos = sum(float(p["valor_venta"] or 0) for p in prestamos)
 
-        # =====================================================
-        # 4️⃣ GASTOS
-        # =====================================================
-
         gastos = supabase.table("gastos") \
             .select("valor") \
             .eq("ruta_id", ruta_id) \
@@ -1657,31 +1724,28 @@ def caja_oficina():
 
         total_gastos = sum(float(g["valor"] or 0) for g in gastos)
 
-        # =====================================================
-        # 5️⃣ SALDO ACTUAL
-        # =====================================================
-
-        saldo_actual = saldo_anterior + total_cobros - total_prestamos - total_gastos
-
-        saldo_total_cajas += saldo_actual
-
+        # 🔥 ESTE ES EL QUE FALTABA
+        saldo_actual = total_cobros - total_prestamos - total_gastos
         lista_rutas.append({
             "ruta_id": ruta_id,
             "ruta_nombre": r["nombre"],
-            "saldo_anterior": saldo_anterior,
+            "capital_asignado": capital_asignado,
+            "capital_colocado": capital_colocado,
+            "capital_disponible": capital_disponible,
+            "saldo_actual": saldo_actual,  # 👈 ESTE FALTABA
             "total_cobros": total_cobros,
             "total_prestamos": total_prestamos,
-            "total_gastos": total_gastos,
-            "saldo_actual": saldo_actual
+            "total_gastos": total_gastos
         })
 
     return render_template(
         "cajas.html",
         rutas=lista_rutas,
-        saldo_total=saldo_total_cajas,
+        saldo_total=saldo_total_consolidado,
         fecha_inicio=fecha_inicio,
         fecha_fin=fecha_fin
     )
+
 @app.route("/caja/ruta/<ruta_id>")
 def detalle_caja_ruta(ruta_id):
 
@@ -1701,7 +1765,7 @@ def detalle_caja_ruta(ruta_id):
     # =====================================================
 
     cierre_resp = supabase.table("caja_diaria") \
-        .select("*") \
+        .select("saldo_cierre") \
         .eq("ruta_id", ruta_id) \
         .lt("fecha", fecha_inicio) \
         .order("fecha", desc=True) \
@@ -1710,10 +1774,10 @@ def detalle_caja_ruta(ruta_id):
 
     saldo_anterior = 0
     if cierre_resp.data:
-        saldo_anterior = float(cierre_resp.data[0]["saldo_final"])
+        saldo_anterior = float(cierre_resp.data[0]["saldo_cierre"] or 0)
 
     # =====================================================
-    # 🔹 COBROS DETALLE
+    # 🔹 COBROS
     # =====================================================
 
     cobros = supabase.table("pagos") \
@@ -1732,38 +1796,15 @@ def detalle_caja_ruta(ruta_id):
         .order("fecha", desc=True) \
         .execute().data or []
 
-    # 🔹 Obtener IDs únicos de cobradores
-    cobradores_ids = list(set(
-        c["cobrador_id"]
-        for c in cobros
-        if c.get("cobrador_id")
-    ))
-
-    cobradores_dict = {}
-
-    if cobradores_ids:
-        usuarios = supabase.table("usuarios") \
-            .select("id, nombres, apellidos") \
-            .in_("id", cobradores_ids) \
-            .execute().data or []
-
-        cobradores_dict = {
-            u["id"]: f"{u['nombres']} {u['apellidos']}"
-            for u in usuarios
-        }
-
-    # 🔹 Reemplazar ID por nombre completo
-    for c in cobros:
-        c["cobrador_nombre"] = cobradores_dict.get(c["cobrador_id"], "N/A")
-
     total_cobros = sum(float(c["monto"] or 0) for c in cobros)
 
     # =====================================================
-    # 🔹 PRÉSTAMOS DETALLE
+    # 🔹 PRÉSTAMOS
     # =====================================================
 
     prestamos = supabase.table("creditos") \
         .select("""
+            id,
             valor_venta,
             created_at,
             tipo_prestamo,
@@ -1777,7 +1818,7 @@ def detalle_caja_ruta(ruta_id):
     total_prestamos = sum(float(p["valor_venta"] or 0) for p in prestamos)
 
     # =====================================================
-    # 🔹 GASTOS DETALLE
+    # 🔹 GASTOS
     # =====================================================
 
     gastos = supabase.table("gastos") \
@@ -1790,7 +1831,7 @@ def detalle_caja_ruta(ruta_id):
     total_gastos = sum(float(g["valor"] or 0) for g in gastos)
 
     # =====================================================
-    # 🔹 TRANSFERENCIAS
+    # 🔹 TRANSFERENCIAS (RECIBIDAS)
     # =====================================================
 
     transferencias = supabase.table("transferencias") \
@@ -1803,19 +1844,108 @@ def detalle_caja_ruta(ruta_id):
     total_transferencias = sum(float(t["valor"] or 0) for t in transferencias)
 
     # =====================================================
-    # 🔹 SALDO ACTUAL
+    # 🔹 SALDO DEL PERIODO
     # =====================================================
 
-    saldo_actual = saldo_anterior + total_cobros + total_transferencias - total_prestamos - total_gastos
+    saldo_actual = (
+        saldo_anterior
+        + total_cobros
+        + total_transferencias
+        - total_prestamos
+        - total_gastos
+    )
+
+    # =====================================================
+    # 🔥 CAPITAL HISTÓRICO DE LA RUTA
+    # =====================================================
+
+    # CAPITAL ASIGNADO
+    capital_resp = supabase.table("capital") \
+        .select("valor") \
+        .eq("ruta_id", ruta_id) \
+        .execute().data or []
+
+    capital_asignado = sum(float(c["valor"] or 0) for c in capital_resp)
+
+    # CAPITAL COLOCADO (SOLO CAPITAL SIN INTERÉS)
+    creditos_activos = supabase.table("creditos") \
+        .select("id, valor_venta") \
+        .eq("ruta_id", ruta_id) \
+        .eq("estado", "activo") \
+        .execute().data or []
+
+    capital_colocado = 0
+
+    for credito in creditos_activos:
+
+        pagos_credito = supabase.table("pagos") \
+            .select("monto") \
+            .eq("credito_id", credito["id"]) \
+            .execute().data or []
+
+        total_pagado = sum(float(p["monto"] or 0) for p in pagos_credito)
+
+        saldo_capital = float(credito["valor_venta"] or 0) - total_pagado
+
+        if saldo_capital > 0:
+            capital_colocado += saldo_capital
+
+    # TRANSFERENCIAS HISTÓRICAS
+    transferencias_recibidas = supabase.table("transferencias") \
+        .select("valor") \
+        .eq("ruta_destino", ruta_id) \
+        .execute().data or []
+
+    total_transferencias_recibidas = sum(
+        float(t["valor"] or 0)
+        for t in transferencias_recibidas
+    )
+
+    transferencias_enviadas = supabase.table("transferencias") \
+        .select("valor") \
+        .eq("ruta_origen", ruta_id) \
+        .execute().data or []
+
+    total_transferencias_enviadas = sum(
+        float(t["valor"] or 0)
+        for t in transferencias_enviadas
+    )
+
+    # GASTOS HISTÓRICOS
+    gastos_totales = supabase.table("gastos") \
+        .select("valor") \
+        .eq("ruta_id", ruta_id) \
+        .execute().data or []
+
+    total_gastos_ruta = sum(
+        float(g["valor"] or 0)
+        for g in gastos_totales
+    )
+
+    # CAPITAL DISPONIBLE REAL
+    capital_disponible = (
+        capital_asignado
+        + total_transferencias_recibidas
+        - total_transferencias_enviadas
+        - capital_colocado
+        - total_gastos_ruta
+    )
+
+    # =====================================================
+    # 🔹 RENDER
+    # =====================================================
 
     return render_template(
         "detalle_caja_ruta.html",
-        saldo_anterior=saldo_anterior,
-        total_cobros=total_cobros,
-        total_prestamos=total_prestamos,
-        total_gastos=total_gastos,
-        total_transferencias=total_transferencias,
-        saldo_actual=saldo_actual,
+        saldo_anterior=saldo_anterior or 0,
+        total_cobros=total_cobros or 0,
+        total_prestamos=total_prestamos or 0,
+        total_gastos=total_gastos or 0,
+        total_transferencias=total_transferencias or 0,
+        saldo_actual=saldo_actual or 0,
+        capital_asignado=capital_asignado or 0,
+        capital_colocado=capital_colocado or 0,
+        capital_disponible=capital_disponible or 0,
         cobros=cobros,
         prestamos=prestamos,
         gastos=gastos,
@@ -1823,7 +1953,6 @@ def detalle_caja_ruta(ruta_id):
         fecha_inicio=fecha_inicio,
         fecha_fin=fecha_fin
     )
-
 
 
 @app.route("/caja_reportes")

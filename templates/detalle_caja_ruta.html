@@ -24,70 +24,130 @@
             ← Volver
         </a>
     </div>
+<!-- ===================================================== -->
+<!-- RESUMEN FINANCIERO -->
+<!-- ===================================================== -->
+<div class="bg-white rounded-xl shadow mb-12">
 
-    <!-- ===================================================== -->
-    <!-- RESUMEN FINANCIERO -->
-    <!-- ===================================================== -->
-    <div class="bg-white rounded-xl shadow mb-12">
+    <div class="border-b px-8 py-4 bg-gray-50">
+        <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+            Resumen Financiero
+        </h2>
+    </div>
 
-        <div class="border-b px-8 py-4 bg-gray-50">
-            <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                Resumen Financiero
-            </h2>
+    <!-- ================= CAPITAL REAL ================= -->
+    <div class="px-8 py-8 border-b bg-indigo-50 text-center">
+
+        <div class="text-xs uppercase text-indigo-600 tracking-wide">
+            Capital Disponible Real
         </div>
 
-        <div class="grid grid-cols-6 text-center text-sm">
+        <div class="mt-3 text-3xl font-bold
+            {% if (capital_disponible or 0) >= 0 %}
+                text-emerald-600
+            {% else %}
+                text-red-600
+            {% endif %}">
+            $ {{ "{:,.0f}".format(capital_disponible or 0) }}
+        </div>
 
-            <div class="py-6 border-r">
-                <div class="text-gray-500 text-xs uppercase">Saldo Anterior</div>
-                <div class="mt-2 font-bold text-gray-800">
-                    $ {{ "{:,.0f}".format(saldo_anterior) }}
-                </div>
+        <div class="mt-2 text-xs text-gray-500">
+            Capital asignado - capital colocado - gastos históricos ± transferencias
+        </div>
+
+    </div>
+
+    <!-- ================= FLUJO DEL PERIODO ================= -->
+    <div class="grid grid-cols-6 text-center text-sm">
+
+        <div class="py-6 border-r">
+            <div class="text-gray-500 text-xs uppercase">Saldo Anterior</div>
+            <div class="mt-2 font-bold text-gray-800">
+                $ {{ "{:,.0f}".format(saldo_anterior or 0) }}
             </div>
+        </div>
 
-            <div class="py-6 border-r">
-                <div class="text-gray-500 text-xs uppercase">Cobros</div>
-                <div class="mt-2 font-bold text-green-600">
-                    + $ {{ "{:,.0f}".format(total_cobros) }}
-                </div>
+        <div class="py-6 border-r">
+            <div class="text-gray-500 text-xs uppercase">Cobros</div>
+            <div class="mt-2 font-bold text-green-600">
+                + $ {{ "{:,.0f}".format(total_cobros or 0) }}
             </div>
+        </div>
 
-            <div class="py-6 border-r">
-                <div class="text-gray-500 text-xs uppercase">Préstamos</div>
-                <div class="mt-2 font-bold text-blue-600">
-                    - $ {{ "{:,.0f}".format(total_prestamos) }}
-                </div>
+        <div class="py-6 border-r">
+            <div class="text-gray-500 text-xs uppercase">Préstamos</div>
+            <div class="mt-2 font-bold text-blue-600">
+                - $ {{ "{:,.0f}".format(total_prestamos or 0) }}
             </div>
+        </div>
 
-            <div class="py-6 border-r">
-                <div class="text-gray-500 text-xs uppercase">Gastos</div>
-                <div class="mt-2 font-bold text-red-600">
-                    - $ {{ "{:,.0f}".format(total_gastos) }}
-                </div>
+        <div class="py-6 border-r">
+            <div class="text-gray-500 text-xs uppercase">Gastos</div>
+            <div class="mt-2 font-bold text-red-600">
+                - $ {{ "{:,.0f}".format(total_gastos or 0) }}
             </div>
+        </div>
 
-            <div class="py-6 border-r">
-                <div class="text-gray-500 text-xs uppercase">Transferencias</div>
-                <div class="mt-2 font-bold text-purple-600">
-                    + $ {{ "{:,.0f}".format(total_transferencias) }}
-                </div>
+        <div class="py-6 border-r">
+            <div class="text-gray-500 text-xs uppercase">Transferencias</div>
+            <div class="mt-2 font-bold text-purple-600">
+                + $ {{ "{:,.0f}".format(total_transferencias or 0) }}
             </div>
+        </div>
 
-            <div class="py-6">
-                <div class="text-gray-500 text-xs uppercase">Saldo Final</div>
-                <div class="mt-2 text-lg font-bold
-                    {% if saldo_actual >= 0 %}
-                        text-green-600
-                    {% else %}
-                        text-red-600
-                    {% endif %}">
-                    $ {{ "{:,.0f}".format(saldo_actual) }}
+        <div class="py-6">
+            <div class="text-gray-500 text-xs uppercase">Flujo del Periodo</div>
+            <div class="mt-2 text-lg font-bold
+                {% if (saldo_actual or 0) >= 0 %}
+                    text-green-600
+                {% else %}
+                    text-red-600
+                {% endif %}">
+                $ {{ "{:,.0f}".format(saldo_actual or 0) }}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+  <!-- ================= CAPITAL (NUEVA SECCIÓN) ================= -->
+    <div class="bg-white rounded-xl shadow mb-8">
+
+        <button onclick="toggleSection('tablaCapital')"
+            class="w-full flex justify-between items-center px-8 py-4 bg-indigo-50 border-b hover:bg-indigo-100 transition">
+
+            <h2 class="text-sm font-semibold text-indigo-700 uppercase tracking-wide">
+                Capital de la Ruta
+            </h2>
+
+            <span class="text-indigo-700 font-bold">
+                Disponible: $ {{ "{:,.0f}".format(capital_disponible) }}
+            </span>
+        </button>
+
+        <div id="tablaCapital" class="hidden">
+
+            <div class="grid grid-cols-3 text-center py-8 text-sm">
+
+                <div>
+                    <div class="text-gray-500 uppercase text-xs">Capital Asignado</div>
+                    <div class="mt-2 font-bold text-indigo-600 text-lg">
+                        $ {{ "{:,.0f}".format(capital_asignado) }}
+                    </div>
                 </div>
+
+
+                <div>
+                    <div class="text-gray-500 uppercase text-xs">Capital Disponible</div>
+                    <div class="mt-2 font-bold text-emerald-600 text-lg">
+                        $ {{ "{:,.0f}".format(capital_disponible) }}
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </div>
-
     <!-- ===================================================== -->
     <!-- COBROS -->
     <!-- ===================================================== -->
@@ -229,8 +289,7 @@
 
                 <thead class="bg-gray-100 text-xs uppercase text-gray-600">
                     <tr>
-                        <th class="px-6 py-3 text-left">Descripción</th>
-                        <th class="px-6 py-3 text-left">Categoría</th>
+                        <th class="px-6 py-3 text-left">Categoria</th>
                         <th class="px-6 py-3 text-left">Fecha</th>
                         <th class="px-6 py-3 text-right">Valor</th>
                     </tr>
@@ -240,7 +299,6 @@
                     {% for g in gastos %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-3">{{ g.descripcion }}</td>
-                        <td class="px-6 py-3 text-gray-600">{{ g.categoria }}</td>
                         <td class="px-6 py-3">{{ g.created_at[:10] }}</td>
                         <td class="px-6 py-3 text-right text-red-600 font-semibold">
                             $ {{ "{:,.0f}".format(g.valor) }}

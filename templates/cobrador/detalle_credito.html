@@ -43,13 +43,22 @@
         <!-- Teléfono con WhatsApp -->
         <div class="flex justify-between items-center">
             <span class="opacity-70">Teléfono</span>
-            <a href="https://wa.me/57{{ credito.clientes.telefono_principal }}"
-               target="_blank"
-               class="text-green-400 font-semibold">
-                {{ credito.clientes.telefono_principal }}
+
+            {% set codigo = credito.clientes.codigo_pais or '57' %}
+            {% set telefono_limpio = (credito.clientes.telefono_principal or '') 
+                | replace(' ', '') 
+                | replace('-', '') 
+                | replace('(', '') 
+                | replace(')', '') 
+            %}
+
+            <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
+            target="_blank"
+            class="text-green-400 font-semibold">
+                +{{ codigo }} {{ credito.clientes.telefono_principal }}
             </a>
         </div>
-
+    
         <!-- Dirección -->
         <div class="flex justify-between">
             <span class="opacity-70">Dirección</span>

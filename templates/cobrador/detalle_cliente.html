@@ -26,9 +26,23 @@
                 <div class="font-semibold">{{ cliente.identificacion }}</div>
             </div>
 
-            <div>
-                <div class="opacity-70 text-xs">Teléfono</div>
-                <div class="font-semibold">{{ cliente.telefono_principal }}</div>
+            <!-- Teléfono con WhatsApp -->
+            <div class="flex justify-between items-center">
+                <span class="opacity-70">Teléfono</span>
+
+                {% set codigo = cliente.codigo_pais or '57' %}
+                {% set telefono_limpio = (cliente.telefono_principal or '') 
+                    | replace(' ', '') 
+                    | replace('-', '') 
+                    | replace('(', '') 
+                    | replace(')', '') 
+                %}
+
+                <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
+                target="_blank"
+                class="text-green-400 font-semibold">
+                    +{{ codigo }} {{ cliente.telefono_principal }}
+                </a>
             </div>
 
             <div class="col-span-2">

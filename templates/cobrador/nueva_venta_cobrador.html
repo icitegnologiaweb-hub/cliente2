@@ -92,11 +92,46 @@
                 required
                 class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
 
-            <input type="text" name="telefono"
+            <div class="flex gap-2">
+
+            <!-- Código País -->
+            <select name="codigo_pais"
+                class="bg-[#0b2847] border border-gray-600 rounded-xl p-3 w-28 text-white">
+
+                <option value="57"
+                    {% if cliente_aprobado and cliente_aprobado.codigo_pais == '57' %}
+                        selected
+                    {% endif %}>
+                    🇨🇴 +57
+                </option>
+
+                <option value="593"
+                    {% if cliente_aprobado and cliente_aprobado.codigo_pais == '593' %}
+                        selected
+                    {% endif %}>
+                    🇪🇨 +593
+                </option>
+
+                <option value="51"
+                    {% if cliente_aprobado and cliente_aprobado.codigo_pais == '51' %}
+                        selected
+                    {% endif %}>
+                    🇵🇪 +51
+                </option>
+
+            </select>
+
+            <!-- Teléfono -->
+            <input type="text"
+                name="telefono"
                 value="{{ cliente_aprobado.telefono_principal if cliente_aprobado else '' }}"
                 placeholder="Teléfono"
                 required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                class="flex-1 bg-[#0b2847] border border-gray-600 rounded-xl p-3 text-white">
+
+        </div>
+
+            
 
         </div>
 
