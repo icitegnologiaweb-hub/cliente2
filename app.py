@@ -908,10 +908,19 @@ def guardar_solicitud_cupo():
 @app.route("/admin/solicitud/<id>/<accion>")
 def procesar_solicitud(id, accion):
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
     if accion not in ["aprobado", "rechazado"]:
         return redirect(url_for("ver_solicitudes_cupo"))
 
-    # Traer solicitud
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔎 Traer solicitud
     solicitud_resp = supabase.table("solicitudes_aumento_cupo") \
         .select("*") \
         .eq("id", id) \
@@ -924,13 +933,24 @@ def procesar_solicitud(id, accion):
 
     solicitud = solicitud_resp.data
 
-    # Actualizar estado
+    # 🔒 Validar que la solicitud pertenezca a una ruta de la oficina activa
+    ruta_validacion = supabase.table("rutas") \
+        .select("id, oficina_id") \
+        .eq("id", solicitud["ruta_id"]) \
+        .single() \
+        .execute().data
+
+    if not ruta_validacion or ruta_validacion["oficina_id"] != oficina_id:
+        flash("No tiene permiso para modificar esta solicitud", "danger")
+        return redirect(url_for("ver_solicitudes_cupo"))
+
+    # 🔥 Actualizar estado
     supabase.table("solicitudes_aumento_cupo") \
         .update({"estado": accion}) \
         .eq("id", id) \
         .execute()
 
-    # Solo crear notificación si hay usuario_id válido
+    # 🔔 Crear notificación si existe usuario
     if solicitud.get("usuario_id"):
 
         supabase.table("notificaciones").insert({
@@ -947,12 +967,37 @@ def procesar_solicitud(id, accion):
 @app.route("/admin/solicitudes_cupo")
 def ver_solicitudes_cupo():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔥 Obtener rutas de esta oficina
+    rutas = supabase.table("rutas") \
+        .select("id") \
+        .eq("oficina_id", oficina_id) \
+        .execute().data or []
+
+    rutas_ids = [r["id"] for r in rutas]
+
+    if not rutas_ids:
+        return render_template("solicitudes_cupo.html", solicitudes=[])
+
+    # 🔥 Solo solicitudes de rutas de esta oficina
     solicitudes = supabase.table("solicitudes_aumento_cupo") \
         .select("*") \
+        .in_("ruta_id", rutas_ids) \
         .order("fecha", desc=True) \
-        .execute().data
+        .execute().data or []
 
-    return render_template("solicitudes_cupo.html", solicitudes=solicitudes)
+    return render_template(
+        "solicitudes_cupo.html",
+        solicitudes=solicitudes
+    )
 
 @app.route("/guardar_venta_cobrador", methods=["POST"])
 def guardar_venta_cobrador():
@@ -1351,6 +1396,7 @@ def todas_las_ventas(ruta_id):
     response = supabase.table("creditos") \
         .select("""
             id,
+            cliente_id,
             posicion,
             valor_cuota,
             valor_total,
@@ -1401,6 +1447,7 @@ def todas_las_ventas(ruta_id):
 
         lista.append({
             "id": c["id"],
+            "cliente_id": c["cliente_id"], 
             "posicion": c["posicion"],
             "cliente": c["clientes"]["nombre"],
             "telefono": c["clientes"]["telefono_principal"],
@@ -1636,7 +1683,7 @@ def detalle_caja_ruta(ruta_id):
     # =====================================================
 
     gastos = supabase.table("gastos") \
-        .select("categoria, descripcion, valor, created_at") \
+        .select("categoria_id, descripcion, valor, created_at") \
         .eq("ruta_id", ruta_id) \
         .gte("created_at", inicio.isoformat()) \
         .lte("created_at", fin.isoformat()) \
@@ -1687,6 +1734,12 @@ def caja_reportes():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
     fecha_inicio = request.args.get("fecha_inicio")
     fecha_fin = request.args.get("fecha_fin")
     ruta_id = request.args.get("ruta_id")
@@ -1700,9 +1753,11 @@ def caja_reportes():
     inicio = fecha_inicio + "T00:00:00"
     fin = fecha_fin + "T23:59:59"
 
-    # 🔹 Traer rutas
+    # 🔥 SOLO rutas de la oficina activa
     rutas = supabase.table("rutas") \
         .select("id, nombre") \
+        .eq("oficina_id", oficina_id) \
+        .order("posicion") \
         .execute().data or []
 
     ventas = []
@@ -1711,6 +1766,18 @@ def caja_reportes():
 
     if ruta_id:
 
+        # 🔒 VALIDAR QUE LA RUTA PERTENEZCA A LA OFICINA
+        ruta_validacion = supabase.table("rutas") \
+            .select("id, oficina_id") \
+            .eq("id", ruta_id) \
+            .single() \
+            .execute().data
+
+        if not ruta_validacion or ruta_validacion["oficina_id"] != oficina_id:
+            flash("No tiene acceso a esta ruta", "error")
+            return redirect(url_for("caja_reportes"))
+
+        # 🔹 Traer créditos filtrados por ruta y fecha
         response = supabase.table("creditos") \
             .select("""
                 id,
@@ -1761,7 +1828,6 @@ def caja_reportes():
         fecha_fin=fecha_fin,
         ruta_id=ruta_id
     )
-
 
 @app.route("/categorias_gastos")
 def categorias_gastos():
@@ -3015,26 +3081,62 @@ from datetime import date
 @app.route("/ventas")
 def listar_ventas():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
     ruta_id = request.args.get("ruta_id")
     buscar = request.args.get("buscar", "").strip().lower()
     filtro_mora = request.args.get("filtro_mora")
     fecha_inicio = request.args.get("fecha_inicio")
     fecha_fin = request.args.get("fecha_fin")
 
-    rutas = supabase.table("rutas").select("*").execute().data
+    # 🔥 SOLO rutas de la oficina activa
+    rutas = supabase.table("rutas") \
+        .select("*") \
+        .eq("oficina_id", oficina_id) \
+        .order("posicion") \
+        .execute().data or []
 
     ventas = []
     saldo_total = 0
 
     if ruta_id:
 
+        # 🔒 VALIDAR QUE LA RUTA PERTENEZCA A LA OFICINA
+        ruta_validacion = supabase.table("rutas") \
+            .select("id, oficina_id") \
+            .eq("id", ruta_id) \
+            .single() \
+            .execute().data
+
+        if not ruta_validacion or ruta_validacion["oficina_id"] != oficina_id:
+            flash("No tiene acceso a esta ruta", "error")
+            return redirect(url_for("listar_ventas"))
+
+        # 🔥 Traer créditos de la ruta validada
         response = supabase.table("creditos") \
-            .select("id, cliente_id, posicion, valor_venta, valor_total, created_at, clientes(nombre, identificacion), latitud, longitud") \
+            .select("""
+                id,
+                cliente_id,
+                posicion,
+                valor_venta,
+                valor_total,
+                created_at,
+                clientes(nombre, identificacion),
+                latitud,
+                longitud
+            """) \
             .eq("ruta_id", ruta_id) \
-            .order("posicion", desc=False) \
+            .order("posicion") \
             .execute()
 
-        creditos = response.data
+        creditos = response.data or []
 
         for c in creditos:
 
@@ -3049,7 +3151,7 @@ def listar_ventas():
             cuotas = supabase.table("cuotas") \
                 .select("valor, estado, fecha_pago") \
                 .eq("credito_id", c["id"]) \
-                .execute().data
+                .execute().data or []
 
             total_pagado = 0
             dias_mora = 0
@@ -3064,8 +3166,6 @@ def listar_ventas():
                     if fecha_pago < date.today():
                         dias_mora += (date.today() - fecha_pago).days
 
-            saldo = float(c["valor_total"]) - total_pagado
-
             # 🔥 FILTRO POR MORA
             if filtro_mora == "21" and dias_mora < 21:
                 continue
@@ -3073,15 +3173,21 @@ def listar_ventas():
                 continue
             if filtro_mora == "0" and dias_mora > 0:
                 continue
-            
-            if fecha_inicio:
-                ventas = [v for v in ventas if v["fecha_registro"][:10] >= fecha_inicio]
 
-            if fecha_fin:
-                ventas = [v for v in ventas if v["fecha_registro"][:10] <= fecha_fin]
+            fecha_registro = c["created_at"][:10]
+
+            # 🔥 FILTRO POR FECHAS (CORRECTAMENTE UBICADO)
+            if fecha_inicio and fecha_registro < fecha_inicio:
+                continue
+
+            if fecha_fin and fecha_registro > fecha_fin:
+                continue
+
+            saldo = float(c["valor_total"]) - total_pagado
 
             ventas.append({
                 "credito_id": c["id"],
+                "cliente_id": c["cliente_id"],
                 "posicion": c["posicion"],
                 "codigo": c["id"][:8],
                 "valor_venta": "{:,.0f}".format(c["valor_venta"]),
@@ -3089,10 +3195,10 @@ def listar_ventas():
                 "saldo": "{:,.0f}".format(saldo),
                 "cliente": cliente_nombre,
                 "identificacion": identificacion,
-                "fecha_registro": c["created_at"][:10],
+                "fecha_registro": fecha_registro,
                 "dias_mora": dias_mora,
-                "latitud": c["latitud"],        # 🔥 AGREGAR ESTO
-                "longitud": c["longitud"],      # 🔥 AGREGAR ESTO
+                "latitud": c["latitud"],
+                "longitud": c["longitud"],
             })
 
             saldo_total += saldo
@@ -3108,16 +3214,32 @@ def listar_ventas():
 
 
 
-
-
+# =============================
+# NUEVA VENTA (CONTROL FLUJO)
+# =============================
 # =============================
 # NUEVA VENTA (CONTROL FLUJO)
 # =============================
 @app.route("/nueva_venta")
 def nueva_venta():
 
-    # 🔹 Traer rutas
-    rutas_resp = supabase.table("rutas").select("*").execute()
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    # 🔥 Tomar oficina desde sesión (como en usuarios)
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔹 Traer solo rutas de esa oficina
+    rutas_resp = supabase.table("rutas") \
+        .select("*") \
+        .eq("oficina_id", oficina_id) \
+        .order("posicion") \
+        .execute()
+
     rutas = rutas_resp.data if rutas_resp.data else []
 
     cliente = None
@@ -3144,7 +3266,6 @@ def nueva_venta():
         cliente=cliente,
         valor_anterior=valor_anterior
     )
-
 
 
 @app.route("/cancelar_venta")
@@ -3332,12 +3453,25 @@ def guardar_venta():
     valor_total = valor_venta + (valor_venta * tasa / 100)
     valor_cuota = valor_total / cuotas
 
+    ruta_id = request.form["ruta_id"]
+    # 🔹 Obtener última posición en esa ruta
+    ultimo = supabase.table("creditos") \
+        .select("posicion") \
+        .eq("ruta_id", ruta_id) \
+        .order("posicion", desc=True) \
+        .limit(1) \
+        .execute().data
+
+    if ultimo:
+        nueva_posicion = ultimo[0]["posicion"] + 1
+    else:
+        nueva_posicion = 1
     # 🔹 Insertar nuevo crédito
     credito_data = {
         "cliente_id": cliente_id,
         "ruta_id": request.form["ruta_id"],
         "tipo_prestamo": request.form["tipo_prestamo"],
-        "posicion": request.form["posicion"],
+        "posicion": nueva_posicion,
         "valor_venta": valor_venta,
         "tasa": tasa,
         "valor_total": valor_total,
@@ -3581,27 +3715,54 @@ def clientes():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    # 🔎 Traer clientes
+    # 🔥 Usar oficina desde sesión (igual que en usuarios)
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 1️⃣ Obtener rutas de esa oficina
+    rutas = supabase.table("rutas") \
+        .select("id") \
+        .eq("oficina_id", oficina_id) \
+        .execute().data
+
+    ruta_ids = [r["id"] for r in rutas]
+
+    if not ruta_ids:
+        return render_template("clientes.html", clientes=[])
+
+    # 2️⃣ Obtener créditos de esas rutas
+    creditos = supabase.table("creditos") \
+        .select("cliente_id") \
+        .in_("ruta_id", ruta_ids) \
+        .execute().data
+
+    cliente_ids = list(set([c["cliente_id"] for c in creditos]))
+
+    if not cliente_ids:
+        return render_template("clientes.html", clientes=[])
+
+    # 3️⃣ Obtener clientes finales
     clientes = supabase.table("clientes") \
         .select("*") \
+        .in_("id", cliente_ids) \
         .order("posicion") \
         .execute().data
 
+    # 🔥 Mantengo tu cálculo de mora EXACTAMENTE igual
     for cliente in clientes:
 
-        cliente["dias_mora"] = 0  # valor por defecto
+        mayor_mora = 0
 
-        # 🔎 Traer créditos activos del cliente
-        creditos = supabase.table("creditos") \
+        creditos_cliente = supabase.table("creditos") \
             .select("id") \
             .eq("cliente_id", cliente["id"]) \
             .execute().data
 
-        mayor_mora = 0
+        for credito in creditos_cliente:
 
-        for credito in creditos:
-
-            # 🔎 Traer cuotas pendientes de ese crédito
             cuotas = supabase.table("cuotas") \
                 .select("fecha_pago, estado") \
                 .eq("credito_id", credito["id"]) \
@@ -3609,12 +3770,10 @@ def clientes():
                 .execute().data
 
             for cuota in cuotas:
-
                 fecha = date.fromisoformat(cuota["fecha_pago"])
 
                 if fecha < date.today():
                     dias = (date.today() - fecha).days
-
                     if dias > mayor_mora:
                         mayor_mora = dias
 
@@ -3624,8 +3783,6 @@ def clientes():
         "clientes.html",
         clientes=clientes
     )
-
-from datetime import date
 
 @app.route("/historico-bancario/<cliente_id>")
 def historico_bancario_cliente(cliente_id):
@@ -3815,12 +3972,27 @@ def capital():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    rutas = supabase.table("rutas").select("*").execute().data
+    oficina_id = session.get("oficina_id")
 
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔥 SOLO rutas de la oficina activa
+    rutas = supabase.table("rutas") \
+        .select("*") \
+        .eq("oficina_id", oficina_id) \
+        .order("posicion") \
+        .execute().data or []
+
+    rutas_ids = [r["id"] for r in rutas]
+
+    # 🔥 SOLO movimientos de capital de esas rutas
     movimientos = supabase.table("capital") \
         .select("*, rutas(nombre)") \
+        .in_("ruta_id", rutas_ids) \
         .order("created_at", desc=True) \
-        .execute().data
+        .execute().data or []
 
     return render_template(
         "capital.html",
@@ -3831,9 +4003,29 @@ def capital():
 @app.route("/capital/crear", methods=["POST"])
 def crear_capital():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
     ruta_id = request.form.get("ruta_id")
     valor = request.form.get("valor")
     descripcion = request.form.get("descripcion")
+
+    # 🔒 Validar que la ruta pertenezca a la oficina
+    ruta_validacion = supabase.table("rutas") \
+        .select("id, oficina_id") \
+        .eq("id", ruta_id) \
+        .single() \
+        .execute().data
+
+    if not ruta_validacion or ruta_validacion["oficina_id"] != oficina_id:
+        flash("No tiene acceso a esta ruta", "error")
+        return redirect(url_for("capital"))
 
     supabase.table("capital").insert({
         "ruta_id": ruta_id,
@@ -3847,17 +4039,41 @@ def crear_capital():
 # MODULO GASTOS
 # -----------------------
 @app.route("/gastos")
+@app.route("/gastos")
 def gastos():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔥 SOLO rutas de la oficina activa
+    rutas = supabase.table("rutas") \
+        .select("*") \
+        .eq("oficina_id", oficina_id) \
+        .order("nombre") \
+        .execute().data or []
+
+    rutas_ids = [r["id"] for r in rutas]
+
+    # 🔥 SOLO gastos de rutas de esta oficina
     gastos = supabase.table("gastos") \
-        .select("*, rutas(nombre), usuarios(nombres, apellidos), categorias_gastos(nombre)") \
+        .select("""
+            *,
+            rutas(nombre),
+            usuarios(nombres, apellidos),
+            categorias_gastos(nombre)
+        """) \
+        .in_("ruta_id", rutas_ids) \
         .order("created_at", desc=True) \
         .execute().data or []
 
     for g in gastos:
+
         if g.get("created_at"):
             created = g["created_at"].replace("Z", "+00:00")
 
@@ -3876,12 +4092,7 @@ def gastos():
         else:
             g["cobrador_nombre"] = ""
 
-    rutas = supabase.table("rutas") \
-        .select("*") \
-        .order("nombre") \
-        .execute().data or []
-
-    # 🔥 AGREGAR ESTO
+    # 🔥 SOLO categorías activas
     categorias = supabase.table("categorias_gastos") \
         .select("*") \
         .eq("estado", True) \
@@ -3892,16 +4103,36 @@ def gastos():
         "gastos.html",
         gastos=gastos,
         rutas=rutas,
-        categorias=categorias   # 👈 ESTO FALTABA
+        categorias=categorias
     )
     
 @app.route("/guardar_gasto", methods=["POST"])
 def guardar_gasto():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
     categoria_id = request.form.get("categoria_id")
     descripcion = request.form.get("descripcion")
     valor = float(request.form.get("valor"))
     ruta_id = request.form.get("ruta_id")
+
+    # 🔒 Validar que la ruta pertenezca a la oficina
+    ruta_validacion = supabase.table("rutas") \
+        .select("id, oficina_id") \
+        .eq("id", ruta_id) \
+        .single() \
+        .execute().data
+
+    if not ruta_validacion or ruta_validacion["oficina_id"] != oficina_id:
+        flash("No tiene acceso a esta ruta", "error")
+        return redirect(url_for("gastos"))
 
     codigo = f"GAS-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
@@ -3992,6 +4223,21 @@ def transferencias():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    oficina_id = session.get("oficina_id")
+
+    if not oficina_id:
+        flash("Debe seleccionar una oficina", "warning")
+        return redirect(url_for("cambiar_oficina"))
+
+    # 🔥 Traer SOLO rutas de la oficina activa
+    rutas = supabase.table("rutas") \
+        .select("*") \
+        .eq("oficina_id", oficina_id) \
+        .order("posicion") \
+        .execute().data or []
+
+    rutas_ids = [r["id"] for r in rutas]
+
     # ================= POST =================
     if request.method == "POST":
 
@@ -4000,6 +4246,11 @@ def transferencias():
         valor = float(request.form.get("valor"))
         fecha = request.form.get("fecha")
         descripcion = request.form.get("descripcion")
+
+        # 🔒 Validar que ambas rutas pertenezcan a la oficina
+        if ruta_origen not in rutas_ids or ruta_destino not in rutas_ids:
+            flash("No tiene acceso a estas rutas", "error")
+            return redirect(url_for("transferencias"))
 
         if ruta_origen == ruta_destino:
             flash("No puede transferir a la misma ruta", "error")
@@ -4017,7 +4268,6 @@ def transferencias():
             flash("Capital insuficiente en la ruta origen", "error")
             return redirect(url_for("transferencias"))
 
-
         # 📝 Guardar registro
         supabase.table("transferencias").insert({
             "ruta_origen": ruta_origen,
@@ -4032,22 +4282,20 @@ def transferencias():
 
     # ================= GET =================
 
-    rutas = supabase.table("rutas").select("*").execute().data
-
-    # Crear diccionario id → nombre
+    # Crear diccionario id → nombre (solo oficina activa)
     rutas_dict = {r["id"]: r["nombre"] for r in rutas}
 
+    # 🔥 Traer SOLO transferencias donde participen rutas de la oficina
     transferencias_db = supabase.table("transferencias") \
         .select("*") \
+        .in_("ruta_origen", rutas_ids) \
         .order("created_at", desc=True) \
-        .execute().data
+        .execute().data or []
 
     lista = []
     total = 0
 
-
-
-    for t in transferencias_db or []:
+    for t in transferencias_db:
         total += float(t["valor"] or 0)
 
         created = t["created_at"].replace("Z", "+00:00")
@@ -4058,7 +4306,6 @@ def transferencias():
             fecha_utc = datetime.fromisoformat(created.split(".")[0] + "+00:00")
 
         fecha_colombia = fecha_utc - timedelta(hours=5)
-
         fecha_formateada = fecha_colombia.strftime("%d/%m/%Y %I:%M %p")
 
         lista.append({
