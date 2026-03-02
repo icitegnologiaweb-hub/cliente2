@@ -263,10 +263,14 @@
                                         class="text-red-600 hover:text-red-800 text-xl transition">
                                     <i class="bi bi-geo-alt-fill"></i>
                                 </button>
-
+                                <a href="{{ url_for('eliminar_credito', credito_id=venta.credito_id) }}"
+                                onclick="return confirm('⚠ Esta acción eliminará el crédito, cuotas y pagos. ¿Continuar?')"
+                                class="text-red-600 hover:text-red-800 text-xl transition"
+                                title="Eliminar Venta">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
                             </div>
                         </td>
-
                     </tr>
                     {% endfor %}
 

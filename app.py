@@ -1449,6 +1449,39 @@ def asignar_cobrador_ruta():
 
 # listar todas las ventas en el motudlo de cobrador
 
+@app.route("/eliminar_credito/<credito_id>")
+def eliminar_credito(credito_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login_app"))
+
+    try:
+
+        # 🔹 1. Eliminar pagos
+        supabase.table("pagos") \
+            .delete() \
+            .eq("credito_id", credito_id) \
+            .execute()
+
+        # 🔹 2. Eliminar cuotas
+        supabase.table("cuotas") \
+            .delete() \
+            .eq("credito_id", credito_id) \
+            .execute()
+
+        # 🔹 3. Eliminar crédito
+        supabase.table("creditos") \
+            .delete() \
+            .eq("id", credito_id) \
+            .execute()
+
+        flash("Venta eliminada completamente.", "success")
+
+    except Exception as e:
+        print("Error eliminando crédito:", e)
+        flash("Ocurrió un error al eliminar la venta.", "danger")
+
+    return redirect(request.referrer)
 @app.route("/todas_las_ventas/<ruta_id>")
 def todas_las_ventas(ruta_id):
 
