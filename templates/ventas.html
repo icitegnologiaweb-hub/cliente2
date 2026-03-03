@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
-
+<div class="px-4 sm:px-6 md:px-10 py-6 md:py-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
     <!-- ================= HEADER ================= -->
     <div class="flex items-center justify-between mb-10">
 
@@ -182,7 +181,7 @@
                         <th class="px-6 py-5 text-left">Identificación</th>
                         <th class="px-6 py-5 text-left">Fecha</th>
                         <th class="px-6 py-5 text-center">Dias de Mora</th>
-                        <th class="px-6 py-5 text-center">Ver Creditos</th>
+                        <th class="px-6 py-5 text-center">Acciones</th>
                     </tr>
                 </thead>
 
@@ -249,26 +248,40 @@
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <div class="flex items-center justify-center gap-4">
+                            <div class="flex items-center justify-center gap-3">
 
+                                <!-- VER -->
                                 <a href="{{ url_for('historial_creditos', cliente_id=venta.cliente_id) }}"
-                                    class="text-blue-600 hover:text-blue-800 text-xl transition"
-                                    title="Ver historial de créditos">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </a>
+                                class="w-9 h-9 flex items-center justify-center rounded-full
+                                        bg-blue-50 text-blue-600
+                                        hover:bg-blue-600 hover:text-white
+                                        transition-all duration-200 shadow-sm"
+                                title="Ver Créditos">
+                                    <i class="bi bi-eye-fill text-sm"></i>
+                                </a>
 
-                                <!-- Ubicación -->
+                                <!-- UBICACIÓN -->
                                 <button type="button"
                                         onclick="verUbicacion('{{ venta.latitud }}','{{ venta.longitud }}')"
-                                        class="text-red-600 hover:text-red-800 text-xl transition">
-                                    <i class="bi bi-geo-alt-fill"></i>
+                                        class="w-9 h-9 flex items-center justify-center rounded-full
+                                            bg-red-50 text-red-600
+                                            hover:bg-red-600 hover:text-white
+                                            transition-all duration-200 shadow-sm"
+                                        title="Ver ubicación">
+                                    <i class="bi bi-geo-alt-fill text-sm"></i>
                                 </button>
+
+                                <!-- ELIMINAR -->
                                 <a href="{{ url_for('eliminar_credito', credito_id=venta.credito_id) }}"
                                 onclick="return confirm('⚠ Esta acción eliminará el crédito, cuotas y pagos. ¿Continuar?')"
-                                class="text-red-600 hover:text-red-800 text-xl transition"
+                                class="w-9 h-9 flex items-center justify-center rounded-full
+                                        bg-gray-100 text-gray-600
+                                        hover:bg-red-600 hover:text-white
+                                        transition-all duration-200 shadow-sm"
                                 title="Eliminar Venta">
-                                    <i class="bi bi-trash-fill"></i>
+                                    <i class="bi bi-trash-fill text-sm"></i>
                                 </a>
+
                             </div>
                         </td>
                     </tr>
@@ -300,8 +313,7 @@
             Editar Posición del Cliente
         </h2>
 
-        <form method="POST" action="{{ url_for('actualizar_posicion_cliente_ventas') }}">
-
+<form method="POST" action="{{ url_for('actualizar_posicion_cliente') }}">
             <input type="hidden" name="credito_id" id="credito_id">
 
             <div class="space-y-5">

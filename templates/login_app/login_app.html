@@ -7,83 +7,95 @@
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
 <style>
-:root {
-    --primary: #111827;
-    --primary-hover: #1F2937;
-    --bg-light: #353535;
-    --text-muted: #6B7280;
-    --border-light: #E5E7EB;
+body{
+    background:
+     
+        linear-gradient(135deg, #0f172a 0%, #0b1220 100%);
+    min-height:100vh;
 }
 
-body {
-  background:
-        radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);
-    min-height: 100vh;
+/* Card glass */
+.login-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 32px;
+    padding: 45px 35px;
+    box-shadow: 
+        0 25px 60px rgba(15,23,42,.15);
+    border: 1px solid rgba(255,255,255,.6);
 }
 
-/* Card estilo app */
-.login-card {
-    background: white;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+/* efecto glow */
+.login-card::before{
+    content:"";
+    position:absolute;
+    width:200px;
+    height:200px;
+    background:radial-gradient(circle,#0ea5e9 0%,transparent 70%);
+    top:-60px;
+    right:-60px;
+    opacity:.15;
 }
 
-/* Inputs grandes táctiles */
-.form-control-custom {
-    border: 1px solid var(--border-light);
-    border-radius: 14px;
-    padding: 16px;
-    font-size: 16px;
-    background: #F9FAFB;
-    transition: .2s;
+/* Inputs */
+.form-control-custom{
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:16px;
+    font-size:16px;
+    background:#f9fafb;
+    transition:.25s;
 }
 
-.form-control-custom:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(17,24,39,.1);
-    background: white;
-    outline: none;
+.form-control-custom:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+    background:white;
+    outline:none;
 }
 
-/* Botón grande */
-.btn-primary-custom {
-    background: var(--primary);
-    border-radius: 16px;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    transition: .2s;
+/* Botón moderno */
+.btn-primary-custom{
+    background:linear-gradient(135deg,#2563eb,#0ea5e9);
+    border-radius:18px;
+    padding:16px;
+    font-size:16px;
+    font-weight:600;
+    transition:.25s;
+    box-shadow:0 10px 20px rgba(37,99,235,.3);
 }
 
-.btn-primary-custom:hover {
-    background: var(--primary-hover);
+.btn-primary-custom:hover{
+    transform:translateY(-2px);
+    box-shadow:0 15px 30px rgba(37,99,235,.4);
 }
 </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center px-4">
+<body class="flex items-center justify-center px-4">
 
 <div class="w-full max-w-sm login-card p-8">
 
     <!-- Logo -->
-    <div class="flex justify-center mb-8">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" 
-             class="h-16">
+    <div class="flex justify-center mb-6">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="h-16">
     </div>
 
-    <h2 class="text-xl font-bold text-center mb-8 text-gray-800">
-        Acceso al Sistema
+    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+        Bienvenido
     </h2>
 
-    <form method="POST" class="space-y-6">
+    <form method="POST" class="space-y-5" autocomplete="on">
 
         <!-- Email -->
         <div>
             <label class="block text-sm mb-2 text-gray-500">
                 Correo electrónico
             </label>
-            <input type="email" name="email" required
-                class="w-full form-control-custom">
+            <input type="email"
+                   name="email"
+                   required
+                   autocomplete="username"
+                   class="w-full form-control-custom">
         </div>
 
         <!-- Password -->
@@ -97,6 +109,7 @@ body {
                 name="password" 
                 id="password"
                 required
+                autocomplete="current-password"
                 class="w-full form-control-custom pr-12">
 
             <button 
@@ -104,14 +117,12 @@ body {
                 onclick="togglePassword()"
                 class="absolute right-4 top-[45px] text-gray-400">
 
-                <!-- Ojo cerrado -->
                 <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
                     class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                     d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
                 </svg>
 
-                <!-- Ojo abierto -->
                 <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" 
                     class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -121,39 +132,46 @@ body {
             </button>
         </div>
 
+        <!-- Guardar sesión -->
+        <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="recordar" class="rounded border-gray-300">
+                <span class="text-gray-600">Guardar sesión</span>
+            </label>
+        </div>
+
         <!-- Botón -->
         <button type="submit"
             class="w-full text-white btn-primary-custom">
             Ingresar
         </button>
 
-{% if error %}
-<div class="bg-red-100 text-red-600 text-sm p-3 rounded-lg text-center">
-    {{ error }}
-</div>
-{% endif %}
-
+        {% if error %}
+        <div class="bg-red-100 text-red-600 text-sm p-3 rounded-lg text-center">
+            {{ error }}
+        </div>
+        {% endif %}
 
     </form>
 
-    <div class="mt-10 text-center text-xs text-gray-400">
+    <div class="mt-8 text-center text-xs text-gray-400">
         © 2026 ML
     </div>
 
 </div>
 
 <script>
-function togglePassword() {
-    const passwordInput = document.getElementById("password");
-    const eyeOpen = document.getElementById("eyeOpen");
-    const eyeClosed = document.getElementById("eyeClosed");
+function togglePassword(){
+    const passwordInput=document.getElementById("password");
+    const eyeOpen=document.getElementById("eyeOpen");
+    const eyeClosed=document.getElementById("eyeClosed");
 
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
+    if(passwordInput.type==="password"){
+        passwordInput.type="text";
         eyeOpen.classList.remove("hidden");
         eyeClosed.classList.add("hidden");
-    } else {
-        passwordInput.type = "password";
+    }else{
+        passwordInput.type="password";
         eyeOpen.classList.add("hidden");
         eyeClosed.classList.remove("hidden");
     }

@@ -5,7 +5,8 @@
 <div class="flex justify-center mt-4">
 
     <!-- TICKET REAL -->
-    <div class="bg-white w-[250px] p-4 
+    <div id="ticket"
+        class="bg-white w-[250px] p-4 
                 text-black font-mono text-[11px] leading-tight rounded-xl">
 
         <!-- LOGO PEQUEÑO -->
@@ -80,16 +81,38 @@
 <div class="flex justify-center mt-6 gap-3">
 
     <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
-       class="bg-green-800 text-white px-4 py-2 text-sm">
+       class="bg-green-800 text-white px-4 py-2 text-sm rounded-lg">
         Aceptar
     </a>
 
-    <a href="https://wa.me/?text=Pago de ${{ '{:,.0f}'.format(pago.monto or 0) }} registrado el {{ pago.fecha[:10] if pago.fecha else '' }} para {{ pago.cuotas.creditos.clientes.nombre }}"
-       target="_blank"
-       class="bg-green-600 text-white px-4 py-2 text-sm">
-        Compartir
-    </a>
+    <button onclick="capturarYEnviar()"
+            class="bg-green-600 text-white px-4 py-2 text-sm rounded-lg shadow">
+        Capturar y Enviar por WhatsApp
+    </button>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function capturarYEnviar() {
 
+    const ticket = document.getElementById("ticket");
+
+    html2canvas(ticket, { scale: 3 }).then(canvas => {
+
+        const link = document.createElement("a");
+        link.download = "comprobante.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        const telefono = "{{ pago.cuotas.creditos.clientes.codigo_pais }}{{ pago.cuotas.creditos.clientes.telefono_principal }}";
+
+        const mensaje = "Hola {{ pago.cuotas.creditos.clientes.nombre }}, aquí está su comprobante de pago.";
+
+        setTimeout(() => {
+            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, "_blank");
+        }, 800);
+
+    });
+}
+</script>
 {% endblock %}

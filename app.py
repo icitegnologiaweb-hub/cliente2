@@ -11,6 +11,12 @@ import uuid
 import base64
 from io import BytesIO
 from PIL import Image
+from werkzeug.security import check_password_hash, generate_password_hash
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import mm
+from io import BytesIO
+from flask import send_file
 
 app = Flask(__name__)
 
@@ -57,7 +63,6 @@ def generar_codigo_ruta():
 # -----------------------
 # LOGIN
 # -----------------------
-from werkzeug.security import check_password_hash, generate_password_hash
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -66,6 +71,7 @@ def login():
 
         email = request.form.get("email")
         password = request.form.get("password")
+        recordar = request.form.get("recordar")  # 👈 NUEVO
 
         # 🔎 Buscar solo por email y estado
         response = supabase.table("usuarios") \
@@ -77,9 +83,7 @@ def login():
         if response.data:
 
             user = response.data[0]
-
             stored_password = user["password"]
-
             login_ok = False
 
             # 🔐 Si ya está encriptada
@@ -99,13 +103,21 @@ def login():
                     }).eq("email", email).execute()
 
             if login_ok:
+
+                session.clear()
+
+                # 👇 RECORDAR SESIÓN
+                if recordar:
+                    session.permanent = True
+                    app.permanent_session_lifetime = timedelta(days=30)
+                else:
+                    session.permanent = False
+
                 session["pending_user_id"] = user["id"]
 
                 response = redirect(url_for("verificar_token"))
                 response.headers["Cache-Control"] = "no-cache"
                 return response
-
-               
 
         return render_template("login.html", error="Credenciales incorrectas")
 
@@ -215,33 +227,44 @@ def verificar_token():
     return render_template("forgot_password/verificar_token.html")
 
 
-@app.route("/actualizar-posicion-cliente", methods=["POST"])
+@app.route("/actualizar_posicion_cliente", methods=["POST"])
 def actualizar_posicion_cliente():
 
-    cliente_id = request.form.get("cliente_id")
-    posicion = request.form.get("posicion")
-
-    supabase.table("clientes").update({
-        "posicion": posicion
-    }).eq("id", cliente_id).execute()
-
-    flash("Posición actualizada correctamente", "success")
-    return redirect(url_for("clientes"))
-
-
-@app.route("/actualizar-posicion-cliente-ventas", methods=["POST"])
-def actualizar_posicion_cliente_ventas():
-
     credito_id = request.form.get("credito_id")
-    posicion = request.form.get("posicion")
+    nueva_posicion = request.form.get("posicion")
 
-    if not credito_id:
-        flash("Error: ID no recibido", "danger")
+    if not credito_id or not nueva_posicion:
+        flash("Datos inválidos", "danger")
         return redirect(url_for("listar_ventas"))
 
-    supabase.table("creditos").update({
-        "posicion": posicion
-    }).eq("id", credito_id).execute()
+    try:
+        nueva_posicion = int(nueva_posicion)
+    except:
+        flash("Posición inválida", "danger")
+        return redirect(url_for("listar_ventas"))
+
+    # Traer todos los créditos ordenados
+    creditos = supabase.table("creditos") \
+        .select("id") \
+        .order("posicion") \
+        .execute().data
+
+    if not creditos:
+        flash("No hay registros", "danger")
+        return redirect(url_for("listar_ventas"))
+
+    # Eliminar el actual de la lista
+    ids = [c["id"] for c in creditos if c["id"] != credito_id]
+
+    # Insertarlo en la nueva posición
+    nueva_posicion = max(1, min(nueva_posicion, len(ids)+1))
+    ids.insert(nueva_posicion - 1, credito_id)
+
+    # Reordenar completamente
+    for index, cid in enumerate(ids, start=1):
+        supabase.table("creditos").update({
+            "posicion": index
+        }).eq("id", cid).execute()
 
     flash("Posición actualizada correctamente", "success")
     return redirect(url_for("listar_ventas"))
@@ -335,7 +358,6 @@ def reset_password(token):
 # -----------------------
 # LOGIN APP
 # -----------------------
-
 @app.route("/login_app", methods=["GET", "POST"])
 def login_app():
 
@@ -343,6 +365,7 @@ def login_app():
 
         email = request.form.get("email")
         password = request.form.get("password")
+        recordar = request.form.get("recordar")  # 👈 NUEVO
 
         if not email or not password:
             return render_template(
@@ -390,13 +413,20 @@ def login_app():
                 error="Contraseña incorrecta"
             )
 
-        # 🔐 Login exitoso
+        # 🔐 LOGIN EXITOSO
         session.clear()
-        session["pending_user_id"] = user["id"]   # 👈 IMPORTANTE
-        session["login_tipo"] = "app"            # opcional si quieres diferenciar
+
+        # 👇 AQUÍ VA RECORDAR SESIÓN
+        if recordar:
+            session.permanent = True
+            app.permanent_session_lifetime = timedelta(days=30)
+        else:
+            session.permanent = False
+
+        session["pending_user_id"] = user["id"]
+        session["login_tipo"] = "app"
 
         return redirect(url_for("verificar_token_app"))
-
 
     return render_template("login_app/login_app.html")
 
@@ -511,6 +541,56 @@ def dashboard_cobrador():
         notificaciones=notificaciones   # 👈 AQUÍ
 
     )
+@app.route("/usuarios/actualizar", methods=["POST"])
+def actualizar_usuario():
+
+    user_id = request.form.get("id")
+    documento = request.form.get("documento")
+    nombres = request.form.get("nombres")
+    apellidos = request.form.get("apellidos")
+    email = request.form.get("email")
+    rol = request.form.get("rol")
+    password = request.form.get("password")
+
+    update_data = {
+        "documento": documento,
+        "nombres": nombres,
+        "apellidos": apellidos,
+        "email": email,
+        "rol": rol
+    }
+
+    # Si escribió nueva contraseña
+    if password:
+        update_data["password"] = password  # si usas hash, aquí haces el hash
+
+    supabase.table("usuarios") \
+        .update(update_data) \
+        .eq("id", user_id) \
+        .execute()
+
+    flash("Usuario actualizado correctamente", "success")
+    return redirect(url_for("usuarios"))
+
+
+@app.route("/usuarios/eliminar", methods=["POST"])
+def eliminar_usuario():
+
+    user_id = request.form.get("user_id")
+
+    # 🔒 Evitar que se elimine a sí mismo
+    if str(session.get("user_id")) == str(user_id):
+        flash("No puedes eliminar tu propio usuario", "danger")
+        return redirect(url_for("usuarios"))
+
+    supabase.table("usuarios") \
+        .delete() \
+        .eq("id", user_id) \
+        .execute()
+
+    flash("Usuario eliminado correctamente", "success")
+    return redirect(url_for("usuarios"))
+
 
 @app.route("/editar_venta_maxima", methods=["POST"])
 def editar_venta_maxima():
@@ -3216,20 +3296,6 @@ def editar_usuario(id):
 # ELIMINAR USUARIO
 # -----------------------
 
-@app.route("/usuarios/eliminar/<int:id>")
-def eliminar_usuario(id):
-
-    supabase.table("usuarios") \
-        .delete() \
-        .eq("id", id) \
-        .execute()
-
-    flash("Usuario eliminado correctamente.", "danger")
-    return redirect(url_for("usuarios"))
-
-# -----------------------
-# VER USUARIO
-# -----------------------
 
 @app.route('/usuarios/ver/<int:id>')
 def ver_usuario(id):
@@ -3872,35 +3938,83 @@ def vista_pagos():
         saldo=saldo
     )
 
+@app.route("/eliminar_pago/<pago_id>")
+def eliminar_pago(pago_id):
 
-# HISTORIAL DE CUOTAS
-
-@app.route("/historial_creditos/<cliente_id>")
-def historial_creditos(cliente_id):
-
-    cliente = supabase.table("clientes") \
+    # Traer el pago
+    pago = supabase.table("pagos") \
         .select("*") \
-        .eq("id", cliente_id) \
+        .eq("id", pago_id) \
         .single() \
         .execute().data
 
-    creditos = supabase.table("creditos") \
+    if not pago:
+        flash("Pago no encontrado", "danger")
+        return redirect(request.referrer)
+
+    cuota_id = pago["cuota_id"]
+    credito_id = pago["credito_id"]
+
+    # 1️⃣ Eliminar el pago
+    supabase.table("pagos") \
+        .delete() \
+        .eq("id", pago_id) \
+        .execute()
+
+    # 2️⃣ Volver cuota a pendiente
+    supabase.table("cuotas") \
+        .update({
+            "estado": "pendiente"
+        }) \
+        .eq("id", cuota_id) \
+        .execute()
+
+    flash("Pago eliminado correctamente", "success")
+
+    return redirect(request.referrer)
+# HISTORIAL DE CUOTAS
+@app.route("/historial_creditos/<cliente_id>")
+def historial_creditos(cliente_id):
+
+    # ==========================
+    # TRAER CLIENTE
+    # ==========================
+    cliente_resp = supabase.table("clientes") \
+        .select("*") \
+        .eq("id", cliente_id) \
+        .single() \
+        .execute()
+
+    cliente = cliente_resp.data if cliente_resp.data else None
+
+    if not cliente:
+        flash("Cliente no encontrado", "danger")
+        return redirect(url_for("clientes"))
+
+    # ==========================
+    # TRAER CRÉDITOS
+    # ==========================
+    creditos_resp = supabase.table("creditos") \
         .select("*") \
         .eq("cliente_id", cliente_id) \
         .order("fecha_inicio", desc=True) \
-        .execute().data
+        .execute()
 
-    # Traer cuotas por cada crédito
+    creditos = creditos_resp.data if creditos_resp.data else []
+
+    # ==========================
+    # PROCESAR CADA CRÉDITO
+    # ==========================
     for credito in creditos:
 
+        # -------- CUOTAS --------
         cuotas_db = supabase.table("cuotas") \
             .select("*") \
             .eq("credito_id", credito["id"]) \
             .order("numero") \
-            .execute().data
+            .execute().data or []
 
         cuotas = []
-        total_pagado = 0
 
         for c in cuotas_db:
 
@@ -3911,9 +4025,6 @@ def historial_creditos(cliente_id):
                 if fecha < date.today():
                     dias_mora = (date.today() - fecha).days
 
-            if c["estado"] == "pagado":
-                total_pagado += float(c["valor"])
-
             cuotas.append({
                 "id": c["id"],
                 "numero": c["numero"],
@@ -3923,10 +4034,38 @@ def historial_creditos(cliente_id):
                 "dias_mora": dias_mora
             })
 
+        # -------- PAGOS --------
+        pagos_db = supabase.table("pagos") \
+            .select("*") \
+            .eq("credito_id", credito["id"]) \
+            .order("fecha", desc=True) \
+            .execute().data or []
+
+        pagos = []
+        total_pagado = 0
+
+        for p in pagos_db:
+
+            monto = float(p.get("monto", 0))
+            total_pagado += monto
+
+            pagos.append({
+                "id": p["id"],
+                "cuota_id": p.get("cuota_id"),
+                "numero": p.get("numero_cuota"),
+                "fecha": p["fecha"],
+                "monto": monto
+            })
+
+        # -------- ASIGNAR DATOS AL CRÉDITO --------
         credito["cuotas"] = cuotas
+        credito["pagos"] = pagos
         credito["total_pagado"] = total_pagado
         credito["saldo"] = float(credito["valor_total"]) - total_pagado
 
+    # ==========================
+    # RENDER
+    # ==========================
     return render_template(
         "historial_creditos/historial_creditos.html",
         cliente=cliente,

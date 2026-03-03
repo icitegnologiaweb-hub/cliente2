@@ -66,7 +66,6 @@
 
                 <thead class="bg-[#0B3C5D] text-white text-xs uppercase tracking-wider">
                     <tr>
-                        <th class="px-6 py-5 text-left">Pos</th>
                         <th class="px-6 py-5 text-left">Cliente</th>
                         <th class="px-6 py-5 text-left">Identificación</th>
                         <th class="px-6 py-5 text-left">Dirección</th>
@@ -81,22 +80,7 @@
                     {% for cliente in clientes %}
                     <tr class="hover:bg-gray-50 transition duration-150">
 
-                        <!-- POSICIÓN -->
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <span class="font-bold text-gray-800 text-lg">
-                                    {{ cliente.posicion }}
-                                </span>
-
-                                <button onclick="editarPosicion('{{ cliente.id }}',
-                                                                 '{{ cliente.nombre }}',
-                                                                 '{{ cliente.posicion }}')"
-                                        class="text-blue-500 hover:text-blue-700 text-sm">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </div>
-                        </td>
-
+             
                         <!-- NOMBRE -->
                         <td class="px-6 py-4 font-semibold text-gray-800">
                             {{ cliente.nombre }}
@@ -134,31 +118,43 @@
 
                         <!-- ACCIONES -->
                         <td class="px-6 py-4 text-center">
-
-                            <div class="flex justify-center gap-5 text-xl">
+                            <div class="flex items-center justify-center gap-3">
 
                                 <!-- Ver cuotas -->
                                 <a href="{{ url_for('historial_creditos', cliente_id=cliente.id) }}"
-                                class="text-blue-600 hover:text-blue-800 transition"
-                                title="Cuotas">
-                                    <i class="bi bi-eye-fill"></i>
+                                class="w-9 h-9 flex items-center justify-center rounded-full
+                                        bg-blue-50 text-blue-600
+                                        hover:bg-blue-600 hover:text-white
+                                        hover:scale-110
+                                        transition-all duration-200 shadow-sm"
+                                title="Ver Creditos">
+                                    <i class="bi bi-eye-fill text-sm"></i>
                                 </a>
 
-                                <!-- NUEVO: Histórico bancario -->
+                                <!-- Histórico bancario -->
                                 <a href="{{ url_for('historico_bancario_cliente', cliente_id=cliente.id) }}"
-                                class="text-indigo-600 hover:text-indigo-800 transition"
+                                class="w-9 h-9 flex items-center justify-center rounded-full
+                                        bg-indigo-50 text-indigo-600
+                                        hover:bg-indigo-600 hover:text-white
+                                        hover:scale-110
+                                        transition-all duration-200 shadow-sm"
                                 title="Histórico financiero">
-                                    <i class="bi bi-bank"></i>
+                                    <i class="bi bi-bank text-sm"></i>
                                 </a>
 
                                 <!-- Ubicación -->
-                                <a href="#"
-                                class="text-red-600 hover:text-red-800 transition">
-                                    <i class="bi bi-geo-alt-fill"></i>
-                                </a>
+                                <button type="button"
+                                        onclick="verUbicacion('{{ cliente.latitud }}','{{ cliente.longitud }}')"
+                                        class="w-9 h-9 flex items-center justify-center rounded-full
+                                            bg-red-50 text-red-600
+                                            hover:bg-red-600 hover:text-white
+                                            hover:scale-110
+                                            transition-all duration-200 shadow-sm"
+                                        title="Ver ubicación">
+                                    <i class="bi bi-geo-alt-fill text-sm"></i>
+                                </button>
 
                             </div>
-
                         </td>
 
                     </tr>

@@ -130,26 +130,59 @@
 {% endif %}
 </td>
 
-<td class="px-6 py-4 text-center flex justify-center gap-4">
+<td class="px-6 py-4 text-center">
+    <div class="flex items-center justify-center gap-3">
 
-<button type="button"
-    class="editar-btn text-orange-500 hover:text-orange-700"
-    data-usuario='{{ usuario | tojson }}'>
-    ✏
-</button>
+        <!-- EDITAR -->
+        <button type="button"
+            onclick="abrirEditarUsuario(this)"
+            data-usuario='{{ usuario | tojson }}'
+            class="w-9 h-9 flex items-center justify-center rounded-full
+                   bg-orange-50 text-orange-600
+                   hover:bg-orange-600 hover:text-white
+                   hover:scale-110
+                   transition-all duration-200 shadow-sm"
+            title="Editar usuario">
+            <i class="bi bi-pencil-fill text-sm"></i>
+        </button>
 
-<button type="button"
-        onclick="verDatosUsuario({{ usuario['id'] }})"
-        class="text-blue-600 hover:text-blue-800">
-    👁
-</button>
+        <!-- VER -->
+        <button type="button"
+                onclick="verDatosUsuario({{ usuario['id'] }})"
+                class="w-9 h-9 flex items-center justify-center rounded-full
+                       bg-blue-50 text-blue-600
+                       hover:bg-blue-600 hover:text-white
+                       hover:scale-110
+                       transition-all duration-200 shadow-sm"
+                title="Ver información">
+            <i class="bi bi-eye-fill text-sm"></i>
+        </button>
 
-<a href="#"
-   onclick="abrirToken({{ usuario['id'] }})"
-   class="text-green-600 hover:text-green-800">
-    🔐
-</a>
+        <!-- TOKEN -->
+        <button type="button"
+                onclick="abrirToken({{ usuario['id'] }})"
+                class="w-9 h-9 flex items-center justify-center rounded-full
+                       bg-green-50 text-green-600
+                       hover:bg-green-600 hover:text-white
+                       hover:scale-110
+                       transition-all duration-200 shadow-sm"
+                title="Generar token">
+            <i class="bi bi-shield-lock-fill text-sm"></i>
+        </button>
 
+        <!-- ELIMINAR -->
+        <button type="button"
+                onclick="abrirEliminarUsuario({{ usuario['id'] }}, '{{ usuario['nombres'] }} {{ usuario['apellidos'] }}')"
+                class="w-9 h-9 flex items-center justify-center rounded-full
+                       bg-red-50 text-red-600
+                       hover:bg-red-600 hover:text-white
+                       hover:scale-110
+                       transition-all duration-200 shadow-sm"
+                title="Eliminar usuario">
+            <i class="bi bi-trash-fill text-sm"></i>
+        </button>
+
+    </div>
 </td>
 
 </tr>
@@ -160,7 +193,51 @@
 </div>
 
 </div>
+<!-- ================= MODAL ELIMINAR USUARIO ================= -->
+<div id="modalEliminarUsuario"
+     class="fixed inset-0 z-50 hidden">
 
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <div class="relative flex items-center justify-center min-h-screen px-4">
+
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
+
+            <button onclick="cerrarModalEliminar()"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+                ✕
+            </button>
+
+            <h2 class="text-xl font-bold text-red-600 mb-4">
+                Eliminar Usuario
+            </h2>
+
+            <p class="text-gray-600 mb-6">
+                ¿Estás seguro que deseas eliminar a
+                <span id="nombreUsuarioEliminar" class="font-semibold"></span>?
+            </p>
+
+            <form method="POST" action="{{ url_for('eliminar_usuario') }}">
+                <input type="hidden" name="user_id" id="delete_user_id">
+
+                <div class="flex gap-4">
+                    <button type="button"
+                            onclick="cerrarModalEliminar()"
+                            class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg">
+                        Cancelar
+                    </button>
+
+                    <button type="submit"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg">
+                        Sí, eliminar
+                    </button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
 <!-- ================= MODAL TOKEN ================= -->
 <div id="modalTokenUsuario" class="fixed inset-0 z-50 hidden">
 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
@@ -263,7 +340,66 @@
         </div>
     </div>
 </div>
+<!-- ================= MODAL EDITAR USUARIO ================= -->
+<div id="modalEditarUsuario"
+     class="fixed inset-0 z-50 hidden">
 
+    <div class="absolute inset-0 bg-black/60"></div>
+
+    <div class="relative flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+
+            <button onclick="cerrarModalEditar()"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+                ✕
+            </button>
+
+            <h2 class="text-xl font-bold mb-6">Editar Usuario</h2>
+
+            <form method="POST" action="{{ url_for('actualizar_usuario') }}" class="space-y-4">
+
+                <input type="hidden" name="id" id="edit_id">
+
+                <input type="text" name="documento" id="edit_documento"
+                       placeholder="Documento"
+                       class="w-full border rounded-lg px-4 py-2">
+
+                <input type="text" name="nombres" id="edit_nombres"
+                       placeholder="Nombres"
+                       class="w-full border rounded-lg px-4 py-2">
+
+                <input type="text" name="apellidos" id="edit_apellidos"
+                       placeholder="Apellidos"
+                       class="w-full border rounded-lg px-4 py-2">
+
+                <input type="email" name="email" id="edit_email"
+                       placeholder="Correo"
+                       class="w-full border rounded-lg px-4 py-2">
+
+                <input type="password" name="password"
+                       placeholder="Nueva contraseña (opcional)"
+                       class="w-full border rounded-lg px-4 py-2">
+
+                <div>
+                    <label class="text-sm text-gray-600 block mb-1">Rol</label>
+                    <select name="rol" id="edit_rol"
+                            class="w-full border rounded-lg px-4 py-2 bg-white">
+                        <option value="Administrador">Administrador</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Cobrador">Cobrador</option>
+                    </select>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
+                    Guardar Cambios
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 <!-- ================= MODAL VER USUARIO ================= -->
 <div id="modalVerUsuario" class="fixed inset-0 z-50 hidden">
 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
@@ -327,7 +463,15 @@ function copiarToken(){
     navigator.clipboard.writeText(token);
     alert("Token copiado ✅");
 }
+function abrirEliminarUsuario(id, nombre){
+    document.getElementById("delete_user_id").value = id;
+    document.getElementById("nombreUsuarioEliminar").innerText = nombre;
+    document.getElementById("modalEliminarUsuario").classList.remove("hidden");
+}
 
+function cerrarModalEliminar(){
+    document.getElementById("modalEliminarUsuario").classList.add("hidden");
+}
 function abrirToken(userId){
     fetch(`/usuarios/generar-token/${userId}`)
     .then(response => response.json())
@@ -393,6 +537,26 @@ function verDatosUsuario(userId){
 function cerrarModalVer(){
     document.getElementById("modalVerUsuario").classList.add("hidden");
 }
+
+function abrirEditarUsuario(btn){
+
+    const usuario = JSON.parse(btn.getAttribute("data-usuario"));
+
+    document.getElementById("edit_id").value = usuario.id;
+    document.getElementById("edit_documento").value = usuario.documento;
+    document.getElementById("edit_nombres").value = usuario.nombres;
+    document.getElementById("edit_apellidos").value = usuario.apellidos;
+    document.getElementById("edit_email").value = usuario.email;
+    document.getElementById("edit_rol").value = usuario.rol;
+
+    document.getElementById("modalEditarUsuario").classList.remove("hidden");
+}
+
+function cerrarModalEditar(){
+    document.getElementById("modalEditarUsuario").classList.add("hidden");
+}
+
+
 </script>
 
 {% endblock %}
