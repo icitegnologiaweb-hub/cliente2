@@ -1114,7 +1114,6 @@ def ver_solicitudes_cupo():
         "solicitudes_cupo.html",
         solicitudes=solicitudes
     )
-
 @app.route("/guardar_venta_cobrador", methods=["POST"])
 def guardar_venta_cobrador():
 
@@ -1141,8 +1140,6 @@ def guardar_venta_cobrador():
     # ==========================
     # VALIDAR CAMPOS NUMÉRICOS
     # ==========================
-
-
     try:
         valor_venta_raw = request.form.get("valor_venta", "").strip()
         tasa_raw = request.form.get("tasa", "").strip()
@@ -1165,7 +1162,7 @@ def guardar_venta_cobrador():
             form_data=request.form
         )
 
-    identificacion = request.form.get("identificacion")
+    identificacion = (request.form.get("identificacion") or "").strip()
     nombre = request.form.get("nombre")
     direccion = request.form.get("direccion")
     direccion_negocio = request.form.get("direccion_negocio")
@@ -1173,12 +1170,10 @@ def guardar_venta_cobrador():
     telefono = request.form.get("telefono")
     fecha_inicio = (date.today() + timedelta(days=1)).isoformat()
     tipo_prestamo = request.form.get("tipo_prestamo")
-    
 
-        # ==========================
+    # ==========================
     # VALIDAR CUPO MÁXIMO RUTA COBRADOR
     # ==========================
-
     ruta_data = supabase.table("rutas") \
         .select("venta_maxima") \
         .eq("id", ruta_id) \
@@ -1192,7 +1187,10 @@ def guardar_venta_cobrador():
     venta_maxima_permitida = float(ruta_data.data["venta_maxima"])
 
     if valor_venta > venta_maxima_permitida:
-        flash(f"El monto supera la venta máxima permitida para esta ruta (${venta_maxima_permitida:,.0f})", "danger")
+        flash(
+            f"El monto supera la venta máxima permitida para esta ruta (${venta_maxima_permitida:,.0f})",
+            "danger"
+        )
         return render_template(
             "cobrador/nueva_venta_cobrador.html",
             rutas=rutas,
@@ -1200,11 +1198,9 @@ def guardar_venta_cobrador():
             form_data=request.form
         )
 
-        
     # ==========================
     # ASIGNAR POSICIÓN AUTOMÁTICA POR RUTA
     # ==========================
-
     ultimo = supabase.table("creditos") \
         .select("posicion") \
         .eq("ruta_id", ruta_id) \
@@ -1219,9 +1215,37 @@ def guardar_venta_cobrador():
         nueva_posicion = 1
 
     # ==========================
+    # ✅ EVITAR CRÉDITO DUPLICADO POR CÉDULA (CLIENTE + RUTA)
+    # (ANTES de subir firma/fotos para no crear archivos huérfanos)
+    # ==========================
+    cliente_existente_resp = supabase.table("clientes") \
+        .select("id") \
+        .eq("identificacion", identificacion) \
+        .limit(1) \
+        .execute()
+
+    if cliente_existente_resp.data:
+        cliente_id_existente = cliente_existente_resp.data[0]["id"]
+
+        credito_dup_resp = supabase.table("creditos") \
+            .select("id") \
+            .eq("cliente_id", cliente_id_existente) \
+            .eq("ruta_id", ruta_id) \
+            .eq("estado", "activo") \
+            .limit(1) \
+            .execute()
+
+        if credito_dup_resp.data:
+            credito_existente_id = credito_dup_resp.data[0]["id"]
+            flash(
+                "Este cliente (cédula) ya tiene un crédito activo en esta ruta. No se puede registrar duplicado.",
+                "danger"
+            )
+            return redirect(url_for("detalle_credito", credito_id=credito_existente_id))
+
+    # ==========================
     # CREAR O BUSCAR CLIENTE
     # ==========================
-
     cliente_resp = supabase.table("clientes") \
         .select("*") \
         .eq("identificacion", identificacion) \
@@ -1236,6 +1260,7 @@ def guardar_venta_cobrador():
             "telefono_principal": telefono,
             "codigo_pais": codigo_pais
         }).eq("id", cliente_id).execute()
+
     else:
         nuevo_cliente = supabase.table("clientes").insert({
             "identificacion": identificacion,
@@ -1260,7 +1285,6 @@ def guardar_venta_cobrador():
     # ==========================
     # PROCESAR FIRMA
     # ==========================
-
     firma_url = None
     firma_base64 = request.form.get("firma_cliente")
 
@@ -1283,7 +1307,7 @@ def guardar_venta_cobrador():
             background.save(buffer, format="JPEG", quality=70)
             buffer.seek(0)
 
-            upload = supabase.storage.from_("clientes").upload(
+            supabase.storage.from_("clientes").upload(
                 firma_filename,
                 buffer.read(),
                 {"content-type": "image/jpeg"}
@@ -1297,13 +1321,11 @@ def guardar_venta_cobrador():
     # ==========================
     # SUBIR FOTOS
     # ==========================
-
     foto_cliente = request.files.get("foto_cliente")
     foto_cedula = request.files.get("foto_cedula")
     foto_negocio = request.files.get("foto_negocio")
 
     cliente_url = None
-
     if foto_cliente:
         try:
             cliente_path = f"{cliente_id}_{uuid.uuid4()}_cliente.jpg"
@@ -1320,8 +1342,6 @@ def guardar_venta_cobrador():
             print("Error subiendo foto cliente:", e)
 
     cedula_url = None
-    negocio_url = None
-
     if foto_cedula:
         try:
             cedula_path = f"{cliente_id}_{uuid.uuid4()}_cedula.jpg"
@@ -1337,6 +1357,7 @@ def guardar_venta_cobrador():
         except Exception as e:
             print("Error subiendo cédula:", e)
 
+    negocio_url = None
     if foto_negocio:
         try:
             negocio_path = f"{cliente_id}_{uuid.uuid4()}_negocio.jpg"
@@ -1355,14 +1376,12 @@ def guardar_venta_cobrador():
     # ==========================
     # UBICACIÓN
     # ==========================
-
     latitud = request.form.get("latitud")
     longitud = request.form.get("longitud")
 
     # ==========================
     # CREAR CRÉDITO
     # ==========================
-
     valor_total = valor_venta + (valor_venta * tasa / 100)
     valor_cuota = valor_total / cuotas
 
@@ -1397,11 +1416,9 @@ def guardar_venta_cobrador():
 
     credito_id = credito_resp.data[0]["id"]
 
-
     # ==========================
     # CREAR CUOTAS SEGÚN TIPO
     # ==========================
-
     fecha_base = datetime.strptime(fecha_inicio, "%Y-%m-%d")  # mañana
     fecha_actual = fecha_base
     cuotas_creadas = 0
@@ -1412,10 +1429,8 @@ def guardar_venta_cobrador():
 
         # ==========================
         # 🔵 SEMANAL
-        # Primera cuota = mañana + 7
         # ==========================
         if tipo_prestamo == "Semanal":
-
             fecha_pago = fecha_base + timedelta(days=(cuotas_creadas + 1) * 7)
             crear_cuota = True
 
@@ -1423,7 +1438,6 @@ def guardar_venta_cobrador():
         # 🟢 DIARIO LUNES A VIERNES
         # ==========================
         elif tipo_prestamo == "Diario Lunes a Viernes":
-
             if fecha_actual.weekday() < 5:  # 0-4 = Lunes a Viernes
                 fecha_pago = fecha_actual
                 crear_cuota = True
@@ -1432,16 +1446,14 @@ def guardar_venta_cobrador():
         # 🟡 DIARIO LUNES A SÁBADO
         # ==========================
         elif tipo_prestamo == "Diario Lunes a Sábado":
-
             if fecha_actual.weekday() < 6:  # 0-5 = Lunes a Sábado
                 fecha_pago = fecha_actual
                 crear_cuota = True
 
         # ==========================
-        # 🔹 DEFAULT (Diario normal)
+        # 🔹 DEFAULT
         # ==========================
         else:
-
             fecha_pago = fecha_actual
             crear_cuota = True
 
@@ -1460,10 +1472,8 @@ def guardar_venta_cobrador():
         if tipo_prestamo != "Semanal":
             fecha_actual += timedelta(days=1)
 
-
     flash("Venta registrada correctamente", "success")
     return redirect(url_for("ver_ruta", ruta_id=ruta_id))
-
 
 @app.route("/cambiar_posicion", methods=["POST"])
 def cambiar_posicion():
