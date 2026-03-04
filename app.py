@@ -2471,6 +2471,10 @@ def caja_cobrador():
     # VALIDAR SI YA SE CERRÓ CAJA HOY
     # =====================================================
 
+# =====================================================
+# VALIDAR SI YA SE CERRÓ CAJA HOY
+# =====================================================
+
     caja_hoy = supabase.table("caja_diaria") \
         .select("saldo_cierre") \
         .eq("ruta_id", ruta_id) \
@@ -2478,15 +2482,18 @@ def caja_cobrador():
         .limit(1) \
         .execute()
 
-    if caja_hoy.data:
+    caja_cerrada = bool(caja_hoy.data)
 
-        saldo_actual = float(caja_hoy.data[0]["saldo_cierre"])
+
 
 
     # =====================================================
     # RENDER
     # =====================================================
-
+    print("SALDO ANTERIOR:", saldo_anterior)
+    print("ABONO CAPITAL:", total_abono_capital)
+    print("PRESTAMOS:", total_prestamos)
+    print("SALDO ACTUAL:", saldo_actual)
     return render_template(
         "cobrador/caja.html",
         saldo_actual=saldo_actual,
