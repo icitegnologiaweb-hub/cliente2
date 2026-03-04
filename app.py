@@ -1610,11 +1610,11 @@ def cambiar_posicion():
     vieja_posicion = credito["posicion"]
 
     if nueva_posicion == vieja_posicion:
-        return redirect(url_for("ventas"))
+        return redirect(url_for("todas_las_ventas"))
 
-    # 🔥 PASO 1: mover temporalmente a posición imposible
+    # mover temporalmente
     supabase.table("creditos") \
-        .update({"posicion": 99999}) \
+        .update({"posicion": -1}) \
         .eq("id", credito_id) \
         .execute()
 
@@ -1648,7 +1648,7 @@ def cambiar_posicion():
                 .eq("id", c["id"]) \
                 .execute()
 
-    # 🔥 PASO FINAL: poner en su nueva posición real
+    # colocar en posición final
     supabase.table("creditos") \
         .update({"posicion": nueva_posicion}) \
         .eq("id", credito_id) \
