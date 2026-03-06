@@ -237,27 +237,45 @@
 
 <div
     {% if cuota.estado != "pagado" %}
-        onclick="handleCardClick(event, '{{ cuota.id }}', {{ cuota.valor }})"
-        class="cursor-pointer hover:scale-[1.02] transition"
+        onclick="handleCardClick(
+            event,
+            '{{ cuota.id }}',
+            {{ cuota.valor_mostrar }},
+            {{ cuota.interes }},
+            {{ cuota.valor_interes_mora or 0 }}
+        )"
+        class="cursor-pointer hover:scale-[1.01] transition"
     {% endif %}
-    class="bg-gradient-to-br from-[#123b63] to-[#0b2847]
-           rounded-2xl p-4 shadow-md">
+    class="glass-card section rounded-2xl p-4">
 
     <div class="flex justify-between items-center">
 
         <div class="flex items-center gap-4">
 
-            <div class="text-2xl font-bold text-green-400">
+            <div class="text-2xl font-extrabold text-emerald-300">
                 {{ cuota.numero }}
             </div>
 
-            <div class="text-sm space-y-1">
+            <div class="text-sm space-y-1 text-white/90">
 
-                <div>Días de Mora: {{ cuota.dias_mora }}</div>
+                <div class="muted">Días de Mora: <span class="text-white/90">{{ cuota.dias_mora }}</span></div>
+                <div class="muted">Valor: <span class="text-white/90">${{ cuota.valor_mostrar }}</span></div>
+                <div class="muted">Fecha Venc: <span class="text-white/90">{{ cuota.fecha_pago }}</span></div>
+                {% if cuota.porcentaje_mora and cuota.porcentaje_mora > 0 %}
 
-                <div>Valor: ${{ "{:,.0f}".format(cuota.valor) }}</div>
+                    <div class="mt-2 text-xs
+                                bg-yellow-400/10
+                                border border-yellow-300/20
+                                text-yellow-200
+                                px-3 py-1.5
+                                rounded-xl inline-block font-semibold">
 
-                <div>Fecha Venc: {{ cuota.fecha_pago }}</div>
+                        Interés por mora aplicado: +{{ cuota.porcentaje_mora }}%
+                        ( ${{ "{:,.0f}".format(cuota.valor_interes_mora) }} )
+
+                    </div>
+
+                {% endif %}
 
             </div>
 
@@ -265,23 +283,19 @@
 
         <!-- Estado Visual -->
         <div>
-
             {% if cuota.estado == "pagado" %}
-            <div class="bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shadow">
+                <div class="badge-ok h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
                     ✓
                 </div>
-
             {% elif cuota.dias_mora > 0 %}
-                <div class="bg-yellow-500 h-10 w-10 rounded-full flex items-center justify-center text-white font-bold">
+                <div class="badge-warn h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
                     P
                 </div>
-
             {% else %}
-                <div class="bg-gray-500 h-10 w-10 rounded-full flex items-center justify-center text-white font-bold">
+                <div class="badge-lock h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
                     🔒
                 </div>
             {% endif %}
-
         </div>
 
     </div>
@@ -293,9 +307,6 @@
 </div>
 
 
-<!-- =========================
-     MODAL DE PAGO
-========================= -->
 <!-- =========================
      MODAL MODERNO DE PAGO
 ========================= -->

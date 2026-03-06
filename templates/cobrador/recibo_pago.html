@@ -20,24 +20,41 @@
             </div>
 
             <div>
-                <strong>Fecha impresión:</strong>
-                {{ pago.fecha[:10] if pago.fecha else '' }}
+                <strong>Fecha Impresion:</strong> {{ pago.fecha_formateada }}
+                
             </div>
 
         </div>
 
-        <div>--------------------------------------------</div>
+        <div>------------------------------------</div>
 
         <!-- DATOS -->
+
         <div class="mt-1">
             <div><strong>Datos del cliente:</strong></div>
             <div>Cliente: {{ pago.cuotas.creditos.clientes.nombre }}</div>
-            <div>ID: {{ pago.cuotas.creditos.id }}</div>
+            <div>Crédito #: {{ pago.cuotas.creditos.id }}</div>
             <div>Ruta: {{ pago.cuotas.creditos.rutas.codigo }}</div>
-            <div>Monto crédito: ${{ "{:,.0f}".format(pago.cuotas.creditos.valor_total or 0) }}</div>
         </div>
 
-        <div>--------------------------------------------</div>
+        <div>------------------------------------</div>
+
+        <div class="flex justify-between">
+            <span>Cuota</span>
+            <span>#{{ pago.cuotas.numero }}</span>
+        </div>
+
+        <div class="flex justify-between">
+            <span>Abono realizado</span>
+            <span>${{ "{:,.0f}".format(pago.monto or 0) }}</span>
+        </div>
+
+        <div class="flex justify-between">
+            <span>Saldo restante</span>
+            <span>${{ "{:,.0f}".format(saldo_restante or 0) }}</span>
+        </div>
+
+        <div>------------------------------------</div>
 
         <!-- TABLA -->
         <div class="mt-1">
@@ -51,9 +68,9 @@
                 <span>${{ "{:,.0f}".format(pago.monto or 0) }}</span>
             </div>
 
-            <div>{{ pago.fecha[:16] if pago.fecha else '' }}</div>
+            <div>{{ pago.fecha_formateada }}</div>
         </div>
-        <div>--------------------------------------------</div>
+        <div>------------------------------------</div>
 
 
         <!-- TOTAL -->
@@ -66,7 +83,7 @@
             <span>Saldo Restante:</span>
             <span>${{ "{:,.0f}".format(saldo_restante or 0) }}</span>
         </div>
-        <div>--------------------------------------------</div>
+        <div>------------------------------------</div>
 
 
         <div class="text-center mt-2">

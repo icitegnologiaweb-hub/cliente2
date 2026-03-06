@@ -105,6 +105,7 @@ def cerrar_cajas_automatico():
         cierre_anterior = supabase.table("caja_diaria") \
             .select("saldo_cierre") \
             .eq("ruta_id", ruta_id) \
+            .lt("fecha", hoy) \
             .order("fecha", desc=True) \
             .limit(1) \
             .execute()
@@ -119,7 +120,13 @@ def cerrar_cajas_automatico():
         # =====================================
 
         pagos = supabase.table("pagos") \
-            .select("monto") \
+            .select("""
+                monto,
+                creditos!inner(
+                    ruta_id
+                )
+            """) \
+            .eq("creditos.ruta_id", ruta_id) \
             .gte("fecha", inicio_dia) \
             .lt("fecha", fin_dia) \
             .execute()
@@ -168,6 +175,11 @@ def cerrar_cajas_automatico():
         # =====================================
         # CALCULAR SALDO FINAL
         # =====================================
+
+        saldo_inicio = 0
+
+        if cierre_anterior.data:
+            saldo_inicio = float(cierre_anterior.data[0]["saldo_cierre"])
 
         saldo_cierre = (
             saldo_inicio
@@ -802,6 +814,8 @@ def editar_venta_maxima():
     return redirect(url_for("listar_rutas"))  # ← NO ver_ruta
 
 # 🔎 Traer crédito + cliente APP
+
+# 🔎 Traer crédito + cliente APP
 @app.route("/credito/<credito_id>")
 def detalle_credito(credito_id):
 
@@ -857,17 +871,49 @@ def detalle_credito(credito_id):
             if not proxima_cuota:
                 proxima_cuota = c["fecha_pago"]
 
+        valor_cuota = float(c["valor"] or 0)
+
+        valor_venta = float(credito.get("valor_venta") or 0)
+        tasa = float(credito.get("tasa") or 0)
+        cantidad_cuotas = int(credito.get("cantidad_cuotas") or 1)
+
+        # interés total del crédito
+        interes_total = valor_venta * tasa / 100
+
+        # interés de esta cuota
+        interes = interes_total / cantidad_cuotas
+
+        # capital de la cuota
+        capital = valor_cuota - interes
+        valor_mostrar = max(valor_cuota, float(c.get("monto_pagado", 0) or 0))
         cuotas.append({
             "id": c["id"],
             "numero": c["numero"],
-            "valor": c["valor"],
+            "valor": valor_cuota,
+            "pagado": float(c.get("monto_pagado", 0) or 0),
+            "valor_mostrar": valor_mostrar,
+            "capital": capital,
+            "interes": interes,
             "estado": c["estado"],
             "fecha_pago": c["fecha_pago"],
-            "dias_mora": dias_mora
+            "dias_mora": dias_mora,
+            "valor_interes_mora": float(c.get("valor_interes_mora", 0) or 0),
+            "porcentaje_mora": float(c.get("porcentaje_mora", 0) or 0)
+            
         })
 
     # 🔹 Calcular saldo
     saldo = float(credito["valor_total"]) - total_pagado
+        # 🔹 Contar cuotas pagadas
+    cuotas_pagadas = sum(
+        1 for c in cuotas_db
+        if float(c.get("monto_pagado", 0)) >= float(c.get("valor", 0))
+    )
+
+    cantidad_cuotas = int(credito.get("cantidad_cuotas") or 0)
+
+    # 🔹 Validar si puede renovar (ej: 25 de 30)
+    puede_renovar = cuotas_pagadas >= 3
 
     return render_template(
         "cobrador/detalle_credito.html",
@@ -875,23 +921,23 @@ def detalle_credito(credito_id):
         cuotas=cuotas,
         saldo=saldo,
         total_pagado=total_pagado,
-        proxima_cuota=proxima_cuota
+        proxima_cuota=proxima_cuota,
+        puede_renovar=puede_renovar,
+        cuotas_pagadas=cuotas_pagadas
     )
-
 @app.route("/registrar_pago", methods=["POST"])
 def registrar_pago():
 
     cuota_id = request.form.get("cuota_id")
 
-    monto_pago_raw = request.form.get("monto_pago", "").strip()
-    monto_adicional_raw = request.form.get("monto_adicional", "").strip()
-
-    monto_pago = float(monto_pago_raw) if monto_pago_raw != "" else None
-    monto_adicional = float(monto_adicional_raw) if monto_adicional_raw != "" else 0.0
+    monto_adicional = float(request.form.get("monto_adicional") or 0)
 
     if not cuota_id:
         return redirect(request.referrer)
 
+    # =========================
+    # OBTENER CUOTA
+    # =========================
     cuota_resp = supabase.table("cuotas") \
         .select("*") \
         .eq("id", cuota_id) \
@@ -902,99 +948,76 @@ def registrar_pago():
         return redirect(request.referrer)
 
     cuota = cuota_resp.data
-    credito_id = cuota["credito_id"]
 
     valor_cuota = float(cuota.get("valor") or 0)
+    interes_mora = float(cuota.get("valor_interes_mora", 0) or 0)
 
-    # =====================================================
-    # CALCULAR PAGO
-    # =====================================================
+    tipo_pago = request.form.get("tipo_pago", "cuota")
 
-    if monto_pago is not None:
-        dinero = monto_pago
-    else:
-        dinero = valor_cuota + monto_adicional
-
-    dinero_restante = dinero
-
-    # =====================================================
-    # BUSCAR CUOTAS PENDIENTES
-    # =====================================================
-
-    cuotas_resp = supabase.table("cuotas") \
-        .select("*") \
-        .eq("credito_id", credito_id) \
-        .order("numero") \
+    # =========================
+    # OBTENER CRÉDITO
+    # =========================
+    credito_resp = supabase.table("creditos") \
+        .select("valor_venta,tasa,cantidad_cuotas") \
+        .eq("id", cuota["credito_id"]) \
+        .single() \
         .execute()
 
-    cuotas = cuotas_resp.data or []
+    credito = credito_resp.data
 
-    primera_cuota_afectada = None
+    valor_venta = float(credito["valor_venta"])
+    tasa = float(credito["tasa"])
+    cantidad_cuotas = int(credito["cantidad_cuotas"])
 
-    for c in cuotas:
+    # =========================
+    # CALCULAR INTERÉS NORMAL
+    # =========================
+    interes_total = valor_venta * tasa / 100
+    interes_cuota = interes_total / cantidad_cuotas
 
-        if dinero_restante <= 0:
-            break
+    # =========================
+    # CALCULAR TOTAL PAGADO
+    # =========================
+    if tipo_pago == "interes":
 
-        valor = float(c.get("valor") or 0)
-        pagado = float(c.get("monto_pagado") or 0)
+        total_pagado = interes_cuota + interes_mora
+        estado = "pendiente"
 
-        saldo = valor - pagado
+    else:
 
-        if saldo <= 0:
-            continue
+        monto_pago = float(request.form.get("monto_pago") or valor_cuota)
 
-        if primera_cuota_afectada is None:
-            primera_cuota_afectada = c["id"]
+        total_pagado = monto_pago
 
-        # ==========================================
-        # PAGO COMPLETO
-        # ==========================================
+        estado = "pagado" if monto_pago >= valor_cuota else "pendiente"
 
-        if dinero_restante >= saldo:
+    # =========================
+    # ACTUALIZAR CUOTA
+    # =========================
+    supabase.table("cuotas").update({
+        "estado": estado,
+        "monto_pagado": total_pagado,
+        "fecha_pago_real": datetime.now().isoformat()
+    }).eq("id", cuota_id).execute()
 
-            nuevo_pagado = pagado + saldo
+    credito_id = cuota["credito_id"]
 
-            supabase.table("cuotas").update({
-                "monto_pagado": nuevo_pagado,
-                "estado": "pagado",
-                "fecha_pago_real": datetime.now().isoformat()
-            }).eq("id", c["id"]).execute()
-
-            dinero_restante -= saldo
-
-        # ==========================================
-        # PAGO PARCIAL
-        # ==========================================
-
-        else:
-
-            nuevo_pagado = pagado + dinero_restante
-
-            supabase.table("cuotas").update({
-                "monto_pagado": nuevo_pagado
-            }).eq("id", c["id"]).execute()
-
-            dinero_restante = 0
-
-    # =====================================================
+    # =========================
     # REGISTRAR PAGO
-    # =====================================================
-
+    # =========================
     pago_resp = supabase.table("pagos").insert({
-        "cuota_id": primera_cuota_afectada,
+        "cuota_id": cuota_id,
         "credito_id": credito_id,
-        "monto": dinero,
+        "monto": total_pagado,
         "fecha": datetime.now().isoformat(),
         "cobrador_id": session["user_id"]
     }).execute()
 
     pago_id = pago_resp.data[0]["id"]
 
-    # =====================================================
-    # VERIFICAR SI EL CRÉDITO TERMINÓ
-    # =====================================================
-
+    # =========================
+    # VERIFICAR SI CRÉDITO TERMINÓ
+    # =========================
     cuotas_pendientes = supabase.table("cuotas") \
         .select("id") \
         .eq("credito_id", credito_id) \
@@ -1007,8 +1030,8 @@ def registrar_pago():
         }).eq("id", credito_id).execute()
 
     return redirect(url_for("recibo_pago", pago_id=pago_id))
+from datetime import datetime
 
-    
 @app.route("/recibo/<pago_id>")
 def recibo_pago(pago_id):
 
@@ -1035,7 +1058,18 @@ def recibo_pago(pago_id):
         .single() \
         .execute().data
 
-    # Calcular saldo restante
+    # =========================
+    # FORMATEAR FECHA
+    # =========================
+    fecha_iso = pago.get("fecha")
+
+    if fecha_iso:
+        fecha_obj = datetime.fromisoformat(fecha_iso.replace("Z", ""))
+        pago["fecha_formateada"] = fecha_obj.strftime("%d/%m/%Y %H:%M")
+
+    # =========================
+    # CALCULAR SALDO
+    # =========================
     credito_id = pago["cuotas"]["credito_id"]
 
     cuotas = supabase.table("cuotas") \
@@ -1043,7 +1077,8 @@ def recibo_pago(pago_id):
         .eq("credito_id", credito_id) \
         .execute().data
 
-    total_pagado = sum(float(c.get("monto_pagado", 0)) for c in cuotas if c["estado"] == "pagado")
+    total_pagado = sum(float(c.get("monto_pagado", 0) or 0) for c in cuotas)
+
     saldo_restante = float(pago["cuotas"]["creditos"]["valor_total"]) - total_pagado
 
     return render_template(
@@ -1051,9 +1086,6 @@ def recibo_pago(pago_id):
         pago=pago,
         saldo_restante=saldo_restante
     )
-
-
-
 
 # =============================
 # NUEVA VENTA COBRADOR (CONTROL FLUJO)
