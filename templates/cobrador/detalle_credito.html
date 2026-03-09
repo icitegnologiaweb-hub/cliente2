@@ -236,69 +236,105 @@
 {% for cuota in cuotas %}
 
 <div
-    {% if cuota.estado != "pagado" %}
-        onclick="handleCardClick(
-            event,
-            '{{ cuota.id }}',
-            {{ cuota.valor_mostrar }},
-            {{ cuota.interes }},
-            {{ cuota.valor_interes_mora or 0 }}
-        )"
-        class="cursor-pointer hover:scale-[1.01] transition"
-    {% endif %}
-    class="glass-card section rounded-2xl p-4">
+{% if cuota.estado != "pagado" %}
+onclick="handleCardClick(event,'{{ cuota.id }}',{{ cuota.valor }})"
+class="cursor-pointer hover:scale-[1.02] transition"
+{% endif %}
+class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
 
-    <div class="flex justify-between items-center">
+<div class="flex justify-between items-center">
 
-        <div class="flex items-center gap-4">
+    <!-- IZQUIERDA -->
+    <div class="flex items-center gap-4">
 
-            <div class="text-2xl font-extrabold text-emerald-300">
-                {{ cuota.numero }}
-            </div>
-
-            <div class="text-sm space-y-1 text-white/90">
-
-                <div class="muted">Días de Mora: <span class="text-white/90">{{ cuota.dias_mora }}</span></div>
-                <div class="muted">Valor: <span class="text-white/90">${{ cuota.valor_mostrar }}</span></div>
-                <div class="muted">Fecha Venc: <span class="text-white/90">{{ cuota.fecha_pago }}</span></div>
-                {% if cuota.porcentaje_mora and cuota.porcentaje_mora > 0 %}
-
-                    <div class="mt-2 text-xs
-                                bg-yellow-400/10
-                                border border-yellow-300/20
-                                text-yellow-200
-                                px-3 py-1.5
-                                rounded-xl inline-block font-semibold">
-
-                        Interés por mora aplicado: +{{ cuota.porcentaje_mora }}%
-                        ( ${{ "{:,.0f}".format(cuota.valor_interes_mora) }} )
-
-                    </div>
-
-                {% endif %}
-
-            </div>
-
+        <!-- NUMERO CUOTA -->
+        <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
+            {{ cuota.numero }}
         </div>
 
-        <!-- Estado Visual -->
-        <div>
-            {% if cuota.estado == "pagado" %}
-                <div class="badge-ok h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
-                    ✓
+        <div class="space-y-1 text-sm">
+
+            <div class="text-white font-semibold">
+                ${{ cuota.valor }}
+            </div>
+
+            <div class="text-xs text-gray-300">
+                Vence: {{ cuota.fecha_pago }}
+            </div>
+
+            {% if cuota.pagado > 0 %}
+
+                {% set aplicado = cuota.valor if cuota.pagado >= cuota.valor else cuota.pagado %}
+                {% set saldo_favor = cuota.pagado - cuota.valor %}
+                {% set restante = cuota.valor - cuota.pagado %}
+
+                <div class="text-xs text-green-400">
+                    Total abonado: ${{ "{:,.0f}".format(cuota.pagado) }}
                 </div>
-            {% elif cuota.dias_mora > 0 %}
-                <div class="badge-warn h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
-                    P
+
+                <div class="text-xs text-emerald-300">
+                    Aplicado a cuota: ${{ "{:,.0f}".format(aplicado) }}
                 </div>
-            {% else %}
-                <div class="badge-lock h-10 w-10 rounded-full flex items-center justify-center font-extrabold">
-                    🔒
+
+                {% if saldo_favor > 0 %}
+                <div class="text-xs text-blue-300">
+                    Saldo a favor: ${{ "{:,.0f}".format(saldo_favor) }}
                 </div>
+
+                <div class="text-xs text-gray-400">
+                    Se aplicará a la siguiente cuota
+                </div>
+                {% endif %}
+
+                {% if restante > 0 %}
+                <div class="text-xs text-yellow-300">
+                    Restante: ${{ "{:,.0f}".format(restante) }}
+                </div>
+                {% endif %}
+
+                <!-- barra progreso -->
+                {% set progreso = (aplicado / cuota.valor) * 100 %}
+
+                <div class="w-32 bg-white/10 rounded-full h-1.5 mt-1">
+                    <div class="bg-green-400 h-1.5 rounded-full"
+                        style="width: {{ progreso }}%">
+                    </div>
+                </div>
+
+                {% endif %}
+            {% if cuota.dias_mora > 0 %}
+            <div class="text-xs text-red-400">
+                Mora: {{ cuota.dias_mora }} días
+            </div>
             {% endif %}
+
         </div>
 
     </div>
+
+    <!-- ESTADO -->
+    <div>
+
+        {% if cuota.estado == "pagado" %}
+        <div class="h-9 w-9 rounded-full bg-green-500 flex items-center justify-center font-bold">
+            ✓
+        </div>
+
+        {% elif cuota.pagado > 0 %}
+        <div class="h-9 w-9 rounded-full bg-yellow-500 flex items-center justify-center font-bold">
+            $
+        </div>
+
+        {% else %}
+        <div class="h-9 w-9 rounded-full bg-gray-500 flex items-center justify-center font-bold">
+            🔒
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
 
 </div>
 
@@ -399,6 +435,10 @@
             </div>
 
             <div class="text-xs text-gray-600 mt-1">
+                Cuota: {{ pago.cuota_numero }}
+            </div>
+
+            <div class="text-xs text-gray-600">
                 Registrado por: {{ pago.registrado_por or "Cobrador" }}
             </div>
 
