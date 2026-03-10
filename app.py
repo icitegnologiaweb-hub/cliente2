@@ -70,6 +70,8 @@ def generar_codigo_ruta():
     letras = ''.join(random.choices(string.ascii_uppercase, k=3))
     numeros = ''.join(random.choices(string.digits, k=4))
     return f"R-{letras}{numeros}"
+
+    
 @app.route("/cerrar_cajas_automatico")
 def cerrar_cajas_automatico():
 
@@ -84,11 +86,14 @@ def cerrar_cajas_automatico():
 
     rutas = supabase.table("rutas").select("id").execute()
 
-    for r in rutas.data:
+    for r in rutas.data or []:
 
         ruta_id = r["id"]
 
-        # Verificar si ya existe cierre hoy
+        # =====================================
+        # VERIFICAR SI YA EXISTE CIERRE HOY
+        # =====================================
+
         caja = supabase.table("caja_diaria") \
             .select("id") \
             .eq("ruta_id", ruta_id) \
@@ -99,7 +104,7 @@ def cerrar_cajas_automatico():
             continue
 
         # =====================================
-        # SALDO INICIAL
+        # SALDO INICIAL (CIERRE ANTERIOR)
         # =====================================
 
         cierre_anterior = supabase.table("caja_diaria") \
@@ -113,7 +118,7 @@ def cerrar_cajas_automatico():
         saldo_inicio = 0
 
         if cierre_anterior.data:
-            saldo_inicio = float(cierre_anterior.data[0]["saldo_cierre"])
+            saldo_inicio = float(cierre_anterior.data[0]["saldo_cierre"] or 0)
 
         # =====================================
         # COBROS DEL DIA
@@ -131,7 +136,10 @@ def cerrar_cajas_automatico():
             .lt("fecha", fin_dia) \
             .execute()
 
-        total_cobros = sum(float(p["monto"] or 0) for p in pagos.data or [])
+        total_cobros = sum(
+            float(p["monto"] or 0)
+            for p in pagos.data or []
+        )
 
         # =====================================
         # GASTOS DEL DIA
@@ -144,7 +152,10 @@ def cerrar_cajas_automatico():
             .lt("created_at", fin_dia) \
             .execute()
 
-        total_gastos = sum(float(g["valor"] or 0) for g in gastos.data or [])
+        total_gastos = sum(
+            float(g["valor"] or 0)
+            for g in gastos.data or []
+        )
 
         # =====================================
         # PRESTAMOS DEL DIA
@@ -157,7 +168,10 @@ def cerrar_cajas_automatico():
             .lt("created_at", fin_dia) \
             .execute()
 
-        total_prestamos = sum(float(p["valor_venta"] or 0) for p in prestamos.data or [])
+        total_prestamos = sum(
+            float(p["valor_venta"] or 0)
+            for p in prestamos.data or []
+        )
 
         # =====================================
         # ABONOS A CAPITAL
@@ -170,16 +184,14 @@ def cerrar_cajas_automatico():
             .lt("created_at", fin_dia) \
             .execute()
 
-        total_capital = sum(float(c["valor"] or 0) for c in capital.data or [])
+        total_capital = sum(
+            float(c["valor"] or 0)
+            for c in capital.data or []
+        )
 
         # =====================================
-        # CALCULAR SALDO FINAL
+        # SALDO FINAL DEL DIA
         # =====================================
-
-        saldo_inicio = 0
-
-        if cierre_anterior.data:
-            saldo_inicio = float(cierre_anterior.data[0]["saldo_cierre"])
 
         saldo_cierre = (
             saldo_inicio
@@ -203,7 +215,8 @@ def cerrar_cajas_automatico():
         print(f"Cierre creado ruta {ruta_id} | saldo: {saldo_cierre}")
 
     return "Cierre automático ejecutado"
-# -----------------------
+
+
 # LOGIN
 # -----------------------
 
