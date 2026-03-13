@@ -835,7 +835,7 @@ def editar_venta_maxima():
 @app.route("/credito/<credito_id>")
 def detalle_credito(credito_id):
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     credito = supabase.table("creditos") \
@@ -1158,17 +1158,28 @@ def recalcular(credito_id):
 @app.route("/nueva_venta_cobrador")
 def nueva_venta_cobrador():
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     user_id = int(session["user_id"])
 
-    rutas = supabase.table("rutas") \
-        .select("*") \
-        .eq("usuario_id", user_id) \
-        .eq("estado", "true") \
-        .order("posicion") \
-        .execute().data or []
+    # 🔹 Traer rutas según rol
+    if session.get("rol") == "cobrador":
+
+        rutas = supabase.table("rutas") \
+            .select("*") \
+            .eq("usuario_id", user_id) \
+            .eq("estado", "true") \
+            .order("posicion") \
+            .execute().data or []
+
+    else:  # supervisor
+
+        rutas = supabase.table("rutas") \
+            .select("*") \
+            .eq("estado", "true") \
+            .order("posicion") \
+            .execute().data or []
 
     ruta_actual = session.get("ruta_id")
 
@@ -1205,7 +1216,7 @@ def nueva_venta_cobrador():
 def buzon_aumento_cupo():
 
     # 🔐 Validar sesión
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     user_id = session["user_id"]
@@ -1268,9 +1279,8 @@ def inyectar_notificaciones():
 def nueva_solicitud_cupo():
 
     # 🔐 Validar sesión
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
-
     # 🔒 Validar ruta activa
     if not session.get("ruta_id"):
         flash("Debe seleccionar una ruta", "warning")
@@ -1305,7 +1315,7 @@ def buscar_cliente_por_cedula(cedula):
 def guardar_solicitud_cupo():
 
     # 🔐 Validar sesión
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     cedula = request.form.get("cedula", "").strip()
@@ -1970,7 +1980,7 @@ def eliminar_credito(credito_id):
 @app.route("/todas_las_ventas/<ruta_id>")
 def todas_las_ventas(ruta_id):
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     hoy = date.today().isoformat()
@@ -2898,7 +2908,7 @@ def guardar_categoria_gasto():
 @app.route("/caja_cobrador")
 def caja_cobrador():
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     ruta_id = session.get("ruta_id")
@@ -3200,7 +3210,7 @@ def cerrar_dia():
 @app.route("/clientes_ruta/<ruta_id>")
 def clientes_ruta(ruta_id):
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     # Traer todos los créditos de la ruta (activos o no)
@@ -3255,7 +3265,7 @@ def clientes_ruta(ruta_id):
 @app.route("/detalle_cliente/<cliente_id>/<ruta_id>")
 def detalle_cliente(cliente_id, ruta_id):
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     # =====================================================
@@ -3519,7 +3529,7 @@ def transferencias_app():
 @app.route("/metas_dia")
 def metas_dia():
 
-    if "user_id" not in session or session.get("rol") != "cobrador":
+    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor"]:
         return redirect(url_for("login_app"))
 
     ruta_id = session.get("ruta_id")
@@ -5775,8 +5785,7 @@ def logout():
 @app.route("/logout_app")
 def logout_app():
     session.clear()
-    return redirect(url_for("login_app/login_app.html"))
-
+    return redirect(url_for("login_app"))
 
 if __name__ == "__main__":
     app.run(debug=True)
