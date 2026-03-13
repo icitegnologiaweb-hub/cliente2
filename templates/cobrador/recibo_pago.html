@@ -46,12 +46,12 @@
 
         <div class="flex justify-between">
             <span>Abono realizado</span>
-            <span>${{ "{:,.0f}".format(pago.monto or 0) }}</span>
+            <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
         </div>
 
         <div class="flex justify-between">
             <span>Saldo restante</span>
-            <span>${{ "{:,.0f}".format(saldo_restante or 0) }}</span>
+            <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
         </div>
 
         <div>------------------------------------</div>
@@ -65,7 +65,7 @@
 
             <div class="flex justify-between">
                 <span>Abono</span>
-                <span>${{ "{:,.0f}".format(pago.monto or 0) }}</span>
+                <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
             </div>
 
             <div>{{ pago.fecha_formateada }}</div>
@@ -76,12 +76,12 @@
         <!-- TOTAL -->
         <div class="flex justify-between font-bold">
             <span>Total abonado:</span>
-            <span>${{ "{:,.0f}".format(pago.monto or 0) }}</span>
+            <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
         </div>
 
         <div class="flex justify-between">
             <span>Saldo Restante:</span>
-            <span>${{ "{:,.0f}".format(saldo_restante or 0) }}</span>
+            <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
         </div>
         <div>------------------------------------</div>
 
@@ -108,7 +108,9 @@
     </button>
 
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <script>
 async function capturarYEnviar() {
 
@@ -139,4 +141,5 @@ async function capturarYEnviar() {
     }, "image/png");
 }
 </script>
+
 {% endblock %}

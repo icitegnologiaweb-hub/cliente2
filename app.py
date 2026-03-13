@@ -75,12 +75,15 @@ def generar_codigo_ruta():
 @app.route("/cerrar_cajas_automatico")
 def cerrar_cajas_automatico():
 
-    # Hora Colombia
+    # =====================================
+    # HORA COLOMBIA
+    # =====================================
+
     ahora_col = datetime.utcnow() - timedelta(hours=5)
     hoy_col = ahora_col.date()
     hoy = hoy_col.isoformat()
 
-    # Ventana del día colombiano en UTC
+    # ventana del día colombiano en UTC
     inicio_dia = hoy + "T05:00:00"
     fin_dia = (hoy_col + timedelta(days=1)).isoformat() + "T05:00:00"
 
@@ -104,16 +107,21 @@ def cerrar_cajas_automatico():
             continue
 
         # =====================================
-        # SALDO ACTUAL REAL DE CAJA
+        # SALDO INICIO = CIERRE ANTERIOR
         # =====================================
 
-        saldo_actual_resp = supabase.table("capital") \
-            .select("saldo_actual") \
+        caja_anterior = supabase.table("caja_diaria") \
+            .select("saldo_cierre") \
             .eq("ruta_id", ruta_id) \
-            .single() \
+            .lt("fecha", hoy) \
+            .order("fecha", desc=True) \
+            .limit(1) \
             .execute()
 
-        saldo_inicio = float(saldo_actual_resp.data["saldo_actual"] or 0)
+        if caja_anterior.data:
+            saldo_inicio = float(caja_anterior.data[0]["saldo_cierre"] or 0)
+        else:
+            saldo_inicio = 0
 
         # =====================================
         # COBROS DEL DIA
@@ -185,7 +193,7 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # SALDO FINAL DEL DIA
+        # CALCULO SALDO FINAL
         # =====================================
 
         saldo_cierre = (
@@ -197,7 +205,7 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # CREAR CIERRE
+        # CREAR REGISTRO DE CIERRE
         # =====================================
 
         supabase.table("caja_diaria").insert({
@@ -207,10 +215,9 @@ def cerrar_cajas_automatico():
             "saldo_cierre": saldo_cierre
         }).execute()
 
-        print(f"Cierre creado ruta {ruta_id} | saldo: {saldo_cierre}")
+        print(f"Cierre creado ruta {ruta_id} | inicio: {saldo_inicio} | cierre: {saldo_cierre}")
 
     return "Cierre automático ejecutado"
-
 
 # LOGIN
 # -----------------------
@@ -926,7 +933,6 @@ def detalle_credito(credito_id):
 from datetime import datetime
 def ahora_colombia():
     return datetime.utcnow() - timedelta(hours=5)
-
 @app.route("/registrar_pago", methods=["POST"])
 def registrar_pago():
 
@@ -936,7 +942,9 @@ def registrar_pago():
     if not cuota_id or monto_pago <= 0:
         return redirect(request.referrer)
 
-    # 🔎 Traer cuota
+    # =========================
+    # TRAER CUOTA SELECCIONADA
+    # =========================
     cuota_resp = supabase.table("cuotas") \
         .select("*") \
         .eq("id", cuota_id) \
@@ -948,8 +956,11 @@ def registrar_pago():
 
     cuota = cuota_resp.data
     credito_id = cuota["credito_id"]
+    numero_cuota_inicio = cuota["numero"]
 
-    # 🔎 Traer todas las cuotas del crédito
+    # =========================
+    # TRAER CUOTAS DEL CRÉDITO
+    # =========================
     cuotas = supabase.table("cuotas") \
         .select("*") \
         .eq("credito_id", credito_id) \
@@ -966,6 +977,10 @@ def registrar_pago():
         if monto_restante <= 0:
             break
 
+        # 🔴 NO tocar cuotas anteriores
+        if c["numero"] < numero_cuota_inicio:
+            continue
+
         valor = float(c["valor"])
         pagado = float(c.get("monto_pagado") or 0)
 
@@ -974,12 +989,18 @@ def registrar_pago():
 
         faltante = valor - pagado
 
+        # =========================
+        # SI ALCANZA PARA PAGARLA
+        # =========================
         if monto_restante >= faltante:
 
             nuevo_pagado = pagado + faltante
             estado = "pagado"
             monto_restante -= faltante
 
+        # =========================
+        # PAGO PARCIAL
+        # =========================
         else:
 
             nuevo_pagado = pagado + monto_restante
@@ -1022,6 +1043,10 @@ def registrar_pago():
     return redirect(url_for("recibo_pago", pago_id=pago_id))
 
 
+# =====================================
+# RECIBO
+# =====================================
+
 from datetime import datetime, timedelta
 
 @app.route("/recibo/<pago_id>")
@@ -1060,7 +1085,7 @@ def recibo_pago(pago_id):
         pago["fecha_formateada"] = fecha_obj.strftime("%d/%m/%Y %H:%M")
 
     # =========================
-    # CALCULAR SALDO
+    # CALCULAR SALDO RESTANTE
     # =========================
     credito_id = pago["cuotas"]["credito_id"]
 
@@ -1080,7 +1105,6 @@ def recibo_pago(pago_id):
         pago=pago,
         saldo_restante=saldo_restante
     )
-
 def recalcular_credito(credito_id):
 
     # traer cuotas
@@ -1950,6 +1974,7 @@ def todas_las_ventas(ruta_id):
         return redirect(url_for("login_app"))
 
     hoy = date.today().isoformat()
+    hoy_fecha = date.today()
 
     # Traer créditos activos con info cliente
     response = supabase.table("creditos") \
@@ -1976,6 +2001,20 @@ def todas_las_ventas(ruta_id):
 
     for c in creditos:
 
+        # 🔴 NUEVO: verificar si hoy ya se registró pago
+        pago_hoy_credito = supabase.table("pagos") \
+            .select("id") \
+            .eq("credito_id", c["id"]) \
+            .gte("fecha", hoy + "T00:00:00") \
+            .lt("fecha", hoy + "T23:59:59") \
+            .limit(1) \
+            .execute()
+
+        ya_pago_hoy = True if pago_hoy_credito.data else False
+        # 🔴 NUEVA LÓGICA
+        if ya_pago_hoy:
+            continue
+
         cuotas = supabase.table("cuotas") \
             .select("estado, valor, fecha_pago") \
             .eq("credito_id", c["id"]) \
@@ -1986,7 +2025,6 @@ def todas_las_ventas(ruta_id):
         valor_hoy = 0
         proxima_cuota = None
         dias_mora = 0
-        hoy_fecha = date.today()
 
         for cuota in cuotas:
 
@@ -2005,7 +2043,7 @@ def todas_las_ventas(ruta_id):
             if cuota["estado"] == "pendiente" and not proxima_cuota:
                 proxima_cuota = cuota["fecha_pago"]
 
-            # 🔹 Calcular mora (igual que en ver_ruta)
+            # 🔹 Calcular mora
             if cuota["estado"] == "pendiente" and fecha_pago < hoy_fecha:
                 dias_mora += (hoy_fecha - fecha_pago).days
 
@@ -2013,7 +2051,11 @@ def todas_las_ventas(ruta_id):
         if pago_hoy is None:
             pago_hoy = True
 
-        # 🎨 Semáforo (igual que en ver_ruta)
+        # 🔴 NUEVO: si ya pagó algo hoy, no mostrarlo hoy
+        if ya_pago_hoy:
+            pago_hoy = True
+
+        # 🎨 Semáforo
         if dias_mora >= 30:
             color_estado = "rojo"
         elif dias_mora >= 7:
@@ -2025,7 +2067,7 @@ def todas_las_ventas(ruta_id):
 
         lista.append({
             "id": c["id"],
-            "cliente_id": c["cliente_id"], 
+            "cliente_id": c["cliente_id"],
             "posicion": c["posicion"],
             "cliente": c["clientes"]["nombre"],
             "telefono": c["clientes"]["telefono_principal"],

@@ -264,21 +264,21 @@ class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
 
             {% if cuota.pagado > 0 %}
 
-                {% set aplicado = cuota.valor if cuota.pagado >= cuota.valor else cuota.pagado %}
-                {% set saldo_favor = cuota.pagado - cuota.valor %}
-                {% set restante = cuota.valor - cuota.pagado %}
+                {% set aplicado = cuota.pagado if cuota.pagado <= cuota.valor else cuota.valor %}
+                {% set restante = cuota.valor - aplicado %}
+                {% set saldo_favor = cuota.pagado - cuota.valor if cuota.pagado > cuota.valor else 0 %}
 
                 <div class="text-xs text-green-400">
-                    Total abonado: ${{ "{:,.0f}".format(cuota.pagado) }}
+                    Total abonado: ${{ "{:,.2f}".format(cuota.pagado) }}
                 </div>
 
                 <div class="text-xs text-emerald-300">
-                    Aplicado a cuota: ${{ "{:,.0f}".format(aplicado) }}
+                    Aplicado a cuota: ${{ "{:,.2f}".format(aplicado) }}
                 </div>
 
                 {% if saldo_favor > 0 %}
                 <div class="text-xs text-blue-300">
-                    Saldo a favor: ${{ "{:,.0f}".format(saldo_favor) }}
+                    Saldo a favor: ${{ "{:,.2f}".format(saldo_favor) }}
                 </div>
 
                 <div class="text-xs text-gray-400">
@@ -288,7 +288,7 @@ class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
 
                 {% if restante > 0 %}
                 <div class="text-xs text-yellow-300">
-                    Restante: ${{ "{:,.0f}".format(restante) }}
+                    Restante cuota: ${{ "{:,.2f}".format(restante) }}
                 </div>
                 {% endif %}
 
