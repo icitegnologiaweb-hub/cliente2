@@ -39,16 +39,16 @@
     <div class="px-8 py-8 border-b bg-indigo-50 text-center">
 
         <div class="text-xs uppercase text-indigo-600 tracking-wide">
-            Capital Disponible Real
+            Capital Disponible En Caja
         </div>
 
         <div class="mt-3 text-3xl font-bold
-            {% if (capital_disponible or 0) >= 0 %}
+            {% if (saldo_actual or 0) >= 0 %}
                 text-emerald-600
             {% else %}
                 text-red-600
             {% endif %}">
-            $ {{ "{:,.0f}".format(capital_disponible or 0) }}
+            $ {{ "{:,.0f}".format(saldo_actual or 0) }}
         </div>
 
         <div class="mt-2 text-xs text-gray-500">
@@ -60,13 +60,7 @@
     <!-- ================= FLUJO DEL PERIODO ================= -->
     <div class="grid grid-cols-6 text-center text-sm">
 
-        <div class="py-6 border-r">
-            <div class="text-gray-500 text-xs uppercase">Saldo Anterior</div>
-            <div class="mt-2 font-bold text-gray-800">
-                $ {{ "{:,.0f}".format(saldo_anterior or 0) }}
-            </div>
-        </div>
-
+    
         <div class="py-6 border-r">
             <div class="text-gray-500 text-xs uppercase">Cobros</div>
             <div class="mt-2 font-bold text-green-600">
@@ -121,7 +115,7 @@
             </h2>
 
             <span class="text-indigo-700 font-bold">
-                Disponible: $ {{ "{:,.0f}".format(capital_disponible) }}
+                Disponible: $ {{ "{:,.0f}".format(saldo_actual) }}
             </span>
         </button>
 
@@ -140,7 +134,7 @@
                 <div>
                     <div class="text-gray-500 uppercase text-xs">Capital Disponible</div>
                     <div class="mt-2 font-bold text-emerald-600 text-lg">
-                        $ {{ "{:,.0f}".format(capital_disponible) }}
+                        $ {{ "{:,.0f}".format(saldo_actual) }}
                     </div>
                 </div>
 

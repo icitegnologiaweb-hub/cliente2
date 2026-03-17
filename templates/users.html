@@ -169,7 +169,7 @@
                 title="Generar token">
             <i class="bi bi-shield-lock-fill text-sm"></i>
         </button>
-        {% if usuario['rol'] == 'Supervisor' %}
+        {% if usuario['rol'] in ['Supervisor', 'Administrador'] %}
             <button
                 onclick="abrirAsignarRutas({{ usuario['id'] }})"
                 class="w-9 h-9 flex items-center justify-center rounded-full

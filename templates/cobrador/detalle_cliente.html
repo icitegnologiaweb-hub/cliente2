@@ -31,16 +31,16 @@
                 <span class="opacity-70">Teléfono</span>
 
                 {% set codigo = cliente.codigo_pais or '57' %}
-                {% set telefono_limpio = (cliente.telefono_principal or '') 
-                    | replace(' ', '') 
-                    | replace('-', '') 
-                    | replace('(', '') 
-                    | replace(')', '') 
+                {% set telefono_limpio = (cliente.telefono_principal or '')
+                    | replace(' ', '')
+                    | replace('-', '')
+                    | replace('(', '')
+                    | replace(')', '')
                 %}
 
                 <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
-                target="_blank"
-                class="text-green-400 font-semibold">
+                   target="_blank"
+                   class="text-green-400 font-semibold">
                     +{{ codigo }} {{ cliente.telefono_principal }}
                 </a>
             </div>
@@ -85,8 +85,34 @@
         Crédito Activo
     </div>
     {% else %}
-
+    <div class="bg-green-600 rounded-3xl p-4 text-center font-semibold shadow-lg">
+        Sin crédito activo
+    </div>
     {% endif %}
+
+    <!-- ================= RENOVAR CRÉDITO ================= -->
+    <div class="bg-[#123b63] rounded-3xl p-5 shadow-lg">
+        <div class="flex justify-between items-center gap-3">
+            <div>
+                <div class="font-semibold">Renovar crédito</div>
+
+                {% if puede_renovar %}
+                <div class="text-xs text-green-400 mt-1">
+                    Disponible para registrar un nuevo crédito
+                </div>
+                {% else %}
+                <div class="text-xs text-yellow-300 mt-1">
+                    Tener en cuenta que solo se habilita la renovacion cuando el crédito actual esté totalmente pago
+                </div>
+                {% endif %}
+            </div>
+
+            <a href="{{ url_for('renovar_credito', cliente_id=cliente.id, ruta_id=ruta_id) }}"
+               class="px-4 py-2 rounded-xl text-sm font-semibold {% if puede_renovar %}bg-green-500 hover:bg-green-600 text-white{% else %}bg-white/20 hover:bg-white/30 text-white{% endif %}">
+                Renovar
+            </a>
+        </div>
+    </div>
 
     <!-- ================= GALERÍA ================= -->
     <div class="bg-[#123b63] rounded-3xl p-5 shadow-lg">
@@ -113,7 +139,7 @@
     <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('historial_creditos')"
-            class="w-full flex justify-between items-center p-5">
+                class="w-full flex justify-between items-center p-5">
 
             <div class="font-semibold">Historial Créditos</div>
             <span id="icon-historial_creditos">⌄</span>
@@ -137,7 +163,7 @@
     <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('historial_pagos')"
-            class="w-full flex justify-between items-center p-5">
+                class="w-full flex justify-between items-center p-5">
 
             <div class="font-semibold">Historial Pagos</div>
             <span id="icon-historial_pagos">⌄</span>
