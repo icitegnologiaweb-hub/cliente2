@@ -1006,48 +1006,78 @@ def registrar_pago():
     monto_restante = monto_pago
 
     # =========================
-    # DISTRIBUIR PAGO
+    # CALCULAR DEUDA TOTAL
     # =========================
+    total_deuda = 0
+
     for c in cuotas:
-
-        if monto_restante <= 0:
-            break
-
-        # 🔴 NO tocar cuotas anteriores
-        if c["numero"] < numero_cuota_inicio:
-            continue
-
         valor = float(c["valor"])
         pagado = float(c.get("monto_pagado") or 0)
-
-        if pagado >= valor:
-            continue
-
         faltante = valor - pagado
 
-        # =========================
-        # SI ALCANZA PARA PAGARLA
-        # =========================
-        if monto_restante >= faltante:
+        if faltante > 0:
+            total_deuda += faltante
 
-            nuevo_pagado = pagado + faltante
-            estado = "pagado"
-            monto_restante -= faltante
+    # =========================
+    # SI EL PAGO CUBRE TODA LA DEUDA
+    # =========================
+    if monto_pago >= total_deuda:
 
-        # =========================
-        # PAGO PARCIAL
-        # =========================
-        else:
+        for c in cuotas:
+            valor = float(c["valor"])
 
-            nuevo_pagado = pagado + monto_restante
-            estado = "pendiente"
-            monto_restante = 0
+            supabase.table("cuotas").update({
+                "monto_pagado": valor,
+                "estado": "pagado",
+                "fecha_pago_real": ahora_colombia().isoformat()
+            }).eq("id", c["id"]).execute()
 
-        supabase.table("cuotas").update({
-            "monto_pagado": nuevo_pagado,
-            "estado": estado,
-            "fecha_pago_real": ahora_colombia().isoformat()
-        }).eq("id", c["id"]).execute()
+        monto_restante = 0
+
+    # =========================
+    # DISTRIBUIR PAGO NORMAL
+    # =========================
+    else:
+        for c in cuotas:
+
+            if monto_restante <= 0:
+                break
+
+            # 🔴 NO tocar cuotas anteriores
+            if c["numero"] < numero_cuota_inicio:
+                continue
+
+            valor = float(c["valor"])
+            pagado = float(c.get("monto_pagado") or 0)
+
+            if pagado >= valor:
+                continue
+
+            faltante = valor - pagado
+
+            # =========================
+            # SI ALCANZA PARA PAGARLA
+            # =========================
+            if monto_restante >= faltante:
+
+                nuevo_pagado = pagado + faltante
+                estado = "pagado"
+                monto_restante -= faltante
+
+            # =========================
+            # PAGO PARCIAL
+            # =========================
+            else:
+
+                nuevo_pagado = pagado + monto_restante
+                estado = "pendiente"
+                monto_restante = 0
+
+            supabase.table("cuotas").update({
+                "monto_pagado": nuevo_pagado,
+                "estado": estado,
+                "fecha_pago_real": ahora_colombia().isoformat()
+            }).eq("id", c["id"]).execute()
 
     # =========================
     # REGISTRAR PAGO
@@ -1141,6 +1171,8 @@ def recibo_pago(pago_id):
         pago=pago,
         saldo_restante=saldo_restante
     )
+
+
 def recalcular_credito(credito_id):
 
     # traer cuotas
@@ -1191,6 +1223,9 @@ def recalcular(credito_id):
 # =============================
 # NUEVA VENTA COBRADOR (CONTROL FLUJO)
 # =============================
+# =============================
+# NUEVA VENTA COBRADOR (CONTROL FLUJO)
+# =============================
 @app.route("/nueva_venta_cobrador")
 def nueva_venta_cobrador():
 
@@ -1209,7 +1244,7 @@ def nueva_venta_cobrador():
             .order("posicion") \
             .execute().data or []
 
-    else:  # supervisor
+    else:  # supervisor / administrador
 
         rutas = supabase.table("rutas") \
             .select("*") \
@@ -1229,6 +1264,7 @@ def nueva_venta_cobrador():
     es_renovacion = request.args.get("renovar") == "1"
 
     cliente_data = None
+    ultimo_credito_data = {}
     form_data = {}
 
     # =====================================================
@@ -1266,9 +1302,22 @@ def nueva_venta_cobrador():
             cliente_data = cliente_resp.data[0]
 
     # =====================================================
-    # PRECARGAR FORMULARIO SI HAY CLIENTE
+    # BUSCAR ÚLTIMO CRÉDITO DEL CLIENTE PARA TRAER FOTOS/FIRMA
     # =====================================================
     if cliente_data:
+        ultimo_credito_resp = supabase.table("creditos") \
+            .select("id, foto_cliente, foto_cedula, foto_negocio, firma_cliente") \
+            .eq("cliente_id", cliente_data["id"]) \
+            .order("id", desc=True) \
+            .limit(1) \
+            .execute()
+
+        if ultimo_credito_resp.data:
+            ultimo_credito_data = ultimo_credito_resp.data[0]
+
+        # =====================================================
+        # PRECARGAR FORMULARIO SI HAY CLIENTE
+        # =====================================================
         form_data = {
             "cliente_id": cliente_data.get("id", ""),
             "identificacion": cliente_data.get("identificacion", ""),
@@ -1276,7 +1325,19 @@ def nueva_venta_cobrador():
             "direccion": cliente_data.get("direccion", ""),
             "direccion_negocio": cliente_data.get("direccion_negocio", ""),
             "codigo_pais": cliente_data.get("codigo_pais", "57"),
-            "telefono": cliente_data.get("telefono_principal", "")
+            "telefono": cliente_data.get("telefono_principal", ""),
+
+            # 🔥 Fotos/firma del último crédito
+            "foto_cliente": ultimo_credito_data.get("foto_cliente", ""),
+            "foto_cedula": ultimo_credito_data.get("foto_cedula", ""),
+            "foto_negocio": ultimo_credito_data.get("foto_negocio", ""),
+            "firma_cliente": ultimo_credito_data.get("firma_cliente", ""),
+
+            # 🔥 También las mandamos como _actual para conservarlas si no suben nuevas
+            "foto_cliente_actual": ultimo_credito_data.get("foto_cliente", ""),
+            "foto_cedula_actual": ultimo_credito_data.get("foto_cedula", ""),
+            "foto_negocio_actual": ultimo_credito_data.get("foto_negocio", ""),
+            "firma_cliente_actual": ultimo_credito_data.get("firma_cliente", "")
         }
 
     # 🔥 En aumento puedes dejar bloqueados algunos datos
@@ -1292,7 +1353,6 @@ def nueva_venta_cobrador():
         es_renovacion=es_renovacion,
         modo_aumento=modo_aumento
     )
-
 @app.route("/buzon_aumento_cupo")
 def buzon_aumento_cupo():
 
@@ -1563,6 +1623,7 @@ def ver_solicitudes_cupo():
         "solicitudes_cupo.html",
         solicitudes=solicitudes
     )
+
 @app.route("/guardar_venta_cobrador", methods=["POST"])
 def guardar_venta_cobrador():
 
@@ -1586,6 +1647,13 @@ def guardar_venta_cobrador():
         flash("No hay ruta activa seleccionada", "danger")
         return redirect(url_for("dashboard_cobrador"))
 
+    # 🔥 Para conservar datos y fotos si hay error y se vuelve a renderizar
+    form_data_error = request.form.to_dict()
+    form_data_error["foto_cliente"] = request.form.get("foto_cliente_actual", "")
+    form_data_error["foto_cedula"] = request.form.get("foto_cedula_actual", "")
+    form_data_error["foto_negocio"] = request.form.get("foto_negocio_actual", "")
+    form_data_error["firma_cliente"] = request.form.get("firma_cliente_actual", "")
+
     # ==========================
     # VALIDAR CAMPOS NUMÉRICOS
     # ==========================
@@ -1608,7 +1676,8 @@ def guardar_venta_cobrador():
             "cobrador/nueva_venta_cobrador.html",
             rutas=rutas,
             ruta_actual=ruta_id,
-            form_data=request.form
+            form_data=form_data_error,
+            es_renovacion=request.form.get("es_renovacion") == "1"
         )
 
     identificacion = (request.form.get("identificacion") or "").strip()
@@ -1619,6 +1688,12 @@ def guardar_venta_cobrador():
     telefono = request.form.get("telefono")
     fecha_inicio = (date.today() + timedelta(days=1)).isoformat()
     tipo_prestamo = request.form.get("tipo_prestamo")
+
+    # 🔥 Fotos/firma actuales para renovación
+    foto_cliente_actual = request.form.get("foto_cliente_actual") or None
+    foto_cedula_actual = request.form.get("foto_cedula_actual") or None
+    foto_negocio_actual = request.form.get("foto_negocio_actual") or None
+    firma_cliente_actual = request.form.get("firma_cliente_actual") or None
 
     # ==========================
     # VALIDAR CUPO MÁXIMO RUTA COBRADOR
@@ -1644,7 +1719,8 @@ def guardar_venta_cobrador():
             "cobrador/nueva_venta_cobrador.html",
             rutas=rutas,
             ruta_actual=ruta_id,
-            form_data=request.form
+            form_data=form_data_error,
+            es_renovacion=request.form.get("es_renovacion") == "1"
         )
 
     # ==========================
@@ -1771,7 +1847,8 @@ def guardar_venta_cobrador():
                 "cobrador/nueva_venta_cobrador.html",
                 rutas=rutas,
                 ruta_actual=ruta_id,
-                form_data=request.form
+                form_data=form_data_error,
+                es_renovacion=request.form.get("es_renovacion") == "1"
             )
 
         cliente_id = nuevo_cliente.data[0]["id"]
@@ -1779,7 +1856,7 @@ def guardar_venta_cobrador():
     # ==========================
     # PROCESAR FIRMA
     # ==========================
-    firma_url = None
+    firma_url = firma_cliente_actual
     firma_base64 = request.form.get("firma_cliente")
 
     if firma_base64 and "base64," in firma_base64:
@@ -1819,8 +1896,9 @@ def guardar_venta_cobrador():
     foto_cedula = request.files.get("foto_cedula")
     foto_negocio = request.files.get("foto_negocio")
 
-    cliente_url = None
-    if foto_cliente:
+    # 🔥 Si no suben nuevas, conservar las anteriores
+    cliente_url = foto_cliente_actual
+    if foto_cliente and foto_cliente.filename:
         try:
             cliente_path = f"{cliente_id}_{uuid.uuid4()}_cliente.jpg"
 
@@ -1835,8 +1913,8 @@ def guardar_venta_cobrador():
         except Exception as e:
             print("Error subiendo foto cliente:", e)
 
-    cedula_url = None
-    if foto_cedula:
+    cedula_url = foto_cedula_actual
+    if foto_cedula and foto_cedula.filename:
         try:
             cedula_path = f"{cliente_id}_{uuid.uuid4()}_cedula.jpg"
 
@@ -1851,8 +1929,8 @@ def guardar_venta_cobrador():
         except Exception as e:
             print("Error subiendo cédula:", e)
 
-    negocio_url = None
-    if foto_negocio:
+    negocio_url = foto_negocio_actual
+    if foto_negocio and foto_negocio.filename:
         try:
             negocio_path = f"{cliente_id}_{uuid.uuid4()}_negocio.jpg"
 
@@ -1905,7 +1983,8 @@ def guardar_venta_cobrador():
             "cobrador/nueva_venta_cobrador.html",
             rutas=rutas,
             ruta_actual=ruta_id,
-            form_data=request.form
+            form_data=form_data_error,
+            es_renovacion=request.form.get("es_renovacion") == "1"
         )
 
     credito_id = credito_resp.data[0]["id"]
@@ -1967,7 +2046,7 @@ def guardar_venta_cobrador():
 
     flash("Venta registrada correctamente", "success")
     return redirect(url_for("ver_ruta", ruta_id=ruta_id))
-
+    
 @app.route("/cambiar_posicion", methods=["POST"])
 def cambiar_posicion():
 

@@ -53,6 +53,26 @@
                name="cliente_id"
                value="{{ form_data.get('cliente_id', '') if form_data else '' }}">
 
+        <input type="hidden"
+               name="es_renovacion"
+               value="{{ 1 if es_renovacion else 0 }}">
+
+        <input type="hidden"
+               name="foto_cliente_actual"
+               value="{{ form_data.get('foto_cliente_actual', form_data.get('foto_cliente', '')) if form_data else '' }}">
+
+        <input type="hidden"
+               name="foto_cedula_actual"
+               value="{{ form_data.get('foto_cedula_actual', form_data.get('foto_cedula', '')) if form_data else '' }}">
+
+        <input type="hidden"
+               name="foto_negocio_actual"
+               value="{{ form_data.get('foto_negocio_actual', form_data.get('foto_negocio', '')) if form_data else '' }}">
+
+        <input type="hidden"
+               name="firma_cliente_actual"
+               value="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente', '')) if form_data else '' }}">
+
         <!-- ================= RUTA ================= -->
         <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-3">
 
@@ -295,10 +315,20 @@
                     <label class="text-xs text-gray-300 block mb-1">
                         Foto Cliente (rostro)
                     </label>
+
+                    {% if form_data and (form_data.get('foto_cliente_actual') or form_data.get('foto_cliente')) %}
+                        <div class="mb-3">
+                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <img src="{{ form_data.get('foto_cliente_actual', form_data.get('foto_cliente')) }}"
+                                 alt="Foto cliente"
+                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                        </div>
+                    {% endif %}
+
                     <input type="file"
                         name="foto_cliente"
                         accept="image/*"
-                        required
+                        {% if not (form_data and (form_data.get('foto_cliente_actual') or form_data.get('foto_cliente'))) %}required{% endif %}
                         class="w-full text-sm">
                 </div>
 
@@ -306,10 +336,20 @@
                     <label class="text-xs text-gray-300 block mb-1">
                         Foto Cédula
                     </label>
+
+                    {% if form_data and (form_data.get('foto_cedula_actual') or form_data.get('foto_cedula')) %}
+                        <div class="mb-3">
+                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <img src="{{ form_data.get('foto_cedula_actual', form_data.get('foto_cedula')) }}"
+                                 alt="Foto cédula"
+                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                        </div>
+                    {% endif %}
+
                     <input type="file"
                         name="foto_cedula"
                         accept="image/*"
-                        required
+                        {% if not (form_data and (form_data.get('foto_cedula_actual') or form_data.get('foto_cedula'))) %}required{% endif %}
                         class="w-full text-sm">
                 </div>
 
@@ -317,10 +357,20 @@
                     <label class="text-xs text-gray-300 block mb-1">
                         Foto Negocio
                     </label>
+
+                    {% if form_data and (form_data.get('foto_negocio_actual') or form_data.get('foto_negocio')) %}
+                        <div class="mb-3">
+                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <img src="{{ form_data.get('foto_negocio_actual', form_data.get('foto_negocio')) }}"
+                                 alt="Foto negocio"
+                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                        </div>
+                    {% endif %}
+
                     <input type="file"
                         name="foto_negocio"
                         accept="image/*"
-                        required
+                        {% if not (form_data and (form_data.get('foto_negocio_actual') or form_data.get('foto_negocio'))) %}required{% endif %}
                         class="w-full text-sm">
                 </div>
 
@@ -333,6 +383,25 @@
 
             <div class="text-sm text-blue-200 font-semibold">
                 Firma del Cliente
+            </div>
+
+            {% if form_data and (form_data.get('firma_cliente_actual') or form_data.get('firma_cliente')) %}
+            <div class="bg-[#0b2847] rounded-xl p-3 border border-white/10">
+                <div class="text-xs text-green-300 mb-2">
+                    Firma actual cargada
+                </div>
+                <img src="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente')) }}"
+                     alt="Firma actual"
+                     class="max-w-full h-24 object-contain bg-white rounded-lg border border-gray-300 p-2">
+            </div>
+            {% endif %}
+
+            <div class="text-xs text-gray-300">
+                {% if es_renovacion %}
+                    Si deseas cambiar la firma, vuelve a firmar y presiona <strong>Guardar Firma</strong>. Si no, se conservará la firma actual.
+                {% else %}
+                    Firma en el recuadro y luego presiona <strong>Guardar Firma</strong>.
+                {% endif %}
             </div>
 
             <canvas id="firmaCanvas"
@@ -491,6 +560,7 @@ canvas.addEventListener("touchend", () => {
 function limpiarFirma() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
+    document.getElementById("firmaCliente").value = "";
 }
 
 /* Guardar */
