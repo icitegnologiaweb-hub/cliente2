@@ -230,64 +230,64 @@ header {
 
         <div class="sidebar-section sidebar-text">MENÚ</div>
 
-        <a href="{{ url_for('listar_ventas') }}" class="menu-item">
+        <a href="{{ url_for('listar_ventas') }}" class="menu-item {{ is_active('listar_ventas') }}">
             <i class="bi bi-map"></i>
             <span class="sidebar-text">Ventas Activas</span>
         </a>
 
-        <a href="{{ url_for('clientes') }}" class="menu-item">
-            <i class="bi bi-people"></i>
+        <a href="{{ url_for('clientes') }}" class="menu-item {{ is_active('clientes') }}">
+                <i class="bi bi-people"></i>
             <span class="sidebar-text">Clientes</span>
         </a>
 
         
-        <a href="{{ url_for('ver_solicitudes_cupo') }}" class="menu-item">
+        <a href="{{ url_for('ver_solicitudes_cupo') }}" class="menu-item {{ is_active('ver_solicitudes_cupo') }}" >
             <i class="bi bi-people"></i>
-            <span class="sidebar-text">Solicitudes Aumento de Cupo</span>
+            <span class="sidebar-text">Solicitudes AC</span>
         </a>
 
-        <a href="{{ url_for('capital') }}" class="menu-item">
+        <a href="{{ url_for('capital') }}" class="menu-item {{ is_active('capital') }}">
             <i class="bi bi-cash-stack"></i>
             <span class="sidebar-text">Capital</span>
         </a>
 
-        <a href="{{ url_for('gastos') }}" class="menu-item">
+        <a href="{{ url_for('gastos') }}" class="menu-item {{ is_active('gastos') }}">
             <i class="bi bi-wallet2"></i>
             <span class="sidebar-text">Gastos</span>
         </a>
 
-        <a href="{{ url_for('transferencias') }}" class="menu-item">
+        <a href="{{ url_for('transferencias') }}" class="menu-item {{ is_active('transferencias') }}">
             <i class="bi bi-arrow-left-right"></i>
             <span class="sidebar-text">Transferencias</span>
         </a>
 
-        <a href="{{ url_for('caja_oficina') }}" class="menu-item">
+        <a href="{{ url_for('caja_oficina') }}" class="menu-item {{ is_active('caja_oficina') }}">
             <i class="bi bi-archive"></i>
             <span class="sidebar-text">Caja</span>
         </a>
 
-        <a href="{{ url_for('caja_reportes') }}" class="menu-item">
+        <a href="{{ url_for('caja_reportes') }}" class="menu-item {{ is_active('caja_reportes') }}">
             <i class="bi bi-graph-up-arrow"></i>
             <span class="sidebar-text">Reportes</span>
         </a>
 
-        <a href="{{ url_for('liquidacion') }}" class="menu-item">
+        <a href="{{ url_for('liquidacion') }}" class="menu-item {{ is_active('liquidacion') }}">
             <i class="bi bi-calendar-week"></i>
             <span class="sidebar-text">Liquidación</span>
         </a>
 
         <div class="sidebar-section sidebar-text mt-4">CONFIGURACIÓN</div>
 
-        <a  href="{{ url_for('usuarios') }}" class="menu-item">
+        <a  href="{{ url_for('usuarios') }}" class="menu-item {{ is_active('usuarios') }}">
             <i class="bi bi-person-gear"></i>
             <span class="sidebar-text">Usuarios</span>
         </a>
 
-        <a href="{{ url_for('listar_rutas') }}" class="menu-item">
+        <a href="{{ url_for('listar_rutas') }}" class="menu-item {{ is_active('listar_rutas') }}">
             <i class="bi bi-map"></i>
             <span class="sidebar-text">Rutas</span>
         </a>
-        <a href="{{ url_for('categorias_gastos') }}" class="menu-item">
+        <a href="{{ url_for('categorias_gastos') }}" class="menu-item {{ is_active('categorias_gastos') }}">
             <i class="bi bi-grid"></i>
             <span class="sidebar-text">Categorías Gastos</span>
         </a>

@@ -66,67 +66,75 @@ def notificaciones_admin():
 
     return dict(total_solicitudes_pendientes=total)
 
+@app.context_processor
+def utility_processor():
+    def is_active(endpoint):
+        return 'active' if request.endpoint == endpoint else ''
+
+    return dict(is_active=is_active)
 def generar_codigo_ruta():
     letras = ''.join(random.choices(string.ascii_uppercase, k=3))
     numeros = ''.join(random.choices(string.digits, k=4))
     return f"R-{letras}{numeros}"
 
+from datetime import datetime, timedelta
 
 @app.route("/cerrar_cajas_automatico")
 def cerrar_cajas_automatico():
 
     # =====================================
-    # HORA COLOMBIA
+    # FECHA COLOMBIA
     # =====================================
-
     ahora_col = datetime.utcnow() - timedelta(hours=5)
-    hoy_col = ahora_col.date()
-    hoy = hoy_col.isoformat()
 
-    # ventana del día colombiano en UTC
-    inicio_dia = hoy + "T05:00:00"
-    fin_dia = (hoy_col + timedelta(days=1)).isoformat() + "T05:00:00"
+    # 🔥 EL CIERRE DEBE HACERSE SOBRE EL DÍA ANTERIOR
+    fecha_cierre_col = ahora_col.date() - timedelta(days=1)
+    fecha_cierre = fecha_cierre_col.isoformat()
+
+    # Ventana UTC del día colombiano a cerrar
+    inicio_dia = fecha_cierre + "T05:00:00"
+    fin_dia = (fecha_cierre_col + timedelta(days=1)).isoformat() + "T05:00:00"
+
+    print("=====================================")
+    print("CIERRE AUTOMÁTICO")
+    print("FECHA A CERRAR:", fecha_cierre)
+    print("INICIO UTC:", inicio_dia)
+    print("FIN UTC:", fin_dia)
+    print("=====================================")
 
     rutas = supabase.table("rutas").select("id").execute()
 
     for r in rutas.data or []:
-
         ruta_id = r["id"]
 
         # =====================================
-        # VERIFICAR SI YA EXISTE CIERRE HOY
+        # BUSCAR SI YA EXISTE CIERRE DE ESA FECHA
         # =====================================
-
-        caja = supabase.table("caja_diaria") \
+        caja_existente = supabase.table("caja_diaria") \
             .select("id") \
             .eq("ruta_id", ruta_id) \
-            .eq("fecha", hoy) \
+            .eq("fecha", fecha_cierre) \
+            .limit(1) \
             .execute()
 
-        if caja.data:
-            continue
+        registro_existente = caja_existente.data[0] if caja_existente.data else None
 
         # =====================================
-        # SALDO INICIO = CIERRE ANTERIOR
+        # SALDO INICIO = ÚLTIMO CIERRE ANTERIOR A ESA FECHA
         # =====================================
-
         caja_anterior = supabase.table("caja_diaria") \
             .select("saldo_cierre") \
             .eq("ruta_id", ruta_id) \
-            .lt("fecha", hoy) \
+            .lt("fecha", fecha_cierre) \
             .order("fecha", desc=True) \
             .limit(1) \
             .execute()
 
-        if caja_anterior.data:
-            saldo_inicio = float(caja_anterior.data[0]["saldo_cierre"] or 0)
-        else:
-            saldo_inicio = 0
+        saldo_inicio = float(caja_anterior.data[0]["saldo_cierre"]) if caja_anterior.data else 0
 
         # =====================================
-        # COBROS DEL DIA
+        # COBROS DEL DÍA
         # =====================================
-
         pagos = supabase.table("pagos") \
             .select("""
                 monto,
@@ -145,9 +153,8 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # GASTOS DEL DIA
+        # GASTOS DEL DÍA
         # =====================================
-
         gastos = supabase.table("gastos") \
             .select("valor") \
             .eq("ruta_id", ruta_id) \
@@ -161,9 +168,8 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # PRESTAMOS DEL DIA
+        # PRÉSTAMOS DEL DÍA
         # =====================================
-
         prestamos = supabase.table("creditos") \
             .select("valor_venta") \
             .eq("ruta_id", ruta_id) \
@@ -177,9 +183,8 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # ABONOS A CAPITAL
+        # ABONOS A CAPITAL DEL DÍA
         # =====================================
-
         capital = supabase.table("capital") \
             .select("valor") \
             .eq("ruta_id", ruta_id) \
@@ -193,9 +198,8 @@ def cerrar_cajas_automatico():
         )
 
         # =====================================
-        # CALCULO SALDO FINAL
+        # SALDO FINAL
         # =====================================
-
         saldo_cierre = (
             saldo_inicio
             + total_cobros
@@ -204,21 +208,39 @@ def cerrar_cajas_automatico():
             - total_gastos
         )
 
-        # =====================================
-        # CREAR REGISTRO DE CIERRE
-        # =====================================
+        print(f"RUTA {ruta_id}")
+        print("SALDO INICIO:", saldo_inicio)
+        print("COBROS:", total_cobros)
+        print("CAPITAL:", total_capital)
+        print("PRESTAMOS:", total_prestamos)
+        print("GASTOS:", total_gastos)
+        print("SALDO CIERRE:", saldo_cierre)
 
-        supabase.table("caja_diaria").insert({
+        # =====================================
+        # INSERTAR O ACTUALIZAR CIERRE
+        # =====================================
+        data_cierre = {
             "ruta_id": ruta_id,
-            "fecha": hoy,
+            "fecha": fecha_cierre,
             "saldo_inicio": saldo_inicio,
             "saldo_cierre": saldo_cierre
-        }).execute()
+        }
 
-        print(f"Cierre creado ruta {ruta_id} | inicio: {saldo_inicio} | cierre: {saldo_cierre}")
+        if registro_existente:
+            supabase.table("caja_diaria") \
+                .update(data_cierre) \
+                .eq("id", registro_existente["id"]) \
+                .execute()
 
-    return "Cierre automático ejecutado"
+            print(f"✅ Cierre actualizado ruta {ruta_id} fecha {fecha_cierre}")
+        else:
+            supabase.table("caja_diaria") \
+                .insert(data_cierre) \
+                .execute()
 
+            print(f"✅ Cierre creado ruta {ruta_id} fecha {fecha_cierre}")
+
+    return "Cierre automático ejecutado correctamente"
 # LOGIN
 # -----------------------
 
@@ -5596,7 +5618,6 @@ def ver_mapa_cliente(cliente_id):
 # MODULO CAPITAL
 # -----------------------
 
-
 @app.route("/capital")
 def capital():
 
@@ -5609,6 +5630,11 @@ def capital():
         flash("Debe seleccionar una oficina", "warning")
         return redirect(url_for("cambiar_oficina"))
 
+    # 🔹 FILTROS
+    fecha_inicio = request.args.get("fecha_inicio")
+    fecha_fin = request.args.get("fecha_fin")
+    ruta_id_filtro = request.args.get("ruta_id")
+
     # 🔥 SOLO rutas de la oficina activa
     rutas = supabase.table("rutas") \
         .select("*") \
@@ -5618,17 +5644,38 @@ def capital():
 
     rutas_ids = [r["id"] for r in rutas]
 
-    # 🔥 SOLO movimientos de capital de esas rutas
-    movimientos = supabase.table("capital") \
+    # 🔥 QUERY BASE (MISMO CONCEPTO TUYO)
+    query = supabase.table("capital") \
         .select("*, rutas(nombre)") \
-        .in_("ruta_id", rutas_ids) \
+        .in_("ruta_id", rutas_ids)
+
+    # 🔹 FILTRO POR RUTA
+    if ruta_id_filtro:
+        query = query.eq("ruta_id", ruta_id_filtro)
+
+    # 🔹 FILTRO POR FECHAS
+    if fecha_inicio:
+        query = query.gte("created_at", fecha_inicio + "T00:00:00")
+
+    if fecha_fin:
+        query = query.lte("created_at", fecha_fin + "T23:59:59")
+
+    # 🔥 EJECUTAR QUERY
+    movimientos = query \
         .order("created_at", desc=True) \
         .execute().data or []
+
+    # 🔥 TOTAL CAPITAL
+    total_capital = sum(float(m.get("valor", 0)) for m in movimientos)
 
     return render_template(
         "capital.html",
         rutas=rutas,
-        capital=movimientos
+        capital=movimientos,
+        total_capital=total_capital,
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin,
+        ruta_id_filtro=ruta_id_filtro
     )
 
 @app.route("/capital/crear", methods=["POST"])
@@ -5670,7 +5717,6 @@ def crear_capital():
 # MODULO GASTOS
 # -----------------------
 @app.route("/gastos")
-@app.route("/gastos")
 def gastos():
 
     if "user_id" not in session:
@@ -5682,7 +5728,12 @@ def gastos():
         flash("Debe seleccionar una oficina", "warning")
         return redirect(url_for("cambiar_oficina"))
 
-    # 🔥 SOLO rutas de la oficina activa
+    # 🔹 FILTROS
+    fecha_inicio = request.args.get("fecha_inicio")
+    fecha_fin = request.args.get("fecha_fin")
+    ruta_id_filtro = request.args.get("ruta_id")
+
+    # 🔥 RUTAS DE LA OFICINA
     rutas = supabase.table("rutas") \
         .select("*") \
         .eq("oficina_id", oficina_id) \
@@ -5691,20 +5742,38 @@ def gastos():
 
     rutas_ids = [r["id"] for r in rutas]
 
-    # 🔥 SOLO gastos de rutas de esta oficina
-    gastos = supabase.table("gastos") \
+    # 🔥 QUERY BASE
+    query = supabase.table("gastos") \
         .select("""
             *,
             rutas(nombre),
             usuarios(nombres, apellidos),
             categorias_gastos(nombre)
         """) \
-        .in_("ruta_id", rutas_ids) \
-        .order("created_at", desc=True) \
-        .execute().data or []
+        .in_("ruta_id", rutas_ids)
+
+    # 🔹 FILTRO POR RUTA
+    if ruta_id_filtro:
+        query = query.eq("ruta_id", ruta_id_filtro)
+
+    # 🔹 FILTRO POR FECHA
+    if fecha_inicio:
+        query = query.gte("created_at", fecha_inicio + "T00:00:00")
+
+    if fecha_fin:
+        query = query.lte("created_at", fecha_fin + "T23:59:59")
+
+    # 🔥 EJECUTAR
+    gastos = query.order("created_at", desc=True).execute().data or []
+
+    total_gastos = 0
 
     for g in gastos:
 
+        # SUMATORIA
+        total_gastos += float(g.get("valor", 0))
+
+        # FECHA
         if g.get("created_at"):
             created = g["created_at"].replace("Z", "+00:00")
 
@@ -5716,6 +5785,7 @@ def gastos():
             fecha_colombia = fecha_utc - timedelta(hours=5)
             g["fecha_formateada"] = fecha_colombia.strftime("%Y-%m-%d %H:%M:%S")
 
+        # NOMBRE USUARIO
         if g.get("usuarios"):
             nombres = g["usuarios"].get("nombres", "")
             apellidos = g["usuarios"].get("apellidos", "")
@@ -5723,7 +5793,7 @@ def gastos():
         else:
             g["cobrador_nombre"] = ""
 
-    # 🔥 SOLO categorías activas
+    # 🔥 CATEGORÍAS
     categorias = supabase.table("categorias_gastos") \
         .select("*") \
         .eq("estado", True) \
@@ -5734,7 +5804,11 @@ def gastos():
         "gastos.html",
         gastos=gastos,
         rutas=rutas,
-        categorias=categorias
+        categorias=categorias,
+        total_gastos=total_gastos,
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin,
+        ruta_id_filtro=ruta_id_filtro
     )
     
 @app.route("/guardar_gasto", methods=["POST"])

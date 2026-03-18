@@ -14,6 +14,76 @@
             + Nuevo Gasto
         </button>
     </div>
+    <div class="bg-white rounded-2xl shadow p-6 mb-6 flex justify-between items-center">
+
+    <div>
+        <h2 class="text-lg font-semibold text-gray-700">
+            Total de Gastos
+        </h2>
+        <p class="text-2xl font-bold text-red-600">
+            $ {{ "{:,.2f}".format(total_gastos) }}
+        </p>
+    </div>
+
+    {% if fecha_inicio or fecha_fin %}
+    <span class="text-sm text-gray-500">
+        Filtrado por fechas
+    </span>
+    {% else %}
+    <span class="text-sm text-gray-500">
+        Todos los registros
+    </span>
+    {% endif %}
+
+</div>
+    <!-- FILTROS -->
+    <form method="GET" action="{{ url_for('gastos') }}"
+          class="bg-white rounded-2xl shadow p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Fecha inicio
+                </label>
+                <input type="date"
+                       name="fecha_inicio"
+                       value="{{ fecha_inicio }}"
+                       class="w-full border rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Fecha fin
+                </label>
+                <input type="date"
+                       name="fecha_fin"
+                       value="{{ fecha_fin }}"
+                       class="w-full border rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Ruta
+                </label>
+                <select name="ruta_id" class="w-full border rounded-xl px-4 py-3">
+                    {% for ruta in rutas %}
+                    <option value="{{ ruta.id }}"
+                        {% if ruta_id_filtro == ruta.id|string %}selected{% endif %}>
+                        {{ ruta.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex items-end gap-3">
+                <button type="submit"
+                        class="bg-[#0B3C5D] hover:bg-blue-800 text-white px-6 py-3 rounded-xl w-full">
+                    Filtrar
+                </button>
+            </div>
+        </div>
+    </form>
+
 
     <!-- TABLA -->
     <div class="bg-white rounded-2xl shadow overflow-hidden">
