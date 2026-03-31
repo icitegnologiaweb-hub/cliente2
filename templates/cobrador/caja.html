@@ -3,46 +3,295 @@
 
 {% block content %}
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-32 space-y-6 text-white">
-<div class="bg-gradient-to-br from-blue-600 to-blue-500 rounded-3xl p-6 text-center shadow-xl">
+<style>
+.caja-shell{
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 120px;
+}
 
-    <div class="mt-3 text-xs opacity-70">
-        Saldo Total Disponible:
+.caja-balance-card{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 28px;
+    padding: 22px 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 20px 36px rgba(15,23,42,.16);
+    position: relative;
+    overflow: hidden;
+}
+
+.caja-balance-card::before{
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    right: -30px;
+    top: -25px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+}
+
+.caja-balance-card::after{
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    left: -20px;
+    bottom: -30px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+}
+
+.caja-balance-label{
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.72);
+}
+
+.caja-balance-value{
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.caja-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.caja-mini-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 16px 12px;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(15,23,42,.05);
+}
+
+.caja-mini-label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.caja-mini-value{
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.caja-green{ color: #059669; }
+.caja-red{ color: #dc2626; }
+.caja-yellow{ color: #ca8a04; }
+.caja-blue{ color: #2563eb; }
+
+.caja-section{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 26px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+    overflow: hidden;
+}
+
+.caja-section-btn{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 18px;
+    background: transparent;
+    color: #0f172a;
+}
+
+.caja-section-title{
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+}
+
+.caja-section-right{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.caja-section-total{
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.caja-icon-toggle{
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    transition: .2s ease;
+}
+
+.caja-section-content{
+    padding: 0 18px 18px;
+    color: #334155;
+}
+
+.caja-search{
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    border-radius: 16px;
+    padding: 12px 14px;
+    color: #0f172a;
+    font-size: 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+}
+
+.caja-search::placeholder{
+    color: #94a3b8;
+}
+
+.caja-search:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+}
+
+.caja-list{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.caja-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 12px 14px;
+    box-shadow: 0 6px 16px rgba(15,23,42,.03);
+}
+
+.caja-row-title{
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.caja-row-sub{
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.caja-row-value{
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.caja-empty{
+    font-size: 12px;
+    color: #64748b;
+    padding: 6px 2px;
+}
+
+.caja-capital-block{
+    margin-top: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 6px 16px rgba(15,23,42,.03);
+}
+
+.caja-capital-label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.caja-capital-value{
+    font-size: 14px;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.caja-close-btn{
+    width: 100%;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    padding: 16px;
+    border-radius: 22px;
+    font-weight: 800;
+    box-shadow: 0 18px 34px rgba(15,23,42,.16);
+    transition: all .2s ease;
+}
+
+.caja-close-btn:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+</style>
+
+<div class="caja-shell space-y-5">
+
+    <div class="caja-balance-card">
+        <div class="caja-balance-label">
+            Saldo total disponible
+        </div>
+
+        <div class="caja-balance-value {% if saldo_actual < 0 %}text-red-300{% else %}text-emerald-300{% endif %}">
+            ${{ "{:,.2f}".format(saldo_actual) }}
+        </div>
     </div>
-
-    <div class="text-lg font-semibold {% if saldo_actual < 0 %}text-red-200{% else %}text-green-200{% endif %}">
-        ${{ "{:,.2f}".format(saldo_actual) }}
-    </div>
-
-</div>
 
     <!-- ================= RESUMEN DEL DÍA ================= -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="caja-grid">
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Saldo Anterior</div>
-            <div class="font-semibold mt-1">
+        <div class="caja-mini-card">
+            <div class="caja-mini-label">Saldo anterior</div>
+            <div class="caja-mini-value">
                 $ {{ "{:,.2f}".format(saldo_anterior or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Cobros Hoy</div>
-            <div class="font-semibold text-green-400 mt-1">
+        <div class="caja-mini-card">
+            <div class="caja-mini-label">Cobros hoy</div>
+            <div class="caja-mini-value caja-green">
                 $ {{ "{:,.0f}".format(total_cobros or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Préstamos Hoy</div>
-            <div class="font-semibold text-red-400 mt-1">
+        <div class="caja-mini-card">
+            <div class="caja-mini-label">Préstamos hoy</div>
+            <div class="caja-mini-value caja-red">
                 $ {{ "{:,.0f}".format(total_prestamos or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Gastos Hoy</div>
-            <div class="font-semibold text-yellow-400 mt-1">
+        <div class="caja-mini-card">
+            <div class="caja-mini-label">Gastos hoy</div>
+            <div class="caja-mini-value caja-yellow">
                 $ {{ "{:,.0f}".format(total_gastos or 0) }}
             </div>
         </div>
@@ -50,37 +299,36 @@
     </div>
 
     <!-- ================= PRÉSTAMOS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="caja-section">
 
-        <button onclick="toggleSection('prestamos')"
-            class="w-full flex justify-between items-center p-5">
+        <button onclick="toggleSection('prestamos')" class="caja-section-btn">
 
-            <div class="font-semibold">Préstamos Realizados </div>
+            <div class="caja-section-title">Préstamos realizados</div>
 
-            <div class="flex items-center gap-3">
-                <span class="text-red-400 font-semibold">
+            <div class="caja-section-right">
+                <span class="caja-section-total caja-red">
                     $ {{ "{:,.0f}".format(total_prestamos or 0) }}
                 </span>
-                <span id="icon-prestamos" class="transition-transform">⌄</span>
+                <span id="icon-prestamos" class="caja-icon-toggle transition-transform">⌄</span>
             </div>
         </button>
 
-        <div id="prestamos" class="hidden px-5 pb-5">
+        <div id="prestamos" class="hidden caja-section-content">
 
             <input type="text" id="buscarPrestamo"
-                placeholder="Buscar cliente..."
-                class="w-full bg-[#0b2847] rounded-xl p-2 text-sm mb-3">
+                   placeholder="Buscar cliente..."
+                   class="caja-search mb-3">
 
-            <div class="space-y-2 text-sm max-h-52 overflow-y-auto">
+            <div class="caja-list">
 
                 {% for p in prestamos %}
-                <div class="flex justify-between prestamo-item"
-                    data-nombre="{{ p.cliente }}">
-                    <span>{{ p.cliente }}</span>
-                    <span>$ {{ "{:,.0f}".format(p.valor or 0) }}</span>
+                <div class="caja-row prestamo-item"
+                     data-nombre="{{ p.cliente }}">
+                    <span class="caja-row-title">{{ p.cliente }}</span>
+                    <span class="caja-row-value caja-red">$ {{ "{:,.0f}".format(p.valor or 0) }}</span>
                 </div>
                 {% else %}
-                <div class="text-xs opacity-60">
+                <div class="caja-empty">
                     No hubo préstamos hoy
                 </div>
                 {% endfor %}
@@ -89,44 +337,42 @@
         </div>
     </div>
 
-
     <!-- ================= COBROS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="caja-section">
 
-        <button onclick="toggleSection('cobros')"
-            class="w-full flex justify-between items-center p-5">
+        <button onclick="toggleSection('cobros')" class="caja-section-btn">
 
-            <div class="font-semibold">Cobros Realizados</div>
+            <div class="caja-section-title">Cobros realizados</div>
 
-            <div class="flex items-center gap-3">
-                <span class="text-green-400 font-semibold">
+            <div class="caja-section-right">
+                <span class="caja-section-total caja-green">
                     $ {{ "{:,.0f}".format(total_cobros or 0) }}
                 </span>
-                <span id="icon-cobros" class="transition-transform">⌄</span>
+                <span id="icon-cobros" class="caja-icon-toggle transition-transform">⌄</span>
             </div>
         </button>
 
-        <div id="cobros" class="hidden px-5 pb-5">
+        <div id="cobros" class="hidden caja-section-content">
 
-            <div class="space-y-3 text-sm max-h-52 overflow-y-auto">
+            <div class="caja-list">
 
                 {% if cobros and cobros|length > 0 %}
 
                     {% for c in cobros %}
-                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div class="caja-row">
                         <div>
-                            <div class="font-medium">
+                            <div class="caja-row-title">
                                 {{ c.cliente }}
                             </div>
                         </div>
-                        <div class="text-green-400 font-semibold">
+                        <div class="caja-row-value caja-green">
                             $ {{ "{:,.0f}".format(c.valor or 0) }}
                         </div>
                     </div>
                     {% endfor %}
 
                 {% else %}
-                    <div class="text-xs opacity-60">
+                    <div class="caja-empty">
                         No hubo cobros hoy
                     </div>
                 {% endif %}
@@ -135,78 +381,67 @@
 
         </div>
     </div>
+
     <!-- ================= GASTOS ================= -->
-    <!-- ================= GASTOS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="caja-section">
 
-        <button onclick="toggleSection('gastos')"
-            class="w-full flex justify-between items-center p-5">
+        <button onclick="toggleSection('gastos')" class="caja-section-btn">
 
-            <div class="font-semibold">Gastos Realizados</div>
+            <div class="caja-section-title">Gastos realizados</div>
 
-            <div class="flex items-center gap-3">
-                <span class="text-yellow-400 font-semibold">
+            <div class="caja-section-right">
+                <span class="caja-section-total caja-yellow">
                     {{ "{:,.2f}".format(total_gastos or 0) }}
                 </span>
-                <span id="icon-gastos" class="transition-transform duration-300">⌄</span>
+                <span id="icon-gastos" class="caja-icon-toggle transition-transform duration-300">⌄</span>
             </div>
         </button>
 
-        <!-- 🔥 SIEMPRE EXISTE EL CONTENEDOR -->
-        <div id="gastos"
-            class="hidden mt-4 space-y-2 text-sm px-5 pb-5">
-                <p class="font-semibold text-white">
-                          Los gastos deben ser consultados por el encargado
-                        </p>
-
+        <div id="gastos" class="hidden caja-section-content">
+            <p class="caja-row-title">
+                Los gastos deben ser consultados por el encargado
+            </p>
         </div>
 
     </div>
 
     <!-- ================= INGRESO DE CAPITAL ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="caja-section">
 
-        <button onclick="toggleSection('capital')"
-            class="w-full flex justify-between items-center p-5">
+        <button onclick="toggleSection('capital')" class="caja-section-btn">
 
-            <div class="font-semibold">
-                Abono a Capital
+            <div class="caja-section-title">
+                Abono a capital
             </div>
 
-            <div class="flex items-center gap-3">
-                <span class="text-green-400 font-semibold">
+            <div class="caja-section-right">
+                <span class="caja-section-total caja-green">
                     $ {{ "{:,.0f}".format(total_abono_capital  or 0) }}
                 </span>
-                <span id="icon-capital" class="transition-transform">⌄</span>
+                <span id="icon-capital" class="caja-icon-toggle transition-transform">⌄</span>
             </div>
         </button>
 
-        <div id="capital" class="hidden px-5 pb-5">
+        <div id="capital" class="hidden caja-section-content">
 
             {% if capital_hoy_lista %}
 
                 {% for cap in capital_hoy_lista %}
 
-                    <div class="mt-3 text-sm opacity-90 border-b border-white/10 pb-3 mb-3">
+                    <div class="caja-capital-block">
 
-                        <div class="opacity-60 text-xs">
-                            Fecha
-                        </div>
-                        <div class="mb-2">
+                        <div class="caja-capital-label">Fecha</div>
+                        <div class="caja-capital-value">
                             {{ cap.created_at[:10] }}
                         </div>
 
-                        <div class="opacity-60 text-xs">
-                            Valor
-                        </div>
-                        <div class="mb-2 text-green-400 font-semibold">
+                        <div class="caja-capital-label">Valor</div>
+                        <div class="caja-capital-value caja-green font-semibold">
                             $ {{ "{:,.0f}".format(cap.valor or 0) }}
                         </div>
 
-                        <div class="opacity-60 text-xs">
-                            Descripción
-                        </div>
-                        <div>
+                        <div class="caja-capital-label">Descripción</div>
+                        <div class="caja-capital-value">
                             {{ cap.descripcion or "Sin descripción" }}
                         </div>
 
@@ -216,69 +451,16 @@
 
             {% else %}
 
-                <div class="text-xs opacity-60">
+                <div class="caja-empty">
                     No se ha registrado abono de capital hoy
                 </div>
 
             {% endif %}
 
-</div>
-
-    </div>
-    <!-- ================= TOTAL RECIBIDO (TRANSFERENCIA) ================= -->
-    <!-- ================= TRANSFERENCIAS RECIBIDAS ================= -->
-    <div class="bg-[#0b2847] rounded-3xl shadow-lg overflow-hidden">
-
-        <button onclick="toggleSection('transferencias')"
-            class="w-full flex justify-between items-center p-5">
-
-            <div class="font-semibold">Recibido en Transferencias Hoy</div>
-
-            <div class="flex items-center gap-3">
-                <span class="text-blue-400 font-semibold">
-                    $ {{ "{:,.0f}".format(total_transferencias or 0) }}
-                </span>
-                <span id="icon-transferencias" class="transition-transform">⌄</span>
-            </div>
-        </button>
-
-        <div id="transferencias" class="hidden px-5 pb-5">
-
-            <div class="space-y-2 text-sm max-h-52 overflow-y-auto">
-
-                {% for t in transferencias_recibidas %}
-                <div class="flex justify-between">
-                    <div>
-                        <div class="font-semibold">
-                            {{ t.origen }}
-                        </div>
-                        <div class="text-xs opacity-60">
-                            {{ t.fecha }} - {{ t.descripcion }}
-                        </div>
-                    </div>
-                    <span class="text-blue-400">
-                        $ {{ "{:,.0f}".format(t.valor or 0) }}
-                    </span>
-                </div>
-                {% else %}
-                <div class="text-xs opacity-60">
-                    No se han recibido transferencias
-                </div>
-                {% endfor %}
-
-            </div>
-
         </div>
     </div>
-    <!-- ================= BOTÓN CERRAR DÍA ================= -->
-    <form method="POST" action="{{ url_for('cerrar_dia') }}">
-        <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700
-                       py-4 rounded-3xl font-semibold shadow-lg
-                       transition active:scale-95">
-            Cerrar Caja Hoy
-        </button>
-    </form>
+
+
 
 </div>
 

@@ -974,6 +974,9 @@ def registrar_pago():
 
     cuota_id = request.form.get("cuota_id")
     monto_pago = float(request.form.get("monto_pago") or 0)
+    tipo_pago = request.form.get("tipo_pago", "normal")
+    extra_interes = float(request.form.get("extra_interes") or 0)
+    aplicar_interes = request.form.get("aplicar_interes") == "true"
 
     if not cuota_id or monto_pago <= 0:
         return redirect(request.referrer)
@@ -995,15 +998,77 @@ def registrar_pago():
     numero_cuota_inicio = cuota["numero"]
 
     # =========================
+    # PAGO COMPENSATORIO
+    # =========================
+    if tipo_pago == "compensatorio":
+
+        pago_resp = supabase.table("pagos").insert({
+            "cuota_id": cuota_id,
+            "credito_id": credito_id,
+            "monto": monto_pago,
+            "fecha": ahora_colombia().isoformat(),
+            "cobrador_id": session["user_id"],
+            "tipo_pago": "compensatorio"
+        }).execute()
+
+        pago_id = pago_resp.data[0]["id"]
+        return redirect(url_for("recibo_pago", pago_id=pago_id))
+
+    # =========================
+    # SOLO INTERÉS
+    # No descuenta cuota ni saldo
+    # =========================
+    if tipo_pago == "intereses":
+
+        pago_resp = supabase.table("pagos").insert({
+            "cuota_id": cuota_id,
+            "credito_id": credito_id,
+            "monto": monto_pago,
+            "fecha": ahora_colombia().isoformat(),
+            "cobrador_id": session["user_id"],
+            "tipo_pago": "intereses"
+        }).execute()
+
+        pago_id = pago_resp.data[0]["id"]
+        return redirect(url_for("recibo_pago", pago_id=pago_id))
+
+    # =========================
+    # APLICAR INTERÉS A LA CUOTA
+    # =========================
+    if tipo_pago == "normal" and aplicar_interes and extra_interes > 0:
+
+        interes_actual_mora = float(cuota.get("valor_interes_mora") or 0)
+
+        supabase.table("cuotas").update({
+            "valor_interes_mora": interes_actual_mora + extra_interes
+        }).eq("id", cuota_id).execute()
+
+        # refrescar cuota seleccionada
+        cuota_resp = supabase.table("cuotas") \
+            .select("*") \
+            .eq("id", cuota_id) \
+            .single() \
+            .execute()
+
+        if cuota_resp.data:
+            cuota = cuota_resp.data
+
+    # =========================
     # TRAER CUOTAS DEL CRÉDITO
     # =========================
     cuotas = supabase.table("cuotas") \
         .select("*") \
         .eq("credito_id", credito_id) \
         .order("numero") \
-        .execute().data
+        .execute().data or []
 
     monto_restante = monto_pago
+
+    def total_cuota(c):
+        return float(c.get("valor") or 0) + float(c.get("valor_interes_mora") or 0)
+
+    def pagado_cuota(c):
+        return float(c.get("monto_pagado") or 0)
 
     # =========================
     # CALCULAR DEUDA TOTAL
@@ -1011,9 +1076,9 @@ def registrar_pago():
     total_deuda = 0
 
     for c in cuotas:
-        valor = float(c["valor"])
-        pagado = float(c.get("monto_pagado") or 0)
-        faltante = valor - pagado
+        valor_real = total_cuota(c)
+        pagado = pagado_cuota(c)
+        faltante = valor_real - pagado
 
         if faltante > 0:
             total_deuda += faltante
@@ -1024,10 +1089,10 @@ def registrar_pago():
     if monto_pago >= total_deuda:
 
         for c in cuotas:
-            valor = float(c["valor"])
+            valor_real = total_cuota(c)
 
             supabase.table("cuotas").update({
-                "monto_pagado": valor,
+                "monto_pagado": valor_real,
                 "estado": "pagado",
                 "fecha_pago_real": ahora_colombia().isoformat()
             }).eq("id", c["id"]).execute()
@@ -1043,32 +1108,24 @@ def registrar_pago():
             if monto_restante <= 0:
                 break
 
-            # 🔴 NO tocar cuotas anteriores
+            # no tocar cuotas anteriores
             if c["numero"] < numero_cuota_inicio:
                 continue
 
-            valor = float(c["valor"])
-            pagado = float(c.get("monto_pagado") or 0)
+            valor_real = total_cuota(c)
+            pagado = pagado_cuota(c)
 
-            if pagado >= valor:
+            if pagado >= valor_real:
                 continue
 
-            faltante = valor - pagado
+            faltante = valor_real - pagado
 
-            # =========================
-            # SI ALCANZA PARA PAGARLA
-            # =========================
+            # paga completa esa cuota
             if monto_restante >= faltante:
-
                 nuevo_pagado = pagado + faltante
                 estado = "pagado"
                 monto_restante -= faltante
-
-            # =========================
-            # PAGO PARCIAL
-            # =========================
             else:
-
                 nuevo_pagado = pagado + monto_restante
                 estado = "pendiente"
                 monto_restante = 0
@@ -1087,7 +1144,8 @@ def registrar_pago():
         "credito_id": credito_id,
         "monto": monto_pago,
         "fecha": ahora_colombia().isoformat(),
-        "cobrador_id": session["user_id"]
+        "cobrador_id": session["user_id"],
+        "tipo_pago": tipo_pago
     }).execute()
 
     pago_id = pago_resp.data[0]["id"]
@@ -1095,13 +1153,22 @@ def registrar_pago():
     # =========================
     # VERIFICAR SI CRÉDITO TERMINÓ
     # =========================
-    cuotas_pendientes = supabase.table("cuotas") \
-        .select("id") \
+    cuotas_actualizadas = supabase.table("cuotas") \
+        .select("id, valor, monto_pagado, valor_interes_mora") \
         .eq("credito_id", credito_id) \
-        .eq("estado", "pendiente") \
-        .execute()
+        .execute().data or []
 
-    if not cuotas_pendientes.data:
+    credito_terminado = True
+
+    for c in cuotas_actualizadas:
+        valor_real = float(c.get("valor") or 0) + float(c.get("valor_interes_mora") or 0)
+        pagado = float(c.get("monto_pagado") or 0)
+
+        if pagado < valor_real:
+            credito_terminado = False
+            break
+
+    if credito_terminado:
         supabase.table("creditos").update({
             "estado": "pagado"
         }).eq("id", credito_id).execute()
@@ -1420,8 +1487,9 @@ def inyectar_notificaciones():
 def nueva_solicitud_cupo():
 
     # 🔐 Validar sesión
-    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor", "administrador"]:
+    if "user_id" not in session or session.get("rol") not in ["cobrador", "supervisor", "administrador"]:
         return redirect(url_for("login_app"))
+
     # 🔒 Validar ruta activa
     if not session.get("ruta_id"):
         flash("Debe seleccionar una ruta", "warning")
@@ -1433,14 +1501,14 @@ def nueva_solicitud_cupo():
 @app.route("/buscar_cliente_por_cedula/<cedula>")
 def buscar_cliente_por_cedula(cedula):
 
-    try:
-        cedula_int = int(cedula)
-    except:
+    cedula = str(cedula).strip()
+
+    if not cedula:
         return jsonify({"success": False})
 
     cliente = supabase.table("clientes") \
-        .select("id, nombre, direccion, telefono_principal") \
-        .eq("identificacion", cedula_int) \
+        .select("id, nombre, identificacion, direccion, telefono_principal") \
+        .eq("identificacion", cedula) \
         .limit(1) \
         .execute()
 
@@ -1452,22 +1520,26 @@ def buscar_cliente_por_cedula(cedula):
     else:
         return jsonify({"success": False})
 
+
 @app.route("/guardar_solicitud_cupo", methods=["POST"])
 def guardar_solicitud_cupo():
 
     # 🔐 Validar sesión
-    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor", "administrador"]:
+    if "user_id" not in session or session.get("rol") not in ["cobrador", "supervisor", "administrador"]:
         return redirect(url_for("login_app"))
 
-    cedula = request.form.get("cedula", "").strip()
+    if not session.get("ruta_id"):
+        flash("Debe seleccionar una ruta", "warning")
+        return redirect(url_for("dashboard_cobrador"))
+
+    tipo_cliente = (request.form.get("tipo_cliente") or "").strip().lower()
     monto_raw = request.form.get("monto", "").strip()
 
     # ==========================
-    # VALIDAR DATOS
+    # VALIDAR MONTO
     # ==========================
-
-    if not cedula or not monto_raw:
-        flash("Todos los campos son obligatorios", "danger")
+    if not monto_raw:
+        flash("Debe ingresar el monto solicitado", "danger")
         return redirect(url_for("nueva_solicitud_cupo"))
 
     try:
@@ -1478,45 +1550,106 @@ def guardar_solicitud_cupo():
         flash("Monto inválido", "danger")
         return redirect(url_for("nueva_solicitud_cupo"))
 
-    # ==========================
-    # VALIDAR QUE CLIENTE EXISTA
-    # ==========================
+    if tipo_cliente not in ["existente", "nuevo"]:
+        flash("Debe seleccionar el tipo de cliente", "danger")
+        return redirect(url_for("nueva_solicitud_cupo"))
 
-    cliente = supabase.table("clientes") \
-        .select("id, nombre, identificacion") \
-        .eq("identificacion", cedula) \
+    # =========================================================
+    # CASO 1: CLIENTE EXISTENTE
+    # =========================================================
+    if tipo_cliente == "existente":
+
+        cedula = request.form.get("cedula_existente", "").strip()
+
+        if not cedula:
+            flash("Debe ingresar la cédula del cliente", "danger")
+            return redirect(url_for("nueva_solicitud_cupo"))
+
+        cliente = supabase.table("clientes") \
+            .select("id, nombre, identificacion, direccion") \
+            .eq("identificacion", cedula) \
+            .limit(1) \
+            .execute()
+
+        if not cliente.data:
+            flash("El cliente no existe en el sistema", "danger")
+            return redirect(url_for("nueva_solicitud_cupo"))
+
+        cliente_data = cliente.data[0]
+
+        pendiente = supabase.table("solicitudes_aumento_cupo") \
+            .select("id") \
+            .eq("cedula", cedula) \
+            .eq("estado", "pendiente") \
+            .limit(1) \
+            .execute()
+
+        if pendiente.data:
+            flash("Ya existe una solicitud pendiente para este cliente", "warning")
+            return redirect(url_for("buzon_aumento_cupo"))
+
+        insert = supabase.table("solicitudes_aumento_cupo").insert({
+            "tipo_cliente": "existente",
+            "cliente_id": cliente_data["id"],
+            "cliente_nombre": cliente_data["nombre"],
+            "cedula": cedula,
+            "direccion": cliente_data.get("direccion"),
+            "descripcion_actividad": None,
+            "monto_solicitado": monto,
+            "usuario_id": session["user_id"],
+            "ruta_id": session.get("ruta_id"),
+            "estado": "pendiente"
+        }).execute()
+
+        if not insert.data:
+            flash("Error al enviar la solicitud", "danger")
+            return redirect(url_for("nueva_solicitud_cupo"))
+
+        flash("Solicitud enviada correctamente", "success")
+        return redirect(url_for("buzon_aumento_cupo"))
+
+    # =========================================================
+    # CASO 2: CLIENTE NUEVO
+    # =========================================================
+    nombre_nuevo = request.form.get("nombre_nuevo", "").strip()
+    cedula_nuevo = request.form.get("cedula_nuevo", "").strip()
+    direccion_nuevo = request.form.get("direccion_nuevo", "").strip()
+    descripcion_nuevo = request.form.get("descripcion_nuevo", "").strip()
+
+    if not nombre_nuevo or not cedula_nuevo or not direccion_nuevo or not descripcion_nuevo:
+        flash("Todos los campos del cliente nuevo son obligatorios", "danger")
+        return redirect(url_for("nueva_solicitud_cupo"))
+
+    # Validar que no exista ya como cliente
+    cliente_existente = supabase.table("clientes") \
+        .select("id") \
+        .eq("identificacion", cedula_nuevo) \
         .limit(1) \
         .execute()
 
-    if not cliente.data:
-        flash("El cliente no existe en el sistema", "danger")
+    if cliente_existente.data:
+        flash("Ese cliente ya existe en el sistema. Seleccione 'Cliente existente'.", "warning")
         return redirect(url_for("nueva_solicitud_cupo"))
 
-    cliente_data = cliente.data[0]
-
-    # ==========================
-    # VALIDAR QUE NO EXISTA PENDIENTE
-    # ==========================
-
+    # Validar que no tenga solicitud pendiente
     pendiente = supabase.table("solicitudes_aumento_cupo") \
         .select("id") \
-        .eq("cedula", cedula) \
+        .eq("cedula", cedula_nuevo) \
         .eq("estado", "pendiente") \
         .limit(1) \
         .execute()
 
     if pendiente.data:
-        flash("Ya existe una solicitud pendiente para este cliente", "warning")
+        flash("Ya existe una solicitud pendiente para esta cédula", "warning")
         return redirect(url_for("buzon_aumento_cupo"))
 
-    # ==========================
-    # CREAR SOLICITUD
-    # ==========================
-
     insert = supabase.table("solicitudes_aumento_cupo").insert({
-        "cliente_id": cliente_data["id"],  # 🔥 mejor guardar id real
-        "cliente_nombre": cliente_data["nombre"],
-        "cedula": cedula,
+        "tipo_cliente": "nuevo",
+        "cliente_id": None,
+        "cliente_nombre": nombre_nuevo,
+        "cedula": cedula_nuevo,
+        "direccion": direccion_nuevo,
+        "descripcion_actividad": descripcion_nuevo,
         "monto_solicitado": monto,
         "usuario_id": session["user_id"],
         "ruta_id": session.get("ruta_id"),
@@ -1530,13 +1663,26 @@ def guardar_solicitud_cupo():
     flash("Solicitud enviada correctamente", "success")
     return redirect(url_for("buzon_aumento_cupo"))
 
-@app.route("/admin/solicitud/<id>/<accion>")
-def procesar_solicitud(id, accion):
+@app.route("/admin/solicitud/procesar", methods=["POST"])
+def procesar_solicitud():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    solicitud_id = request.form.get("solicitud_id")
+    accion = request.form.get("accion")
+    motivo = (request.form.get("motivo") or "").strip()
+
     if accion not in ["aprobado", "rechazado"]:
+        flash("Acción inválida", "danger")
+        return redirect(url_for("ver_solicitudes_cupo"))
+
+    if not solicitud_id:
+        flash("Solicitud inválida", "danger")
+        return redirect(url_for("ver_solicitudes_cupo"))
+
+    if not motivo:
+        flash("Debe ingresar el motivo de aprobación o rechazo", "warning")
         return redirect(url_for("ver_solicitudes_cupo"))
 
     oficina_id = session.get("oficina_id")
@@ -1548,7 +1694,7 @@ def procesar_solicitud(id, accion):
     # 🔎 Traer solicitud
     solicitud_resp = supabase.table("solicitudes_aumento_cupo") \
         .select("*") \
-        .eq("id", id) \
+        .eq("id", solicitud_id) \
         .single() \
         .execute()
 
@@ -1558,7 +1704,7 @@ def procesar_solicitud(id, accion):
 
     solicitud = solicitud_resp.data
 
-    # 🔒 Validar que la solicitud pertenezca a una ruta de la oficina activa
+    # 🔒 Validar que pertenezca a una ruta de la oficina activa
     ruta_validacion = supabase.table("rutas") \
         .select("id, oficina_id") \
         .eq("id", solicitud["ruta_id"]) \
@@ -1569,24 +1715,32 @@ def procesar_solicitud(id, accion):
         flash("No tiene permiso para modificar esta solicitud", "danger")
         return redirect(url_for("ver_solicitudes_cupo"))
 
-    # 🔥 Actualizar estado
-    supabase.table("solicitudes_aumento_cupo") \
-        .update({"estado": accion}) \
-        .eq("id", id) \
+    # 🔥 Actualizar estado y motivo
+    update_resp = supabase.table("solicitudes_aumento_cupo") \
+        .update({
+            "estado": accion,
+            "motivo_respuesta": motivo
+        }) \
+        .eq("id", solicitud_id) \
         .execute()
+
+    if not update_resp.data:
+        flash("No fue posible actualizar la solicitud", "danger")
+        return redirect(url_for("ver_solicitudes_cupo"))
 
     # 🔔 Crear notificación si existe usuario
     if solicitud.get("usuario_id"):
+        texto_accion = "APROBADA" if accion == "aprobado" else "RECHAZADA"
 
         supabase.table("notificaciones").insert({
             "usuario_id": solicitud["usuario_id"],
             "titulo": "Solicitud de cupo actualizada",
-            "mensaje": f"Tu solicitud para {solicitud['cliente_nombre']} fue {accion.upper()}",
+            "mensaje": f"Tu solicitud para {solicitud.get('cliente_nombre', 'cliente')} fue {texto_accion}. Motivo: {motivo}",
             "tipo": "success" if accion == "aprobado" else "danger",
             "leida": False
         }).execute()
 
-    flash("Solicitud actualizada", "success")
+    flash("Solicitud actualizada correctamente", "success")
     return redirect(url_for("ver_solicitudes_cupo"))
 
 @app.route("/admin/solicitudes_cupo")
@@ -1619,10 +1773,44 @@ def ver_solicitudes_cupo():
         .order("fecha", desc=True) \
         .execute().data or []
 
+    # Formatear fecha para la vista
+    for s in solicitudes:
+        fecha_iso = s.get("fecha")
+
+        if fecha_iso:
+            try:
+                fecha_obj = datetime.fromisoformat(fecha_iso.replace("Z", "+00:00"))
+                s["fecha_formateada"] = fecha_obj.strftime("%d/%m/%Y %H:%M")
+                s["fecha_filtro"] = fecha_obj.strftime("%Y-%m-%d")
+            except:
+                s["fecha_formateada"] = fecha_iso
+                s["fecha_filtro"] = fecha_iso[:10]
+        else:
+            s["fecha_formateada"] = ""
+            s["fecha_filtro"] = ""
+
+        s["tipo_cliente"] = s.get("tipo_cliente") or "existente"
+
     return render_template(
         "solicitudes_cupo.html",
         solicitudes=solicitudes
     )
+import calendar
+
+def sumar_meses(fecha_dt, meses):
+    year = fecha_dt.year + ((fecha_dt.month - 1 + meses) // 12)
+    month = ((fecha_dt.month - 1 + meses) % 12) + 1
+    day = min(fecha_dt.day, calendar.monthrange(year, month)[1])
+    return fecha_dt.replace(year=year, month=month, day=day)
+
+def obtener_url_publica(bucket, file_path):
+    url = supabase.storage.from_(bucket).get_public_url(file_path)
+
+    if isinstance(url, dict):
+        return url.get("publicUrl") or url.get("publicURL") or url.get("signedURL")
+
+    return url
+
 
 @app.route("/guardar_venta_cobrador", methods=["POST"])
 def guardar_venta_cobrador():
@@ -1654,6 +1842,18 @@ def guardar_venta_cobrador():
     form_data_error["foto_negocio"] = request.form.get("foto_negocio_actual", "")
     form_data_error["firma_cliente"] = request.form.get("firma_cliente_actual", "")
 
+    def render_form_error():
+        return render_template(
+            "cobrador/nueva_venta_cobrador.html",
+            rutas=rutas,
+            ruta_actual=ruta_id,
+            form_data=form_data_error,
+            es_renovacion=request.form.get("es_renovacion") == "1",
+            monto_aprobado=None,
+            cliente_aprobado=None,
+            modo_aumento=False
+        )
+
     # ==========================
     # VALIDAR CAMPOS NUMÉRICOS
     # ==========================
@@ -1661,33 +1861,47 @@ def guardar_venta_cobrador():
         valor_venta_raw = request.form.get("valor_venta", "").strip()
         tasa_raw = request.form.get("tasa", "").strip()
         cuotas_raw = request.form.get("cuotas", "").strip()
+        fecha_inicio = (request.form.get("fecha_inicio") or (date.today() + timedelta(days=1)).isoformat()).strip()
 
         valor_venta = float(valor_venta_raw.replace(".", "").replace(",", "."))
         tasa = float(tasa_raw.replace(",", "."))
         cuotas = int(cuotas_raw)
 
-        if valor_venta <= 0 or cuotas <= 0:
+        datetime.strptime(fecha_inicio, "%Y-%m-%d")
+
+        if valor_venta <= 0 or cuotas <= 0 or tasa < 0:
             raise ValueError
 
     except Exception as e:
         print("ERROR NUMERICO:", e)
         flash("Datos numéricos inválidos", "danger")
-        return render_template(
-            "cobrador/nueva_venta_cobrador.html",
-            rutas=rutas,
-            ruta_actual=ruta_id,
-            form_data=form_data_error,
-            es_renovacion=request.form.get("es_renovacion") == "1"
-        )
+        return render_form_error()
 
     identificacion = (request.form.get("identificacion") or "").strip()
-    nombre = request.form.get("nombre")
-    direccion = request.form.get("direccion")
-    direccion_negocio = request.form.get("direccion_negocio")
+    nombre = (request.form.get("nombre") or "").strip()
+    direccion = (request.form.get("direccion") or "").strip()
+    direccion_negocio = (request.form.get("direccion_negocio") or "").strip()
     codigo_pais = request.form.get("codigo_pais") or "57"
-    telefono = request.form.get("telefono")
-    fecha_inicio = (date.today() + timedelta(days=1)).isoformat()
-    tipo_prestamo = request.form.get("tipo_prestamo")
+    telefono = (request.form.get("telefono") or "").strip()
+    tipo_prestamo = (request.form.get("tipo_prestamo") or "").strip()
+    descripcion_credito = (request.form.get("descripcion_credito") or "").strip()
+
+    # ==========================
+    # FIADOR
+    # ==========================
+    requiere_fiador = (request.form.get("requiere_fiador") or "no").strip().lower()
+    fiador_nombre = (request.form.get("fiador_nombre") or "").strip()
+    fiador_telefono = (request.form.get("fiador_telefono") or "").strip()
+    fiador_cedula = (request.form.get("fiador_cedula") or "").strip()
+
+    if requiere_fiador == "si":
+        if not fiador_nombre or not fiador_telefono or not fiador_cedula:
+            flash("Debes completar los datos del fiador", "danger")
+            return render_form_error()
+    else:
+        fiador_nombre = None
+        fiador_telefono = None
+        fiador_cedula = None
 
     # 🔥 Fotos/firma actuales para renovación
     foto_cliente_actual = request.form.get("foto_cliente_actual") or None
@@ -1715,13 +1929,7 @@ def guardar_venta_cobrador():
             f"El monto supera la venta máxima permitida para esta ruta (${venta_maxima_permitida:,.0f})",
             "danger"
         )
-        return render_template(
-            "cobrador/nueva_venta_cobrador.html",
-            rutas=rutas,
-            ruta_actual=ruta_id,
-            form_data=form_data_error,
-            es_renovacion=request.form.get("es_renovacion") == "1"
-        )
+        return render_form_error()
 
     # ==========================
     # ASIGNAR POSICIÓN AUTOMÁTICA POR RUTA
@@ -1737,14 +1945,10 @@ def guardar_venta_cobrador():
         if c.get("posicion") is not None
     ]
 
-    if posiciones:
-        nueva_posicion = max(posiciones) + 1
-    else:
-        nueva_posicion = 1
+    nueva_posicion = max(posiciones) + 1 if posiciones else 1
 
     # ==========================
-    # ✅ EVITAR CRÉDITO DUPLICADO POR CÉDULA (CLIENTE + RUTA)
-    # (ANTES de subir firma/fotos para no crear archivos huérfanos)
+    # EVITAR CRÉDITO DUPLICADO POR CÉDULA
     # ==========================
     cliente_existente_resp = supabase.table("clientes") \
         .select("id") \
@@ -1767,7 +1971,6 @@ def guardar_venta_cobrador():
             credito_existente = credito_dup_resp.data[0]
             credito_existente_id = credito_existente["id"]
 
-            # 🔍 Validar si realmente sigue activo o ya está completamente pago
             cuotas_dup_resp = supabase.table("cuotas") \
                 .select("estado") \
                 .eq("credito_id", credito_existente_id) \
@@ -1797,7 +2000,6 @@ def guardar_venta_cobrador():
                 for c in cuotas_dup
             )
 
-            # ✅ Si ya está pago, lo finalizamos y dejamos continuar
             if todas_pagadas_dup and saldo_dup <= 0:
                 supabase.table("creditos") \
                     .update({"estado": "finalizado"}) \
@@ -1822,7 +2024,6 @@ def guardar_venta_cobrador():
     if cliente_resp.data:
         cliente_id = cliente_resp.data[0]["id"]
 
-        # 🔥 Actualizar datos del cliente si cambian
         supabase.table("clientes").update({
             "nombre": nombre,
             "direccion": direccion,
@@ -1843,13 +2044,7 @@ def guardar_venta_cobrador():
 
         if not nuevo_cliente.data:
             flash("Error creando cliente", "danger")
-            return render_template(
-                "cobrador/nueva_venta_cobrador.html",
-                rutas=rutas,
-                ruta_actual=ruta_id,
-                form_data=form_data_error,
-                es_renovacion=request.form.get("es_renovacion") == "1"
-            )
+            return render_form_error()
 
         cliente_id = nuevo_cliente.data[0]["id"]
 
@@ -1866,10 +2061,7 @@ def guardar_venta_cobrador():
 
             image = Image.open(BytesIO(firma_bytes)).convert("RGBA")
 
-            # 🔹 Crear fondo blanco
             background = Image.new("RGB", image.size, (255, 255, 255))
-
-            # 🔹 Pegar firma sobre fondo blanco usando canal alpha
             background.paste(image, mask=image.split()[3])
 
             firma_filename = f"{cliente_id}_{uuid.uuid4()}_firma.jpg"
@@ -1884,7 +2076,7 @@ def guardar_venta_cobrador():
                 {"content-type": "image/jpeg"}
             )
 
-            firma_url = supabase.storage.from_("clientes").get_public_url(firma_filename)
+            firma_url = obtener_url_publica("clientes", firma_filename)
 
         except Exception as e:
             print("Error procesando firma:", e)
@@ -1896,7 +2088,6 @@ def guardar_venta_cobrador():
     foto_cedula = request.files.get("foto_cedula")
     foto_negocio = request.files.get("foto_negocio")
 
-    # 🔥 Si no suben nuevas, conservar las anteriores
     cliente_url = foto_cliente_actual
     if foto_cliente and foto_cliente.filename:
         try:
@@ -1908,7 +2099,7 @@ def guardar_venta_cobrador():
                 {"content-type": foto_cliente.content_type}
             )
 
-            cliente_url = supabase.storage.from_("clientes").get_public_url(cliente_path)
+            cliente_url = obtener_url_publica("clientes", cliente_path)
 
         except Exception as e:
             print("Error subiendo foto cliente:", e)
@@ -1924,7 +2115,7 @@ def guardar_venta_cobrador():
                 {"content-type": foto_cedula.content_type}
             )
 
-            cedula_url = supabase.storage.from_("clientes").get_public_url(cedula_path)
+            cedula_url = obtener_url_publica("clientes", cedula_path)
 
         except Exception as e:
             print("Error subiendo cédula:", e)
@@ -1940,7 +2131,7 @@ def guardar_venta_cobrador():
                 {"content-type": foto_negocio.content_type}
             )
 
-            negocio_url = supabase.storage.from_("clientes").get_public_url(negocio_path)
+            negocio_url = obtener_url_publica("clientes", negocio_path)
 
         except Exception as e:
             print("Error subiendo negocio:", e)
@@ -1954,14 +2145,15 @@ def guardar_venta_cobrador():
     # ==========================
     # CREAR CRÉDITO
     # ==========================
-    valor_total = valor_venta + (valor_venta * tasa / 100)
-    valor_cuota = valor_total / cuotas
+    valor_total = round(valor_venta + (valor_venta * tasa / 100), 2)
+    valor_cuota = round(valor_total / cuotas, 2)
 
     credito_resp = supabase.table("creditos").insert({
         "cliente_id": cliente_id,
         "ruta_id": ruta_id,
         "posicion": nueva_posicion,
         "tipo_prestamo": tipo_prestamo,
+        "descripcion": descripcion_credito or None,
         "valor_venta": valor_venta,
         "tasa": tasa,
         "valor_total": valor_total,
@@ -1974,18 +2166,16 @@ def guardar_venta_cobrador():
         "foto_cliente": cliente_url,
         "firma_cliente": firma_url,
         "latitud": float(latitud) if latitud else None,
-        "longitud": float(longitud) if longitud else None
+        "longitud": float(longitud) if longitud else None,
+        "requiere_fiador": True if requiere_fiador == "si" else False,
+        "fiador_nombre": fiador_nombre,
+        "fiador_telefono": fiador_telefono,
+        "fiador_cedula": fiador_cedula
     }).execute()
 
     if not credito_resp.data:
         flash("Error al registrar el crédito", "danger")
-        return render_template(
-            "cobrador/nueva_venta_cobrador.html",
-            rutas=rutas,
-            ruta_actual=ruta_id,
-            form_data=form_data_error,
-            es_renovacion=request.form.get("es_renovacion") == "1"
-        )
+        return render_form_error()
 
     credito_id = credito_resp.data[0]["id"]
 
@@ -1993,55 +2183,80 @@ def guardar_venta_cobrador():
     # CREAR CUOTAS SEGÚN TIPO
     # ==========================
     fecha_base = datetime.strptime(fecha_inicio, "%Y-%m-%d")
-    fecha_actual = fecha_base
-    cuotas_creadas = 0
 
-    while cuotas_creadas < cuotas:
+    # 🔵 SEMANAL
+    if tipo_prestamo == "Semanal":
+        for i in range(cuotas):
+            fecha_pago = fecha_base + timedelta(days=(i + 1) * 7)
 
-        crear_cuota = False
-
-        # ==========================
-        # 🔵 SEMANAL
-        # ==========================
-        if tipo_prestamo == "Semanal":
-            fecha_pago = fecha_base + timedelta(days=(cuotas_creadas + 1) * 7)
-            crear_cuota = True
-
-        # ==========================
-        # 🟢 DIARIO LUNES A VIERNES
-        # ==========================
-        elif tipo_prestamo == "Diario Lunes a Viernes":
-            if fecha_actual.weekday() < 5:
-                fecha_pago = fecha_actual
-                crear_cuota = True
-
-        # ==========================
-        # 🟡 DIARIO LUNES A SÁBADO
-        # ==========================
-        elif tipo_prestamo == "Diario Lunes a Sábado":
-            if fecha_actual.weekday() < 6:
-                fecha_pago = fecha_actual
-                crear_cuota = True
-
-        # ==========================
-        # 🔹 DEFAULT
-        # ==========================
-        else:
-            fecha_pago = fecha_actual
-            crear_cuota = True
-
-        if crear_cuota:
             supabase.table("cuotas").insert({
                 "credito_id": credito_id,
-                "numero": cuotas_creadas + 1,
+                "numero": i + 1,
                 "valor": valor_cuota,
                 "estado": "pendiente",
                 "fecha_pago": fecha_pago.date().isoformat()
             }).execute()
 
-            cuotas_creadas += 1
+    # 🟣 QUINCENAL
+    elif tipo_prestamo == "Quincenal":
+        for i in range(cuotas):
+            fecha_pago = fecha_base + timedelta(days=(i + 1) * 15)
 
-        if tipo_prestamo != "Semanal":
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": i + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+    # 🟠 MENSUAL
+    elif tipo_prestamo == "Mensual":
+        for i in range(cuotas):
+            fecha_pago = sumar_meses(fecha_base, i + 1)
+
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": i + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+    # 🟢 DIARIOS / DEFAULT
+    else:
+        fecha_actual = fecha_base
+        cuotas_creadas = 0
+
+        while cuotas_creadas < cuotas:
+
+            crear_cuota = False
+
+            if tipo_prestamo == "Diario Lunes a Viernes":
+                if fecha_actual.weekday() < 5:
+                    fecha_pago = fecha_actual
+                    crear_cuota = True
+
+            elif tipo_prestamo == "Diario Lunes a Sábado":
+                if fecha_actual.weekday() < 6:
+                    fecha_pago = fecha_actual
+                    crear_cuota = True
+
+            else:
+                fecha_pago = fecha_actual
+                crear_cuota = True
+
+            if crear_cuota:
+                supabase.table("cuotas").insert({
+                    "credito_id": credito_id,
+                    "numero": cuotas_creadas + 1,
+                    "valor": valor_cuota,
+                    "estado": "pendiente",
+                    "fecha_pago": fecha_pago.date().isoformat()
+                }).execute()
+
+                cuotas_creadas += 1
+
             fecha_actual += timedelta(days=1)
 
     flash("Venta registrada correctamente", "success")

@@ -3,43 +3,342 @@
 
 {% block content %}
 
-<div class="p-4 space-y-6 text-white">
+<style>
+.form-shell{
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 96px;
+}
 
-    <!-- Header -->
-    <div class="text-xl font-semibold">
-        Registrar Venta
+.bank-page-title{
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+}
+
+.bank-page-subtitle{
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.bank-back-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 10px 14px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(15,23,42,.04);
+    transition: all .2s ease;
+}
+
+.bank-back-btn:hover{
+    background: #ffffff;
+    transform: translateY(-1px);
+}
+
+.bank-note{
+    border-radius: 20px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 10px 24px rgba(15,23,42,.04);
+}
+
+.bank-note-success{
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+}
+
+.bank-note-info{
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+.bank-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+}
+
+.bank-card-title{
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 12px;
+}
+
+.bank-input,
+.bank-select,
+.bank-textarea{
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    border-radius: 16px;
+    padding: 13px 14px;
+    color: #0f172a;
+    font-size: 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+    transition: all .2s ease;
+}
+
+.bank-input::placeholder,
+.bank-textarea::placeholder{
+    color: #94a3b8;
+}
+
+.bank-input:focus,
+.bank-select:focus,
+.bank-textarea:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+}
+
+.bank-select[readonly],
+.bank-input[readonly],
+.bank-textarea[readonly]{
+    background: #f8fafc;
+}
+
+.bank-helper{
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    padding-left: 4px;
+}
+
+.bank-summary{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 20px;
+    padding: 16px;
+    color: white;
+    box-shadow: 0 18px 34px rgba(15,23,42,.14);
+}
+
+.bank-summary-soft{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    text-align: center;
+}
+
+.bank-summary-soft .label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.bank-summary-soft .value{
+    margin-top: 6px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.bank-summary-soft .value-green{
+    color: #059669;
+}
+
+.bank-alert{
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 8px;
+}
+
+.bank-action-btn{
+    width: 100%;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all .2s ease;
+}
+
+.bank-btn-dark{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    box-shadow: 0 14px 30px rgba(15,23,42,.16);
+}
+
+.bank-btn-dark:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+
+.bank-btn-blue{
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 14px 30px rgba(37,99,235,.18);
+}
+
+.bank-btn-blue:hover{
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+.bank-btn-gray{
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.bank-btn-gray:hover{
+    background: #cbd5e1;
+}
+
+.bank-btn-ghost{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    border-radius: 14px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+
+.bank-btn-ghost:hover{
+    background: #ffffff;
+}
+
+.preview-panel{
+    display: none;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    font-size: 13px;
+    color: #334155;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.preview-panel .cuota-row{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px 0;
+}
+
+.bank-canvas{
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    width: 100%;
+    height: 170px;
+    background: white;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+.bank-map{
+    display: none;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    height: 160px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.file-box{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+}
+
+.file-label{
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.file-preview-note{
+    font-size: 11px;
+    color: #059669;
+    margin-bottom: 6px;
+}
+
+.file-input{
+    width: 100%;
+    font-size: 13px;
+    color: #475569;
+}
+
+.file-input::file-selector-button{
+    border: none;
+    background: #0f172a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.bank-mini-text{
+    font-size: 12px;
+    color: #64748b;
+}
+
+.bank-submit{
+    width: 100%;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    padding: 16px;
+    border-radius: 20px;
+    font-weight: 800;
+    box-shadow: 0 18px 34px rgba(15,23,42,.16);
+    transition: all .2s ease;
+}
+
+.bank-submit:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+</style>
+
+<div class="form-shell space-y-5">
+
+    <div>
+        <div class="bank-page-title">Registrar crédito</div>
+        <div class="bank-page-subtitle">Completa la información del cliente, crédito y soportes</div>
     </div>
 
-    <button onclick="history.back()"
-            class="flex items-center gap-2
-                bg-white/10 backdrop-blur
-                px-4 py-2 rounded-xl
-                text-white text-sm
-                hover:bg-white/20
-                transition shadow">
-
+    <button onclick="history.back()" class="bank-back-btn">
         <svg xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
+             class="h-4 w-4"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
             <path stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"/>
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"/>
         </svg>
-
         Regresar
     </button>
 
     {% if es_renovacion %}
-    <div class="bg-green-600/20 border border-green-400 text-green-300 rounded-2xl p-4 text-sm shadow">
+    <div class="bank-note bank-note-success">
         🔄 Renovación de crédito: se cargó automáticamente la información del cliente para registrar el nuevo crédito.
     </div>
     {% endif %}
 
     {% if monto_aprobado and not es_renovacion %}
-    <div class="bg-blue-600/20 border border-blue-400 text-blue-200 rounded-2xl p-4 text-sm shadow">
+    <div class="bank-note bank-note-info">
         ✅ Aumento de cupo aprobado: se cargó el cliente y el monto aprobado para registrar la venta.
     </div>
     {% endif %}
@@ -47,7 +346,7 @@
     <form method="POST"
           action="{{ url_for('guardar_venta_cobrador') }}"
           enctype="multipart/form-data"
-          class="space-y-6">
+          class="space-y-5">
 
         <input type="hidden"
                name="cliente_id"
@@ -74,16 +373,13 @@
                value="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente', '')) if form_data else '' }}">
 
         <!-- ================= RUTA ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-3">
-
-            <div class="text-sm text-blue-200 font-semibold">
-                Ruta Actual
-            </div>
+        <div class="bank-card space-y-3">
+            <div class="bank-card-title">Ruta actual</div>
 
             <select name="ruta_id"
                     id="rutaSelect"
                     required
-                    class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                    class="bank-select">
 
                 {% for ruta in rutas %}
                     <option value="{{ ruta.id }}"
@@ -94,107 +390,84 @@
                 {% endfor %}
 
             </select>
-
         </div>
 
         <!-- ================= CLIENTE ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-3">
-
-            <div class="text-sm text-blue-200 font-semibold">
-                Datos del Cliente
-            </div>
+        <div class="bank-card space-y-3">
+            <div class="bank-card-title">Datos del cliente</div>
 
             <input type="text"
-                name="identificacion"
-                value="{{ form_data.get('identificacion') if form_data else (cliente_aprobado.identificacion if cliente_aprobado else '') }}"
-                {% if modo_aumento and not es_renovacion %}readonly{% endif %}
-                placeholder="Identificación"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                   name="identificacion"
+                   value="{{ form_data.get('identificacion') if form_data else (cliente_aprobado.identificacion if cliente_aprobado else '') }}"
+                   {% if modo_aumento and not es_renovacion %}readonly{% endif %}
+                   placeholder="Identificación"
+                   required
+                   class="bank-input">
 
             <input type="text"
-                name="nombre"
-                value="{{ form_data.get('nombre') if form_data else (cliente_aprobado.nombre if cliente_aprobado else '') }}"
-                {% if modo_aumento and not es_renovacion %}readonly{% endif %}
-                placeholder="Nombre completo"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                   name="nombre"
+                   value="{{ form_data.get('nombre') if form_data else (cliente_aprobado.nombre if cliente_aprobado else '') }}"
+                   {% if modo_aumento and not es_renovacion %}readonly{% endif %}
+                   placeholder="Nombre completo"
+                   required
+                   class="bank-input">
 
             <input type="text"
-                name="direccion"
-                value="{{ form_data.get('direccion') if form_data else (cliente_aprobado.direccion if cliente_aprobado else '') }}"
-                placeholder="Dirección Domicilio"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                   name="direccion"
+                   value="{{ form_data.get('direccion') if form_data else (cliente_aprobado.direccion if cliente_aprobado else '') }}"
+                   placeholder="Dirección domicilio"
+                   required
+                   class="bank-input">
 
             <input type="text"
-                name="direccion_negocio"
-                value="{{ form_data.get('direccion_negocio') if form_data else (cliente_aprobado.direccion_negocio if cliente_aprobado else '') }}"
-                placeholder="Dirección Negocio"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                   name="direccion_negocio"
+                   value="{{ form_data.get('direccion_negocio') if form_data else (cliente_aprobado.direccion_negocio if cliente_aprobado else '') }}"
+                   placeholder="Dirección negocio"
+                   required
+                   class="bank-input">
 
-            <div class="flex gap-2">
+<div class="grid grid-cols-[92px_minmax(0,1fr)] gap-2 w-full">
+    <select name="codigo_pais"
+            class="bank-select px-2 text-sm">
+        <option value="57"
+            {% if (form_data and form_data.get('codigo_pais') == '57') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '57') or (not form_data and not cliente_aprobado) %}selected{% endif %}>
+            🇨🇴 +57
+        </option>
 
-                <!-- Teléfono con código país -->
-                <div class="flex w-full items-stretch gap-2">
+        <option value="593"
+            {% if (form_data and form_data.get('codigo_pais') == '593') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '593') %}selected{% endif %}>
+            🇪🇨 +593
+        </option>
 
-                    <!-- Código País -->
-                    <select name="codigo_pais"
-                        class="w-24 shrink-0 bg-[#0b2847] border border-gray-600 
-                            rounded-xl px-3 py-3 text-white">
+        <option value="51"
+            {% if (form_data and form_data.get('codigo_pais') == '51') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '51') %}selected{% endif %}>
+            🇵🇪 +51
+        </option>
+    </select>
 
-                        <option value="57"
-                            {% if (form_data and form_data.get('codigo_pais') == '57') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '57') or (not form_data and not cliente_aprobado) %}selected{% endif %}>
-                            🇨🇴 +57
-                        </option>
-
-                        <option value="593"
-                            {% if (form_data and form_data.get('codigo_pais') == '593') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '593') %}selected{% endif %}>
-                            🇪🇨 +593
-                        </option>
-
-                        <option value="51"
-                            {% if (form_data and form_data.get('codigo_pais') == '51') or (not form_data and cliente_aprobado and cliente_aprobado.codigo_pais == '51') %}selected{% endif %}>
-                            🇵🇪 +51
-                        </option>
-
-                    </select>
-
-                    <!-- Teléfono -->
-                    <input type="text"
-                        name="telefono"
-                        value="{{ form_data.get('telefono') if form_data else (cliente_aprobado.telefono_principal if cliente_aprobado else '') }}"
-                        placeholder="Teléfono"
-                        required
-                        class="flex-grow min-w-0 bg-[#0b2847] border border-gray-600 
-                            rounded-xl px-4 py-3 text-white">
-
-                </div>
-
-            </div>
-
+    <input type="text"
+           name="telefono"
+           value="{{ form_data.get('telefono') if form_data else (cliente_aprobado.telefono_principal if cliente_aprobado else '') }}"
+           placeholder="Teléfono"
+           required
+           class="bank-input">
+</div>
         </div>
 
         <!-- ================= CRÉDITO ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-4">
-
-            <div class="text-sm text-blue-200 font-semibold">
-                Información del Crédito
-            </div>
+        <div class="bank-card space-y-4">
+            <div class="bank-card-title">Información del crédito</div>
 
             <input type="number"
-                name="valor_venta"
-                id="valorVenta"
-                value="{{ form_data.get('valor_venta') if form_data and form_data.get('valor_venta') else (monto_aprobado if monto_aprobado else '') }}"
-                placeholder="Valor Préstamo"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3 text-lg font-semibold">
+                   name="valor_venta"
+                   id="valorVenta"
+                   value="{{ form_data.get('valor_venta') if form_data and form_data.get('valor_venta') else (monto_aprobado if monto_aprobado else '') }}"
+                   placeholder="Valor préstamo"
+                   required
+                   class="bank-input text-lg font-semibold">
 
-            <!-- 🔥 CUPO MÁXIMO DINÁMICO -->
-            <div class="bg-[#0b2847] rounded-xl p-3 text-center mt-2">
-
-                <div class="text-xs opacity-60">
+            <div class="bank-summary-soft">
+                <div class="label">
                     {% if monto_aprobado and not es_renovacion %}
                         Monto aprobado para aumento de cupo
                     {% else %}
@@ -202,8 +475,7 @@
                     {% endif %}
                 </div>
 
-                <div id="ventaMaximaTexto"
-                    class="text-lg font-bold text-green-400">
+                <div id="ventaMaximaTexto" class="value value-green">
                     {% if monto_aprobado and not es_renovacion %}
                         ${{ "{:,.0f}".format(monto_aprobado|float) }}
                     {% else %}
@@ -211,25 +483,33 @@
                     {% endif %}
                 </div>
 
-                <div id="alertaCupo"
-                    class="text-xs text-red-400 mt-1 hidden">
+                <div id="alertaCupo" class="bank-alert hidden">
                     ⚠ El valor supera el cupo permitido
                 </div>
-
             </div>
 
-            <!-- Tipo préstamo -->
             <select name="tipo_prestamo"
+                    id="tipoPrestamo"
                     required
-                    class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3 mt-3">
+                    class="bank-select">
 
                 <option value="" disabled {% if not form_data or not form_data.get('tipo_prestamo') %}selected{% endif %} hidden>
-                    Tipo de Préstamo
+                    Tipo de préstamo
                 </option>
 
                 <option value="Semanal"
                     {% if form_data and form_data.get('tipo_prestamo') == 'Semanal' %}selected{% endif %}>
                     Semanal
+                </option>
+
+                <option value="Quincenal"
+                    {% if form_data and form_data.get('tipo_prestamo') == 'Quincenal' %}selected{% endif %}>
+                    Quincenal
+                </option>
+
+                <option value="Mensual"
+                    {% if form_data and form_data.get('tipo_prestamo') == 'Mensual' %}selected{% endif %}>
+                    Mensual
                 </option>
 
                 <option value="Diario Lunes a Sábado"
@@ -252,212 +532,236 @@
                        id="cuotas"
                        placeholder="Cuotas"
                        required
-                       class="bg-[#0b2847] border border-gray-600 rounded-xl p-3">
+                       class="bank-input">
 
-                <input type="number"
-                       name="tasa"
-                       id="tasa"
-                       value="{{ form_data.get('tasa') if form_data and form_data.get('tasa') else '20' }}"
-                       placeholder="Tasa %"
-                       required
-                       class="bg-[#0b2847] border border-gray-600 rounded-xl p-3"
-                       readonly>
+                <div>
+                    <input type="number"
+                           name="tasa"
+                           id="tasa"
+                           value="{{ form_data.get('tasa') if form_data and form_data.get('tasa') else '20' }}"
+                           placeholder="Tasa %"
+                           required
+                           step="0.01"
+                           min="0"
+                           class="bank-input">
+                    <div class="bank-helper">
+                        Puedes editar el porcentaje de interés
+                    </div>
+                </div>
 
             </div>
 
-            <!-- Totales -->
-            <div class="bg-[#0b2847] rounded-xl p-4 text-center space-y-2">
+            <textarea name="descripcion_credito"
+                      rows="3"
+                      placeholder="Descripción del crédito"
+                      class="bank-textarea">{{ form_data.get('descripcion_credito') if form_data else '' }}</textarea>
 
-                <div class="text-xs opacity-60">Total a Pagar</div>
-                <div id="valorTotalTexto"
-                     class="text-xl font-bold text-green-400">
-                    $0
+            <div class="bank-summary space-y-3 text-center">
+                <div>
+                    <div class="text-xs opacity-70 uppercase tracking-[0.08em]">Total a pagar</div>
+                    <div id="valorTotalTexto" class="text-2xl font-extrabold text-emerald-300 mt-1">
+                        $0
+                    </div>
                 </div>
 
-                <div class="text-xs opacity-60">Valor por Cuota</div>
-                <div id="valorCuotaTexto"
-                     class="text-lg font-semibold text-white">
-                    $0
+                <div>
+                    <div class="text-xs opacity-70 uppercase tracking-[0.08em]">Valor por cuota</div>
+                    <div id="valorCuotaTexto" class="text-lg font-semibold text-white mt-1">
+                        $0
+                    </div>
                 </div>
-
             </div>
 
             <input type="date"
-                name="fecha_inicio"
-                id="fechaInicio"
-                required
-                class="w-full bg-[#0b2847] border border-gray-600 rounded-xl p-3"
-                readonly>
+                   name="fecha_inicio"
+                   id="fechaInicio"
+                   value="{{ form_data.get('fecha_inicio') if form_data and form_data.get('fecha_inicio') else '' }}"
+                   required
+                   class="bank-input"
+                   readonly>
 
-            <div id="previewCuotas"
-                class="hidden bg-[#0b2847] rounded-xl p-4 text-sm max-h-60 overflow-y-auto mt-3">
-            </div>
+            <div id="previewCuotas" class="preview-panel mt-3"></div>
 
             <div class="flex justify-end mt-2">
                 <button type="button"
                         onclick="mostrarVistaCuotas()"
-                        class="text-sm bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 transition">
-                    👁 Ver Fechas de Cuotas
+                        class="bank-btn-ghost">
+                    👁 Ver fechas de cuotas
                 </button>
             </div>
         </div>
 
-        <!-- ================= FOTOS ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-4">
+        <!-- ================= FIADOR ================= -->
+        <div class="bank-card space-y-4">
+            <div class="bank-card-title">Información del fiador</div>
 
-            <div class="text-sm text-blue-200 font-semibold">
-                Fotos (Obligatorias)
+            <select name="requiere_fiador"
+                    id="requiereFiador"
+                    onchange="alternarFiador()"
+                    class="bank-select">
+
+                <option value="no"
+                    {% if not form_data or form_data.get('requiere_fiador', 'no') == 'no' %}selected{% endif %}>
+                    No requiere fiador
+                </option>
+
+                <option value="si"
+                    {% if form_data and form_data.get('requiere_fiador') == 'si' %}selected{% endif %}>
+                    Sí requiere fiador
+                </option>
+
+            </select>
+
+            <div id="bloqueFiador" class="hidden space-y-3">
+                <input type="text"
+                       name="fiador_nombre"
+                       id="fiador_nombre"
+                       value="{{ form_data.get('fiador_nombre') if form_data else '' }}"
+                       placeholder="Nombre completo del fiador"
+                       class="bank-input">
+
+                <input type="text"
+                       name="fiador_telefono"
+                       id="fiador_telefono"
+                       value="{{ form_data.get('fiador_telefono') if form_data else '' }}"
+                       placeholder="Teléfono del fiador"
+                       class="bank-input">
+
+                <input type="text"
+                       name="fiador_cedula"
+                       id="fiador_cedula"
+                       value="{{ form_data.get('fiador_cedula') if form_data else '' }}"
+                       placeholder="Cédula del fiador"
+                       class="bank-input">
             </div>
+        </div>
+
+        <!-- ================= FOTOS ================= -->
+        <div class="bank-card space-y-4">
+            <div class="bank-card-title">Fotos obligatorias</div>
 
             <div class="space-y-3">
 
-                <div>
-                    <label class="text-xs text-gray-300 block mb-1">
-                        Foto Cliente (rostro)
-                    </label>
+                <div class="file-box">
+                    <label class="file-label">Foto cliente (rostro)</label>
 
                     {% if form_data and (form_data.get('foto_cliente_actual') or form_data.get('foto_cliente')) %}
                         <div class="mb-3">
-                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <div class="file-preview-note">Foto actual cargada</div>
                             <img src="{{ form_data.get('foto_cliente_actual', form_data.get('foto_cliente')) }}"
                                  alt="Foto cliente"
-                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                                 class="w-32 h-32 object-cover rounded-xl border border-slate-200 shadow">
                         </div>
                     {% endif %}
 
                     <input type="file"
-                        name="foto_cliente"
-                        accept="image/*"
-                        {% if not (form_data and (form_data.get('foto_cliente_actual') or form_data.get('foto_cliente'))) %}required{% endif %}
-                        class="w-full text-sm">
+                           name="foto_cliente"
+                           accept="image/*"
+                           {% if not (form_data and (form_data.get('foto_cliente_actual') or form_data.get('foto_cliente'))) %}required{% endif %}
+                           class="file-input">
                 </div>
 
-                <div>
-                    <label class="text-xs text-gray-300 block mb-1">
-                        Foto Cédula
-                    </label>
+                <div class="file-box">
+                    <label class="file-label">Foto cédula</label>
 
                     {% if form_data and (form_data.get('foto_cedula_actual') or form_data.get('foto_cedula')) %}
                         <div class="mb-3">
-                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <div class="file-preview-note">Foto actual cargada</div>
                             <img src="{{ form_data.get('foto_cedula_actual', form_data.get('foto_cedula')) }}"
                                  alt="Foto cédula"
-                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                                 class="w-32 h-32 object-cover rounded-xl border border-slate-200 shadow">
                         </div>
                     {% endif %}
 
                     <input type="file"
-                        name="foto_cedula"
-                        accept="image/*"
-                        {% if not (form_data and (form_data.get('foto_cedula_actual') or form_data.get('foto_cedula'))) %}required{% endif %}
-                        class="w-full text-sm">
+                           name="foto_cedula"
+                           accept="image/*"
+                           {% if not (form_data and (form_data.get('foto_cedula_actual') or form_data.get('foto_cedula'))) %}required{% endif %}
+                           class="file-input">
                 </div>
 
-                <div>
-                    <label class="text-xs text-gray-300 block mb-1">
-                        Foto Negocio
-                    </label>
+                <div class="file-box">
+                    <label class="file-label">Foto negocio</label>
 
                     {% if form_data and (form_data.get('foto_negocio_actual') or form_data.get('foto_negocio')) %}
                         <div class="mb-3">
-                            <div class="text-[11px] text-green-300 mb-1">Foto actual cargada</div>
+                            <div class="file-preview-note">Foto actual cargada</div>
                             <img src="{{ form_data.get('foto_negocio_actual', form_data.get('foto_negocio')) }}"
                                  alt="Foto negocio"
-                                 class="w-32 h-32 object-cover rounded-xl border border-white/20 shadow">
+                                 class="w-32 h-32 object-cover rounded-xl border border-slate-200 shadow">
                         </div>
                     {% endif %}
 
                     <input type="file"
-                        name="foto_negocio"
-                        accept="image/*"
-                        {% if not (form_data and (form_data.get('foto_negocio_actual') or form_data.get('foto_negocio'))) %}required{% endif %}
-                        class="w-full text-sm">
+                           name="foto_negocio"
+                           accept="image/*"
+                           {% if not (form_data and (form_data.get('foto_negocio_actual') or form_data.get('foto_negocio'))) %}required{% endif %}
+                           class="file-input">
                 </div>
 
             </div>
-
         </div>
 
         <!-- ================= FIRMA DIGITAL ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-4">
-
-            <div class="text-sm text-blue-200 font-semibold">
-                Firma del Cliente
-            </div>
+        <div class="bank-card space-y-4">
+            <div class="bank-card-title">Firma del cliente</div>
 
             {% if form_data and (form_data.get('firma_cliente_actual') or form_data.get('firma_cliente')) %}
-            <div class="bg-[#0b2847] rounded-xl p-3 border border-white/10">
-                <div class="text-xs text-green-300 mb-2">
-                    Firma actual cargada
-                </div>
+            <div class="file-box">
+                <div class="file-preview-note">Firma actual cargada</div>
                 <img src="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente')) }}"
                      alt="Firma actual"
                      class="max-w-full h-24 object-contain bg-white rounded-lg border border-gray-300 p-2">
             </div>
             {% endif %}
 
-            <div class="text-xs text-gray-300">
+            <div class="bank-mini-text">
                 {% if es_renovacion %}
-                    Si deseas cambiar la firma, vuelve a firmar y presiona <strong>Guardar Firma</strong>. Si no, se conservará la firma actual.
+                    Si deseas cambiar la firma, vuelve a firmar y presiona <strong>Guardar firma</strong>. Si no, se conservará la firma actual.
                 {% else %}
-                    Firma en el recuadro y luego presiona <strong>Guardar Firma</strong>.
+                    Firma en el recuadro y luego presiona <strong>Guardar firma</strong>.
                 {% endif %}
             </div>
 
-            <canvas id="firmaCanvas"
-                    class="border border-gray-600 rounded-xl w-full h-40 bg-white"></canvas>
+            <canvas id="firmaCanvas" class="bank-canvas"></canvas>
 
             <input type="hidden" name="firma_cliente" id="firmaCliente">
 
             <div class="grid grid-cols-2 gap-3">
-
                 <button type="button"
                         onclick="limpiarFirma()"
-                        class="bg-gray-500 hover:bg-gray-600 py-2 rounded-xl">
+                        class="bank-action-btn bank-btn-gray">
                     Limpiar
                 </button>
 
                 <button type="button"
                         onclick="guardarFirma()"
-                        class="bg-blue-600 hover:bg-blue-700 py-2 rounded-xl">
-                    Guardar Firma
+                        class="bank-action-btn bank-btn-blue">
+                    Guardar firma
                 </button>
-
             </div>
-
         </div>
 
         <!-- ================= UBICACIÓN ================= -->
-        <div class="bg-[#123b63] rounded-2xl p-4 shadow-md space-y-4">
-
-            <div class="text-sm text-blue-200 font-semibold">
-                Ubicación del Cliente
-            </div>
+        <div class="bank-card space-y-4">
+            <div class="bank-card-title">Ubicación del cliente</div>
 
             <button type="button"
                     onclick="obtenerUbicacion()"
-                    class="bg-blue-600 hover:bg-blue-800 py-2 w-full rounded-xl">
-                📍 Registrar Ubicación Actual
+                    class="bank-action-btn bank-btn-blue">
+                Registrar ubicación actual
             </button>
 
-            <div id="mapPreview"
-                class="hidden border border-gray-600 rounded-xl h-40 overflow-hidden">
-            </div>
+            <div id="mapPreview" class="bank-map"></div>
 
             <input type="hidden" name="latitud" id="latitud">
             <input type="hidden" name="longitud" id="longitud">
 
-            <div id="ubicacionTexto"
-                class="text-xs text-center opacity-70">
-            </div>
-
+            <div id="ubicacionTexto" class="bank-mini-text text-center"></div>
         </div>
 
-        <!-- BOTÓN -->
-        <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700
-                       py-4 rounded-2xl font-semibold shadow-lg">
-            Guardar Venta
+        <button type="submit" class="bank-submit">
+            Guardar venta
         </button>
 
     </form>
@@ -466,30 +770,29 @@
 
 <script>
 window.addEventListener("DOMContentLoaded", function() {
-    const hoy = new Date();
-    hoy.setDate(hoy.getDate() + 1); // 🔥 Mañana
+    const fechaInput = document.getElementById("fechaInicio");
 
-    const año = hoy.getFullYear();
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoy.getDate()).padStart(2, '0');
+    if (!fechaInput.value) {
+        const hoy = new Date();
+        hoy.setDate(hoy.getDate() + 1);
 
-    const fechaFormateada = `${año}-${mes}-${dia}`;
+        const año = hoy.getFullYear();
+        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoy.getDate()).padStart(2, '0');
 
-    document.getElementById("fechaInicio").value = fechaFormateada;
+        fechaInput.value = `${año}-${mes}-${dia}`;
+    }
 
-    // 🔥 recalcular apenas cargue si ya viene valor precargado
     calcular();
+    alternarFiador();
 });
 </script>
 
 <script>
-/* ================= FIRMA CORREGIDA ================= */
-
 let canvas = document.getElementById("firmaCanvas");
 let ctx = canvas.getContext("2d");
 let dibujando = false;
 
-/* Ajustar tamaño real del canvas */
 function ajustarCanvas() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
@@ -497,7 +800,6 @@ function ajustarCanvas() {
 ajustarCanvas();
 window.addEventListener("resize", ajustarCanvas);
 
-/* Mouse */
 canvas.addEventListener("mousedown", (e) => {
     dibujando = true;
     ctx.beginPath();
@@ -523,7 +825,6 @@ canvas.addEventListener("mouseout", () => {
     ctx.beginPath();
 });
 
-/* Touch */
 canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
     dibujando = true;
@@ -556,21 +857,17 @@ canvas.addEventListener("touchend", () => {
     ctx.beginPath();
 });
 
-/* Limpiar */
 function limpiarFirma() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     document.getElementById("firmaCliente").value = "";
 }
 
-/* Guardar */
 function guardarFirma() {
     let dataURL = canvas.toDataURL("image/png");
     document.getElementById("firmaCliente").value = dataURL;
     alert("Firma guardada correctamente");
 }
-
-/* ================= UBICACIÓN ================= */
 
 function obtenerUbicacion() {
 
@@ -593,6 +890,7 @@ function obtenerUbicacion() {
 
             const mapDiv = document.getElementById("mapPreview");
             mapDiv.classList.remove("hidden");
+            mapDiv.style.display = "block";
 
             mapDiv.innerHTML =
                 `<iframe width="100%" height="100%" frameborder="0"
@@ -608,9 +906,45 @@ function obtenerUbicacion() {
 </script>
 
 <script>
+function alternarFiador() {
+    const requiere = document.getElementById("requiereFiador").value;
+    const bloque = document.getElementById("bloqueFiador");
+
+    const nombre = document.getElementById("fiador_nombre");
+    const telefono = document.getElementById("fiador_telefono");
+    const cedula = document.getElementById("fiador_cedula");
+
+    if (requiere === "si") {
+        bloque.classList.remove("hidden");
+        nombre.required = true;
+        telefono.required = true;
+        cedula.required = true;
+    } else {
+        bloque.classList.add("hidden");
+        nombre.required = false;
+        telefono.required = false;
+        cedula.required = false;
+    }
+}
+</script>
+
+<script>
+function addMonthsSafe(baseDate, monthsToAdd) {
+    const originalDay = baseDate.getDate();
+
+    const year = baseDate.getFullYear();
+    const month = baseDate.getMonth() + monthsToAdd;
+
+    const target = new Date(year, month, 1);
+    const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+
+    target.setDate(Math.min(originalDay, lastDay));
+    return target;
+}
+
 function mostrarVistaCuotas() {
 
-    const tipo = document.querySelector("select[name='tipo_prestamo']").value;
+    const tipo = document.getElementById("tipoPrestamo").value;
     const cuotas = parseInt(document.getElementById("cuotas").value) || 0;
     const fechaInicioInput = document.getElementById("fechaInicio").value;
 
@@ -622,6 +956,7 @@ function mostrarVistaCuotas() {
     let preview = document.getElementById("previewCuotas");
     preview.innerHTML = "";
     preview.classList.remove("hidden");
+    preview.style.display = "block";
 
     const partes = fechaInicioInput.split("-");
     let fechaBase = new Date(
@@ -636,17 +971,26 @@ function mostrarVistaCuotas() {
     while (cuotasCreadas < cuotas) {
 
         let crear = false;
-        let fechaPago;
+        let fechaPago = null;
 
         if (tipo === "Semanal") {
-
             fechaPago = new Date(fechaBase);
             fechaPago.setDate(fechaBase.getDate() + ((cuotasCreadas + 1) * 7));
             crear = true;
         }
 
-        else if (tipo === "Diario Lunes a Viernes") {
+        else if (tipo === "Quincenal") {
+            fechaPago = new Date(fechaBase);
+            fechaPago.setDate(fechaBase.getDate() + ((cuotasCreadas + 1) * 15));
+            crear = true;
+        }
 
+        else if (tipo === "Mensual") {
+            fechaPago = addMonthsSafe(fechaBase, cuotasCreadas + 1);
+            crear = true;
+        }
+
+        else if (tipo === "Diario Lunes a Viernes") {
             if (fechaActual.getDay() >= 1 && fechaActual.getDay() <= 5) {
                 fechaPago = new Date(fechaActual);
                 crear = true;
@@ -654,7 +998,6 @@ function mostrarVistaCuotas() {
         }
 
         else if (tipo === "Diario Lunes a Sábado") {
-
             if (fechaActual.getDay() >= 1 && fechaActual.getDay() <= 6) {
                 fechaPago = new Date(fechaActual);
                 crear = true;
@@ -667,11 +1010,10 @@ function mostrarVistaCuotas() {
         }
 
         if (crear) {
-
             const fechaFormateada = fechaPago.toLocaleDateString("es-CO");
 
             preview.innerHTML += `
-                <div class="flex justify-between border-b border-white/10 py-1">
+                <div class="cuota-row">
                     <span>Cuota ${cuotasCreadas + 1}</span>
                     <span>${fechaFormateada}</span>
                 </div>
@@ -680,14 +1022,13 @@ function mostrarVistaCuotas() {
             cuotasCreadas++;
         }
 
-        if (tipo !== "Semanal") {
+        if (!["Semanal", "Quincenal", "Mensual"].includes(tipo)) {
             fechaActual.setDate(fechaActual.getDate() + 1);
         }
     }
 }
 </script>
 
-<!-- ================= SCRIPT CALCULO ================= -->
 <script>
 function calcular() {
 
@@ -696,20 +1037,22 @@ function calcular() {
     let tasa = parseFloat(document.getElementById("tasa").value) || 0;
 
     if (cuotas <= 0) cuotas = 1;
+    if (tasa < 0) tasa = 0;
 
     let total = venta + (venta * tasa / 100);
     let valorCuota = total / cuotas;
 
     document.getElementById("valorTotalTexto").innerText =
-        "$" + total.toFixed(0);
+        "$" + total.toLocaleString("es-CO", { maximumFractionDigits: 2 });
 
     document.getElementById("valorCuotaTexto").innerText =
-        "$" + valorCuota.toFixed(0);
+        "$" + valorCuota.toLocaleString("es-CO", { maximumFractionDigits: 2 });
 }
 
 document.getElementById("valorVenta").addEventListener("input", calcular);
 document.getElementById("cuotas").addEventListener("input", calcular);
 document.getElementById("tasa").addEventListener("input", calcular);
+document.getElementById("tipoPrestamo").addEventListener("change", calcular);
 </script>
 
 <script>
@@ -769,6 +1112,7 @@ window.addEventListener("DOMContentLoaded", function(){
     actualizarCupo();
     validarCupo();
     calcular();
+    alternarFiador();
 });
 </script>
 

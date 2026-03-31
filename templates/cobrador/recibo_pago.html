@@ -12,9 +12,7 @@
         <!-- LOGO PEQUEÑO -->
         <div class="text-center mb-2 text-[10px] leading-tight">
 
-            <img src="{{ url_for('static', filename='img/logo.png') }}"
-                class="h-10 mx-auto mb-1">
-
+    
             <div>
                 <strong>Factura:</strong> {{ pago.id[:8] }}
             </div>
@@ -27,6 +25,13 @@
         </div>
 
         <div>------------------------------------</div>
+        {% if pago.tipo_pago == "compensatorio" %}
+            <div class="text-center mb-3">
+                <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-sm">
+                    PAGO COMPENSATORIO
+                </span>
+            </div>
+        {% endif %}
 
         <!-- DATOS -->
 

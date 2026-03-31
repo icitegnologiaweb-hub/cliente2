@@ -1,73 +1,387 @@
 {% extends "cobrador/layout.html" %}
-{% block titulo %}Todas las Ventas{% endblock %}
+{% block titulo %}Todos los creditos{% endblock %}
 
 {% block content %}
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-28 space-y-4">
-    <div class="sticky top-0 bg-[#0b2847] p-3 rounded-2xl shadow-lg mb-4">
+<style>
+.creditos-shell{
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 112px;
+}
 
-        <input type="text"
-            id="buscador"
-            placeholder="Buscar por nombre o cédula..."
-            class="w-full bg-[#123b63] border border-gray-600
-                    rounded-xl p-3 text-white placeholder-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-blue-500">
+.creditos-search-wrap{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, rgba(248,250,252,.96) 0%, rgba(248,250,252,.92) 100%);
+    backdrop-filter: blur(12px);
+    padding: 8px 0 14px;
+    margin-bottom: 8px;
+}
 
+.creditos-search-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+}
+
+.creditos-search-input{
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    border-radius: 16px;
+    padding: 13px 14px;
+    color: #0f172a;
+    font-size: 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+    transition: all .2s ease;
+}
+
+.creditos-search-input::placeholder{
+    color: #94a3b8;
+}
+
+.creditos-search-input:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+}
+
+.credito-modern{
+    display: block;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(15,23,42,.05);
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all .22s ease;
+}
+
+.credito-modern:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 18px 32px rgba(15,23,42,.08);
+    border-color: #cbd5e1;
+}
+
+.badge-modern{
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 12px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(15,23,42,.08);
+    z-index: 2;
+}
+
+.badge-red{
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.badge-orange{
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+.badge-green{
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.credito-posicion{
+    position: relative;
+}
+
+.credito-posicion-circle{
+    height: 52px;
+    width: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #0f172a, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(15,23,42,.12);
+}
+
+.credito-edit-btn{
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    height: 22px;
+    width: 22px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(37,99,235,.22);
+}
+
+.credito-nombre{
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.credito-tel{
+    font-size: 12px;
+    color: #1d4ed8;
+    margin-top: 4px;
+}
+
+.credito-fecha{
+    font-size: 12px;
+    color: #1d4ed8;
+    margin-top: 6px;
+}
+
+.credito-arrow{
+    height: 34px;
+    width: 34px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.credito-finance-grid{
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.credito-finance-box{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+.credito-finance-label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.credito-finance-value{
+    font-weight: 800;
+    font-size: 18px;
+    margin-top: 6px;
+    color: #0f172a;
+}
+
+.credito-finance-green{
+    color: #059669;
+}
+
+.credito-empty{
+    background: rgba(255,255,255,0.9);
+    border: 1px dashed #cbd5e1;
+    border-radius: 24px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(15,23,42,.04);
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+.modal-banking-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.45);
+    backdrop-filter: blur(10px);
+}
+
+.modal-banking-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    width: 100%;
+    max-width: 380px;
+    border-radius: 28px;
+    padding: 22px;
+    color: #0f172a;
+    box-shadow: 0 26px 60px rgba(15,23,42,.2);
+    border: 1px solid #e2e8f0;
+}
+
+.modal-handle{
+    width: 42px;
+    height: 6px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    margin: 0 auto 18px;
+}
+
+.modal-title{
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 18px;
+    color: #0f172a;
+}
+
+.modal-summary{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.modal-summary-label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.modal-summary-value{
+    font-size: 28px;
+    font-weight: 800;
+    color: #059669;
+    margin-top: 4px;
+}
+
+.modal-input{
+    width: 100%;
+    margin-top: 8px;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    border-radius: 16px;
+    padding: 13px 14px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+}
+
+.modal-input:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+}
+
+.modal-btn{
+    width: 100%;
+    border-radius: 16px;
+    padding: 13px 14px;
+    font-weight: 800;
+    transition: all .2s ease;
+}
+
+.modal-btn-primary{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    box-shadow: 0 14px 30px rgba(15,23,42,.16);
+}
+
+.modal-btn-primary:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+
+.modal-btn-secondary{
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.modal-btn-secondary:hover{
+    background: #cbd5e1;
+}
+</style>
+
+<div class="creditos-shell">
+
+    <div class="creditos-search-wrap">
+        <div class="creditos-search-card">
+            <input type="text"
+                   id="buscador"
+                   placeholder="Buscar por nombre o cédula..."
+                   class="creditos-search-input">
+        </div>
     </div>
+
+    <div class="space-y-4">
     {% for c in creditos %}
 
     <a href="{{ url_for('detalle_credito', credito_id=c.id) }}"
-        class="credito-item block bg-gradient-to-br from-[#123b63] to-[#0b2847]
-                rounded-2xl p-4 shadow-lg text-white
-                transition hover:scale-[1.02] active:scale-[0.98] relative"
-        data-nombre="{{ c.cliente|lower }}"
-        data-cedula="{{ c.identificacion|default('')|lower }}">
+       class="credito-item credito-modern"
+       data-nombre="{{ c.cliente|lower }}"
+       data-cedula="{{ c.identificacion|default('')|lower }}">
 
         {% if c.color_estado == "rojo" %}
-        <div class="absolute right-0 top-0 bg-red-500 text-xs px-2 py-1 rotate-45 translate-x-6 -translate-y-2">
-        MORA
-        </div>
+            <div class="badge-modern badge-red">
+                🔴 Mora
+            </div>
         {% elif c.color_estado == "naranja" %}
-        <div class="absolute right-0 top-0 bg-orange-500 text-xs px-2 py-1 rotate-45 translate-x-6 -translate-y-2">
-        MORA
-        </div>
+            <div class="badge-modern badge-orange">
+                🟠 Mora
+            </div>
         {% else %}
-        <div class="absolute right-0 top-0 bg-green-500 text-xs px-2 py-1 rotate-45 translate-x-6 -translate-y-2">
-        AL DÍA
-        </div>
+            <div class="badge-modern badge-green">
+                🟢 Al día
+            </div>
         {% endif %}
 
-        <div class="flex justify-between items-start">
+        <div class="flex justify-between items-start gap-3">
 
             <!-- IZQUIERDA -->
-            <div class="flex gap-3">
+            <div class="flex gap-3 min-w-0">
 
                 <!-- POSICIÓN -->
-                <div class="relative">
-                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-gray-300 to-blue-600 flex items-center justify-center font-bold text-white">
+                <div class="credito-posicion">
+                    <div class="credito-posicion-circle">
                         {{ c.posicion }}
                     </div>
 
                     <button type="button"
                             onclick="editarPosicion(event, '{{ c.id }}','{{ c.posicion }}')"
-                            class="absolute -bottom-1 -right-1 bg-blue-500 text-xs px-1 rounded">
+                            class="credito-edit-btn">
                         ✏
                     </button>
                 </div>
 
                 <!-- INFO -->
-                <div>
+                <div class="min-w-0">
 
-                    <div class="font-semibold text-sm">
+                    <div class="credito-nombre truncate pr-2">
                         {{ c.cliente }}
                     </div>
 
-                    <div class="text-xs text-blue-300">
+                    <div class="credito-tel">
                         📱 {{ c.telefono }}
                     </div>
 
                     {% if c.proxima_cuota %}
-                    <div class="text-xs text-blue-300 mt-1">
+                    <div class="credito-fecha">
                         📆 Próx: {{ c.proxima_cuota }}
                     </div>
                     {% endif %}
@@ -76,27 +390,29 @@
 
             </div>
 
-            
+            <div class="credito-arrow">
+                ›
+            </div>
 
         </div>
 
         <!-- BLOQUE FINANCIERO -->
-        <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+        <div class="credito-finance-grid">
 
-            <div class="bg-[#0b2847] rounded-xl p-3 text-center">
-                <div class="text-xs opacity-60">
-                    Cuota Hoy
+            <div class="credito-finance-box">
+                <div class="credito-finance-label">
+                    Cuota hoy
                 </div>
-                <div class="font-bold text-green-400">
+                <div class="credito-finance-value credito-finance-green">
                     $ {{ c.valor_hoy }}
                 </div>
             </div>
 
-            <div class="bg-[#0b2847] rounded-xl p-3 text-center">
-                <div class="text-xs opacity-60">
-                    Total Crédito
+            <div class="credito-finance-box">
+                <div class="credito-finance-label">
+                    Total crédito
                 </div>
-                <div class="font-bold text-white">
+                <div class="credito-finance-value">
                     $ {{ c.valor_total }}
                 </div>
             </div>
@@ -105,23 +421,26 @@
 
     </a>
 
-
+    {% else %}
+        <div class="credito-empty">
+            No hay créditos registrados
+        </div>
     {% endfor %}
+    </div>
 
 </div>
 
 <div id="modalPosicion"
-     class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition">
+     class="fixed inset-0 hidden items-end sm:items-center justify-center z-50 transition">
 
-    <div class="bg-gradient-to-br from-[#123b63] to-[#0b2847] 
-                w-full sm:w-[380px] rounded-t-3xl sm:rounded-3xl 
-                p-6 text-white shadow-2xl animate-fadeInUp">
+    <div class="modal-banking-overlay absolute inset-0"></div>
 
-        <!-- Handle móvil -->
-        <div class="w-10 h-1.5 bg-gray-400 rounded-full mx-auto mb-5 sm:hidden"></div>
+    <div class="modal-banking-card relative mx-4 sm:mx-0 animate-fadeInUp">
 
-        <h3 class="text-xl font-bold text-center mb-6">
-            Cambiar Posición
+        <div class="modal-handle sm:hidden"></div>
+
+        <h3 class="modal-title">
+            Cambiar posición
         </h3>
 
         <form method="POST" action="{{ url_for('cambiar_posicion') }}">
@@ -129,16 +448,14 @@
             <input type="hidden" name="credito_id" id="modal_credito_id">
 
             <!-- POSICIÓN ACTUAL -->
-            <div class="bg-[#0b2847] rounded-xl p-4 mb-4 text-center">
-                <div class="text-xs opacity-60">Posición actual</div>
-                <div id="posicionActualTexto"
-                     class="text-2xl font-bold text-green-400 mt-1">
-                </div>
+            <div class="modal-summary">
+                <div class="modal-summary-label">Posición actual</div>
+                <div id="posicionActualTexto" class="modal-summary-value"></div>
             </div>
 
             <!-- NUEVA POSICIÓN -->
             <div class="mb-6">
-                <label class="text-sm opacity-80">
+                <label class="text-sm font-medium text-slate-600">
                     Nueva posición
                 </label>
 
@@ -147,23 +464,19 @@
                        id="modal_posicion"
                        required
                        min="1"
-                       class="w-full mt-2 bg-[#0b2847] border border-gray-600
-                              rounded-xl p-3 text-center text-lg font-semibold
-                              focus:ring-2 focus:ring-blue-400">
+                       class="modal-input">
             </div>
 
             <div class="space-y-3">
 
                 <button type="submit"
-                        class="w-full bg-blue-600 hover:bg-blue-700
-                               py-3 rounded-xl font-semibold transition">
-                    Guardar Cambios
+                        class="modal-btn modal-btn-primary">
+                    Guardar cambios
                 </button>
 
                 <button type="button"
                         onclick="cerrarModal()"
-                        class="w-full bg-gray-600 hover:bg-gray-700
-                               py-3 rounded-xl transition">
+                        class="modal-btn modal-btn-secondary">
                     Cancelar
                 </button>
 
@@ -174,6 +487,7 @@
     </div>
 
 </div>
+
 <script>
 document.getElementById("buscador").addEventListener("input", function() {
 

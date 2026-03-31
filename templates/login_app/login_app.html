@@ -7,155 +7,349 @@
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
 <style>
-body{
-    background:
-     
-        linear-gradient(135deg, #0f172a 0%, #0b1220 100%);
-    min-height:100vh;
+:root{
+    --bg-main: #f8fafc;
+    --bg-soft: #eef2f7;
+    --card: #ffffff;
+    --card-soft: #f8fafc;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --primary: #0f172a;
+    --primary-2: #1e293b;
+    --accent: #2563eb;
+    --accent-2: #1d4ed8;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --danger-text: #b91c1c;
 }
 
-/* Card glass */
+body{
+    background: linear-gradient(180deg, var(--bg-main) 0%, var(--bg-soft) 100%);
+    min-height: 100vh;
+    color: var(--text-main);
+}
+
+/* Contenedor */
+.login-wrapper{
+    width: 100%;
+    max-width: 410px;
+    position: relative;
+}
+
+/* Card principal */
 .login-card{
+    position: relative;
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 32px;
-    padding: 45px 35px;
-    box-shadow: 
-        0 25px 60px rgba(15,23,42,.15);
-    border: 1px solid rgba(255,255,255,.6);
+    padding: 34px 26px;
+    box-shadow: 0 24px 60px rgba(15,23,42,.10);
+    border: 1px solid rgba(226,232,240,.95);
+    overflow: hidden;
 }
 
-/* efecto glow */
 .login-card::before{
     content:"";
     position:absolute;
-    width:200px;
-    height:200px;
-    background:radial-gradient(circle,#0ea5e9 0%,transparent 70%);
-    top:-60px;
-    right:-60px;
-    opacity:.15;
+    width:180px;
+    height:180px;
+    background: radial-gradient(circle, rgba(37,99,235,.10) 0%, transparent 72%);
+    top:-55px;
+    right:-55px;
+    pointer-events:none;
+}
+
+.login-card::after{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    background: radial-gradient(circle, rgba(148,163,184,.10) 0%, transparent 72%);
+    bottom:-38px;
+    left:-25px;
+    pointer-events:none;
+}
+
+/* Logo */
+.logo-wrap{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.logo-box{
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 14px 30px rgba(15,23,42,.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-box img{
+    height: 44px;
+    object-fit: contain;
+}
+
+/* Títulos */
+.login-title{
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.login-subtitle{
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+}
+
+/* Labels */
+.form-label-custom{
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    letter-spacing: .02em;
 }
 
 /* Inputs */
 .form-control-custom{
-    border:1px solid #e5e7eb;
-    border-radius:16px;
-    padding:16px;
-    font-size:16px;
-    background:#f9fafb;
-    transition:.25s;
+    width: 100%;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    padding: 15px 16px;
+    font-size: 15px;
+    color: var(--text-main);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+    transition: .22s ease;
+}
+
+.form-control-custom::placeholder{
+    color: #94a3b8;
 }
 
 .form-control-custom:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 4px rgba(37,99,235,.15);
-    background:white;
-    outline:none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+    background: white;
+    outline: none;
 }
 
-/* Botón moderno */
+/* Botón mostrar contraseña */
+.eye-btn{
+    position: absolute;
+    right: 14px;
+    top: 43px;
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    transition: .2s ease;
+}
+
+.eye-btn:hover{
+    background: linear-gradient(180deg, #ffffff, #e5e7eb);
+}
+
+/* Recordar */
+.remember-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.remember-label{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Botón login */
 .btn-primary-custom{
-    background:linear-gradient(135deg,#2563eb,#0ea5e9);
-    border-radius:18px;
-    padding:16px;
-    font-size:16px;
-    font-weight:600;
-    transition:.25s;
-    box-shadow:0 10px 20px rgba(37,99,235,.3);
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    border-radius: 20px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    transition: .22s ease;
+    box-shadow: 0 16px 32px rgba(15,23,42,.16);
 }
 
 .btn-primary-custom:hover{
-    transform:translateY(-2px);
-    box-shadow:0 15px 30px rgba(37,99,235,.4);
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #1e293b, #334155);
+}
+
+/* Error */
+.error-box{
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger-text);
+    font-size: 13px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Footer */
+.login-footer{
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* Badge superior */
+.security-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0 auto 16px;
+}
+
+.security-wrap{
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
 }
 </style>
 </head>
 
-<body class="flex items-center justify-center px-4">
+<body class="flex items-center justify-center px-4 py-8">
 
-<div class="w-full max-w-sm login-card p-8">
+<div class="login-wrapper">
 
-    <!-- Logo -->
-    <div class="flex justify-center mb-6">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" class="h-16">
-    </div>
+    <div class="login-card">
 
-    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
-        Bienvenido
-    </h2>
-
-    <form method="POST" class="space-y-5" autocomplete="on">
-
-        <!-- Email -->
-        <div>
-            <label class="block text-sm mb-2 text-gray-500">
-                Correo electrónico
-            </label>
-            <input type="email"
-                   name="email"
-                   required
-                   autocomplete="username"
-                   class="w-full form-control-custom">
+        <div class="security-wrap">
+            <div class="security-badge">
+                🔒 Acceso seguro
+            </div>
         </div>
 
-        <!-- Password -->
-        <div class="relative">
-            <label class="block text-sm mb-2 text-gray-500">
-                Contraseña
-            </label>
+ 
 
-            <input 
-                type="password" 
-                name="password" 
-                id="password"
-                required
-                autocomplete="current-password"
-                class="w-full form-control-custom pr-12">
+        <h2 class="login-title">
+            Bienvenido
+        </h2>
 
-            <button 
-                type="button"
-                onclick="togglePassword()"
-                class="absolute right-4 top-[45px] text-gray-400">
+        <p class="login-subtitle">
+            Ingresa tus credenciales para continuar
+        </p>
 
-                <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
-                    class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
-                </svg>
+        <form method="POST" class="space-y-5" autocomplete="on">
 
-                <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" 
-                    class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.938 0C21.729 14.943 17.74 18 12 18c-5.74 0-9.729-3.057-10.938-6C2.271 9.057 6.26 6 12 6c5.74 0 9.729 3.057 10.938 6z" />
-                </svg>
+            <!-- Email -->
+            <div>
+                <label class="form-label-custom">
+                    Correo electrónico
+                </label>
 
+                <input type="email"
+                       name="email"
+                       required
+                       autocomplete="username"
+                       class="form-control-custom"
+                       placeholder="Ingrese su correo">
+            </div>
+
+            <!-- Password -->
+            <div class="relative">
+                <label class="form-label-custom">
+                    Contraseña
+                </label>
+
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="password"
+                    required
+                    autocomplete="current-password"
+                    class="w-full form-control-custom pr-14"
+                    placeholder="Ingrese su contraseña">
+
+                <button 
+                    type="button"
+                    onclick="togglePassword()"
+                    class="eye-btn">
+
+                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
+                        class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
+                    </svg>
+
+                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" 
+                        class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.938 0C21.729 14.943 17.74 18 12 18c-5.74 0-9.729-3.057-10.938-6C2.271 9.057 6.26 6 12 6c5.74 0 9.729 3.057 10.938 6z" />
+                    </svg>
+
+                </button>
+            </div>
+
+            <!-- Guardar sesión -->
+            <div class="remember-row">
+                <label class="remember-label">
+                    <input type="checkbox" name="recordar" class="rounded border-gray-300">
+                    <span>Guardar sesión</span>
+                </label>
+            </div>
+
+            <!-- Botón -->
+            <button type="submit"
+                class="btn-primary-custom">
+                Ingresar
             </button>
+
+            {% if error %}
+            <div class="error-box">
+                {{ error }}
+            </div>
+            {% endif %}
+
+        </form>
+
+        <div class="login-footer">
+            © 2026
         </div>
 
-        <!-- Guardar sesión -->
-        <div class="flex items-center justify-between text-sm">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="recordar" class="rounded border-gray-300">
-                <span class="text-gray-600">Guardar sesión</span>
-            </label>
-        </div>
-
-        <!-- Botón -->
-        <button type="submit"
-            class="w-full text-white btn-primary-custom">
-            Ingresar
-        </button>
-
-        {% if error %}
-        <div class="bg-red-100 text-red-600 text-sm p-3 rounded-lg text-center">
-            {{ error }}
-        </div>
-        {% endif %}
-
-    </form>
-
-    <div class="mt-8 text-center text-xs text-gray-400">
-        © 2026 ML
     </div>
 
 </div>

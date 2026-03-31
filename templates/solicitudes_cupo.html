@@ -3,211 +3,326 @@
 
 <div class="p-8">
 
-<div class="flex items-center justify-between mb-12">
-
-    <div>
-        <h1 class="text-3xl font-bold text-[#1e293b]">
-            Solicitudes de Aumento de Cupo
-        </h1>
-        <p class="text-sm text-gray-500 mt-2">
-            Gestión y aprobación de solicitudes enviadas por cobradores
-        </p>
-    </div>
-
-</div>
-<div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-10">
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-
+    <div class="flex items-center justify-between mb-12">
         <div>
-            <label class="text-xs uppercase tracking-wider text-gray-500">
-                Fecha Inicio
-            </label>
-            <input type="date"
-                   id="fechaInicio"
-                   class="w-full mt-2 px-3 py-2 border rounded-lg shadow-sm">
+            <h1 class="text-3xl font-bold text-[#1e293b]">
+                Solicitudes de Aumento de Cupo
+            </h1>
+            <p class="text-sm text-gray-500 mt-2">
+                Gestión y aprobación de solicitudes enviadas por cobradores
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+
+            <div>
+                <label class="text-xs uppercase tracking-wider text-gray-500">
+                    Fecha Inicio
+                </label>
+                <input type="date"
+                       id="fechaInicio"
+                       class="w-full mt-2 px-3 py-2 border rounded-lg shadow-sm">
+            </div>
+
+            <div>
+                <label class="text-xs uppercase tracking-wider text-gray-500">
+                    Fecha Fin
+                </label>
+                <input type="date"
+                       id="fechaFin"
+                       class="w-full mt-2 px-3 py-2 border rounded-lg shadow-sm">
+            </div>
+
+            <div>
+                <button onclick="filtrarSolicitudes()"
+                        class="w-full bg-[#424750] hover:bg-[#092f47]
+                               text-white py-2.5 rounded-lg shadow transition">
+                    Aplicar Filtro
+                </button>
+            </div>
+
+            <div>
+                <button onclick="limpiarFiltro()"
+                        class="w-full bg-gray-200 hover:bg-gray-300
+                               text-gray-700 py-2.5 rounded-lg transition">
+                    Limpiar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+            <div class="text-xs uppercase tracking-wider text-gray-500">
+                Total Solicitudes
+            </div>
+            <div class="text-3xl font-semibold text-[#1e293b] mt-3">
+                {{ solicitudes|length }}
+            </div>
         </div>
 
-        <div>
-            <label class="text-xs uppercase tracking-wider text-gray-500">
-                Fecha Fin
-            </label>
-            <input type="date"
-                   id="fechaFin"
-                   class="w-full mt-2 px-3 py-2 border rounded-lg shadow-sm">
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+            <div class="text-xs uppercase tracking-wider text-gray-500">
+                Pendientes
+            </div>
+            <div class="text-3xl font-semibold text-yellow-600 mt-3">
+                {{ solicitudes|selectattr("estado","equalto","pendiente")|list|length }}
+            </div>
         </div>
 
-        <div>
-            <button onclick="filtrarSolicitudes()"
-                class="w-full bg-[#0B3C5D] hover:bg-[#092f47]
-                       text-white py-2.5 rounded-lg shadow transition">
-                Aplicar Filtro
-            </button>
-        </div>
-
-        <div>
-            <button onclick="limpiarFiltro()"
-                class="w-full bg-gray-200 hover:bg-gray-300
-                       text-gray-700 py-2.5 rounded-lg transition">
-                Limpiar
-            </button>
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+            <div class="text-xs uppercase tracking-wider text-gray-500">
+                Aprobadas
+            </div>
+            <div class="text-3xl font-semibold text-green-600 mt-3">
+                {{ solicitudes|selectattr("estado","equalto","aprobado")|list|length }}
+            </div>
         </div>
 
     </div>
 
-</div>
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        <div class="overflow-x-auto">
 
-    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
-        <div class="text-xs uppercase tracking-wider text-gray-500">
-            Total Solicitudes
-        </div>
-        <div class="text-3xl font-semibold text-[#1e293b] mt-3">
-            {{ solicitudes|length }}
-        </div>
-    </div>
+            <table class="min-w-full text-sm">
 
-    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
-        <div class="text-xs uppercase tracking-wider text-gray-500">
-            Pendientes
-        </div>
-        <div class="text-3xl font-semibold text-yellow-600 mt-3">
-            {{ solicitudes|selectattr("estado","equalto","pendiente")|list|length }}
-        </div>
-    </div>
+                <thead class="bg-[#424750] text-white uppercase text-xs tracking-wider">
+                    <tr>
+                        <th class="px-6 py-5 text-left">Cliente</th>
+                        <th class="px-6 py-5 text-left">Cédula</th>
+                        <th class="px-6 py-5 text-left">Tipo</th>
+                        <th class="px-6 py-5 text-right">Monto</th>
+                        <th class="px-6 py-5 text-left">Estado</th>
+                        <th class="px-6 py-5 text-left">Fecha</th>
+                        <th class="px-6 py-5 text-center">Acciones</th>
+                    </tr>
+                </thead>
 
-    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
-        <div class="text-xs uppercase tracking-wider text-gray-500">
-            Aprobadas
-        </div>
-        <div class="text-3xl font-semibold text-green-600 mt-3">
-            {{ solicitudes|selectattr("estado","equalto","aprobado")|list|length }}
-        </div>
-    </div>
+                <tbody class="divide-y divide-gray-200">
 
-</div>
+                {% for s in solicitudes %}
+                <tr class="hover:bg-gray-50 transition fila-solicitud"
+                    data-fecha="{{ s.fecha_filtro }}">
 
+                    <td class="px-6 py-4 font-medium text-gray-800">
+                        {{ s.cliente_nombre }}
+                    </td>
 
+                    <td class="px-6 py-4 text-gray-600">
+                        {{ s.cedula }}
+                    </td>
 
-<div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <td class="px-6 py-4">
+                        {% if s.tipo_cliente == "nuevo" %}
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                                Nuevo
+                            </span>
+                        {% else %}
+                            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium">
+                                Existente
+                            </span>
+                        {% endif %}
+                    </td>
 
-    <div class="overflow-x-auto">
+                    <td class="px-6 py-4 text-right font-semibold text-green-600">
+                        $ {{ "{:,.0f}".format(s.monto_solicitado) }}
+                    </td>
 
-        <table class="min-w-full text-sm">
+                    <td class="px-6 py-4">
+                        {% if s.estado == "pendiente" %}
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+                                Pendiente
+                            </span>
+                        {% elif s.estado == "aprobado" %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                Aprobado
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                                Rechazado
+                            </span>
+                        {% endif %}
 
-            <thead class="bg-[#0B3C5D] text-white uppercase text-xs tracking-wider">
-                <tr>
-                    <th class="px-6 py-5 text-left">Cliente</th>
-                    <th class="px-6 py-5 text-left">Cédula</th>
-                    <th class="px-6 py-5 text-right">Monto</th>
-                    <th class="px-6 py-5 text-left">Estado</th>
-                    <th class="px-6 py-5 text-left">Fecha</th>
-                    <th class="px-6 py-5 text-center">Acción</th>
+                        {% if s.motivo_respuesta %}
+                        <div class="text-xs text-gray-500 mt-2">
+                            <span class="font-medium">Motivo:</span> {{ s.motivo_respuesta }}
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                        {{ s.fecha_formateada }}
+                    </td>
+
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex flex-wrap justify-center gap-2">
+
+                            {% if s.tipo_cliente == "existente" and s.cliente_id %}
+                            <a href="{{ url_for('historico_bancario_cliente', cliente_id=s.cliente_id) }}"
+                            class="bg-slate-700 hover:bg-slate-800
+                                    text-white px-3 py-1.5 rounded-lg text-xs transition">
+                                Historial financiero
+                            </a>
+                            {% endif %}
+
+                            {% if s.estado == "pendiente" %}
+                            <button type="button"
+                                    onclick='abrirModalGestion("{{ s.id }}", "aprobado", {{ (s.cliente_nombre or "")|tojson }})'
+                                    class="bg-green-600 hover:bg-green-700
+                                        text-white px-4 py-1.5 rounded-lg text-xs transition">
+                                Aprobar
+                            </button>
+
+                            <button type="button"
+                                    onclick='abrirModalGestion("{{ s.id }}", "rechazado", {{ (s.cliente_nombre or "")|tojson }})'
+                                    class="bg-red-600 hover:bg-red-700
+                                        text-white px-4 py-1.5 rounded-lg text-xs transition">
+                                Rechazar
+                            </button>
+                            {% endif %}
+
+                        </div>
+                    </td>
+
                 </tr>
-            </thead>
+                {% endfor %}
 
-            <tbody class="divide-y divide-gray-200">
+                </tbody>
 
-            {% for s in solicitudes %}
-            <tr class="hover:bg-gray-50 transition fila-solicitud"
-                data-fecha="{{ s.created_at[:10] if s.created_at }}">
+            </table>
 
-                <td class="px-6 py-4 font-medium text-gray-800">
-                    {{ s.cliente_nombre }} {{ s.cliente_apellido }}
-                </td>
-
-                <td class="px-6 py-4 text-gray-600">
-                    {{ s.cedula }}
-                </td>
-
-                <td class="px-6 py-4 text-right font-semibold text-green-600">
-                    $ {{ "{:,.0f}".format(s.monto_solicitado) }}
-                </td>
-
-                <td class="px-6 py-4">
-                    {% if s.estado == "pendiente" %}
-                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
-                            Pendiente
-                        </span>
-                    {% elif s.estado == "aprobado" %}
-                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-                            Aprobado
-                        </span>
-                    {% else %}
-                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
-                            Rechazado
-                        </span>
-                    {% endif %}
-                </td>
-
-                <td class="px-6 py-4 text-gray-600">
-                    {{ s.fecha_formateada if s.fecha_formateada }}
-                </td>
-
-                <td class="px-6 py-4 text-center space-x-2">
-
-                    {% if s.estado == "pendiente" %}
-                    <a href="{{ url_for('procesar_solicitud', id=s.id, accion='aprobado') }}"
-                       class="bg-green-600 hover:bg-green-700
-                              text-white px-4 py-1.5 rounded-lg text-xs transition">
-                        Aprobar
-                    </a>
-
-                    <a href="{{ url_for('procesar_solicitud', id=s.id, accion='rechazado') }}"
-                       class="bg-red-600 hover:bg-red-700
-                              text-white px-4 py-1.5 rounded-lg text-xs transition">
-                        Rechazar
-                    </a>
-                    {% endif %}
-
-                </td>
-
-            </tr>
-            {% endfor %}
-
-            </tbody>
-
-        </table>
+        </div>
 
     </div>
-
 </div>
+
+<!-- =========================
+     MODAL APROBAR / RECHAZAR
+========================= -->
+<div id="modalGestionSolicitud"
+     class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h3 id="tituloModalGestion" class="text-xl font-bold text-slate-800">
+                    Gestionar solicitud
+                </h3>
+                <p id="subtituloModalGestion" class="text-sm text-gray-500 mt-1"></p>
+            </div>
+
+            <button type="button"
+                    onclick="cerrarModalGestion()"
+                    class="text-gray-400 hover:text-gray-600 text-2xl leading-none">
+                &times;
+            </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('procesar_solicitud') }}" class="space-y-4">
+            <input type="hidden" name="solicitud_id" id="solicitud_id_modal">
+            <input type="hidden" name="accion" id="accion_modal">
+
+            <div>
+                <label id="labelMotivoGestion" class="block text-sm font-medium text-gray-700 mb-2">
+                    Motivo
+                </label>
+                <textarea name="motivo"
+                          id="motivo_modal"
+                          rows="4"
+                          required
+                          placeholder="Escriba el motivo..."
+                          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button"
+                        onclick="cerrarModalGestion()"
+                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        id="btnSubmitGestion"
+                        class="px-5 py-2 rounded-lg text-white transition">
+                    Confirmar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function filtrarSolicitudes() {
-
     const inicio = document.getElementById("fechaInicio").value;
     const fin = document.getElementById("fechaFin").value;
-
     const filas = document.querySelectorAll(".fila-solicitud");
 
     filas.forEach(fila => {
-
         const fechaFila = fila.dataset.fecha;
 
         if ((!inicio || fechaFila >= inicio) &&
             (!fin || fechaFila <= fin)) {
-
             fila.style.display = "";
-
         } else {
-
             fila.style.display = "none";
         }
-
     });
 }
 
 function limpiarFiltro() {
-
     document.getElementById("fechaInicio").value = "";
     document.getElementById("fechaFin").value = "";
 
     const filas = document.querySelectorAll(".fila-solicitud");
-
     filas.forEach(fila => {
         fila.style.display = "";
     });
 }
+
+function abrirModalGestion(solicitudId, accion, clienteNombre) {
+    const modal = document.getElementById("modalGestionSolicitud");
+    const titulo = document.getElementById("tituloModalGestion");
+    const subtitulo = document.getElementById("subtituloModalGestion");
+    const label = document.getElementById("labelMotivoGestion");
+    const solicitudInput = document.getElementById("solicitud_id_modal");
+    const accionInput = document.getElementById("accion_modal");
+    const motivo = document.getElementById("motivo_modal");
+    const btnSubmit = document.getElementById("btnSubmitGestion");
+
+    solicitudInput.value = solicitudId;
+    accionInput.value = accion;
+    motivo.value = "";
+
+    subtitulo.innerText = "Cliente: " + clienteNombre;
+
+    if (accion === "aprobado") {
+        titulo.innerText = "Aprobar solicitud";
+        label.innerText = "Motivo de aprobación";
+        btnSubmit.innerText = "Aprobar";
+        btnSubmit.className = "px-5 py-2 rounded-lg text-white transition bg-green-600 hover:bg-green-700";
+        motivo.placeholder = "Escriba el motivo de aprobación...";
+    } else {
+        titulo.innerText = "Rechazar solicitud";
+        label.innerText = "Motivo de rechazo";
+        btnSubmit.innerText = "Rechazar";
+        btnSubmit.className = "px-5 py-2 rounded-lg text-white transition bg-red-600 hover:bg-red-700";
+        motivo.placeholder = "Escriba el motivo de rechazo...";
+    }
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function cerrarModalGestion() {
+    const modal = document.getElementById("modalGestionSolicitud");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
 </script>
+
 {% endblock %}

@@ -2,240 +2,384 @@
 {% block content %}
 
 <style>
-
 /* =========================
-   CARRUSEL DASHBOARD PREMIUM
+   CALENDARIO DASHBOARD PREMIUM
 ========================= */
 
-.dashboard-carousel {
-    position: relative;
-    width: 95%;              /* más ancho */
-    max-width: 1800px;       /* evita que se estire infinito */
+.dashboard-calendar {
+    width: 95%;
+    max-width: 1800px;
     margin: 30px auto;
-
-    height: 45vh;
-    min-height: 320px;
-    max-height: 600px;
-    margin: 30px auto;
+    background: linear-gradient(135deg, #424750, #424750);
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.18);
     overflow: hidden;
-    border-radius: 25px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-}
-
-.carousel-slide {
-    min-width: 100%;
-    height: 55vh;
-    min-height: 320px;
-    max-height: 650px;
     position: relative;
-    display: flex;
-    align-items: center;
-    color: white;
-    background-size: contain;      /* 🔥 CLAVE */
-    background-repeat: no-repeat;
-    background-position: right center;
-    background-color: #2b2b2b;     /* fondo mientras carga */
 }
 
-/* Imágenes */
-.slide-1 {
-    background-image: url("/static/img/img1.png");
-}
-
-.slide-2 {
-    background-image: url("/static/img/img2.png");
-}
-
-.slide-3 {
-    background-image: url("/static/img/img3.png");
-}
-
-
-.carousel-track {
-    display: flex;
-    height: 100%;
-    transition: transform 0.8s cubic-bezier(.25,.8,.25,1);
-}
-
-
-
-.bg-img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-
-/* Overlay oscuro elegante */
-.overlay {
+.calendar-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
-        to right,
-        rgba(0, 50, 120, 0.55),
-        rgba(0, 0, 0, 0.05)
+        135deg,
+        rgba(255,255,255,0.04),
+        rgba(255,255,255,0.01)
     );
-    z-index: 2;
+    pointer-events: none;
 }
 
-.slide-content {
+.calendar-wrapper {
     position: relative;
-    z-index: 3;
-    padding: 60px;
-    max-width: 600px;
-    width: 100%;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 0;
+    min-height: 430px;
 }
 
-
-@media (min-width: 1800px) {
-    .slide-content {
-        margin-left: 12%;
-    }
+.calendar-left {
+    padding: 50px 45px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
 }
 
+.calendar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    backdrop-filter: blur(6px);
+}
 
-.slide-content h2 {
+.calendar-left h2 {
     font-size: 40px;
     font-weight: 900;
-    margin-bottom: 15px;
+    line-height: 1.1;
+    margin-bottom: 16px;
 }
 
-.slide-content p {
-    font-size: 18px;
+.calendar-left p {
+    font-size: 17px;
     opacity: .9;
-    margin-bottom: 25px;
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 30px;
 }
 
-.btn-slide {
-    background: linear-gradient(45deg, #00c6ff, #0072ff);
-    padding: 12px 28px;
-    border-radius: 40px;
-    text-decoration: none;
-    color: white;
-    font-weight: 600;
-    transition: 0.3s;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+.calendar-today-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 16px 20px;
+    width: fit-content;
 }
 
-.btn-slide:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-}
-
-.carousel-dots {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 5;
-}
-
-.carousel-dots span {
-    width: 12px;
-    height: 12px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: .3s;
-}
-
-.carousel-dots span.active {
+.calendar-today-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
     background: white;
-    transform: scale(1.2);
+    color: #0B3C5D;
+    font-size: 26px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
 }
 
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+.calendar-today-info span {
+    display: block;
+}
+
+.calendar-today-info .small-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    opacity: .75;
+}
+
+.calendar-today-info .date-text {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.calendar-right {
+    background: #f8fafc;
+    padding: 34px 34px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.calendar-title {
+    color: #0f172a;
+}
+
+.calendar-title h3 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.calendar-title p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.calendar-mini-badge {
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+}
+
+.calendar-weekdays {
+    margin-bottom: 14px;
+}
+
+.calendar-weekdays div {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: .04em;
+}
+
+.calendar-day {
+    height: 62px;
+    border-radius: 18px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 6px 18px rgba(15,23,42,.04);
+    transition: .2s ease;
+}
+
+.calendar-day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15,23,42,.08);
+}
+
+.calendar-day.muted {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-style: dashed;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #424750, #424750);
+    color: white;
+    border: none;
+    box-shadow: 0 14px 30px rgba(37,99,235,.28);
+}
+
+@media (max-width: 1100px) {
+    .calendar-wrapper {
+        grid-template-columns: 1fr;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .calendar-left {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 }
 
+@media (max-width: 768px) {
+    .dashboard-calendar {
+        width: 100%;
+        border-radius: 22px;
+    }
 
+    .calendar-left,
+    .calendar-right {
+        padding: 24px 20px;
+    }
+
+    .calendar-left h2 {
+        font-size: 28px;
+    }
+
+    .calendar-day {
+        height: 48px;
+        border-radius: 14px;
+        font-size: 14px;
+    }
+
+    .calendar-weekdays,
+    .calendar-grid {
+        gap: 8px;
+    }
+
+    .calendar-title h3 {
+        font-size: 20px;
+    }
+}
 </style>
 
-<div class="dashboard-carousel">
+<div class="dashboard-calendar">
+    <div class="calendar-overlay"></div>
 
-    <div class="carousel-track">
+    <div class="calendar-wrapper">
 
-        <!-- SLIDE 1 -->
-        <div class="carousel-slide slide-1">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Control Total de tu Oficina</h2>
-                <p>Gestiona rutas, ventas y capital en tiempo real.</p>
-                <a href="#" class="btn-slide">Ver Reportes</a>
+        <!-- PANEL IZQUIERDO -->
+        <div class="calendar-left">
+            <div class="calendar-badge">
+                📅 Calendario actual
+            </div>
+
+            <h2>Organiza tu operación con mayor claridad</h2>
+
+            <p>
+                Visualiza el mes actual dentro del dashboard y mantén una referencia rápida
+                para el control diario de tu oficina, rutas y gestión administrativa.
+            </p>
+
+            <div class="calendar-today-box">
+                <div class="calendar-today-number" id="todayNumber"></div>
+                <div class="calendar-today-info">
+                    <span class="small-label">Hoy es</span>
+                    <span class="date-text" id="todayText"></span>
+                </div>
             </div>
         </div>
 
-        <!-- SLIDE 2 -->
-        <div class="carousel-slide slide-2">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Estadísticas Inteligentes</h2>
-                <p>Visualiza métricas claras y toma decisiones estratégicas.</p>
-                <a href="#" class="btn-slide">Ir a Finanzas</a>
-            </div>
-        </div>
+        <!-- PANEL DERECHO -->
+        <div class="calendar-right">
+            <div class="calendar-header">
+                <div class="calendar-title">
+                    <h3 id="monthTitle"></h3>
+                    <p id="yearTitle"></p>
+                </div>
 
-        <!-- SLIDE 3 -->
-        <div class="carousel-slide slide-3">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Optimización y Crecimiento</h2>
-                <p>Mejora la productividad de tu equipo fácilmente.</p>
-                <a href="#" class="btn-slide">Gestionar</a>
+                <div class="calendar-mini-badge">
+                    Vista mensual
+                </div>
             </div>
+
+            <div class="calendar-weekdays">
+                <div>Lun</div>
+                <div>Mar</div>
+                <div>Mié</div>
+                <div>Jue</div>
+                <div>Vie</div>
+                <div>Sáb</div>
+                <div>Dom</div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
     </div>
-
-    <div class="carousel-dots"></div>
-
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const monthTitle = document.getElementById("monthTitle");
+    const yearTitle = document.getElementById("yearTitle");
+    const todayNumber = document.getElementById("todayNumber");
+    const todayText = document.getElementById("todayText");
+    const calendarGrid = document.getElementById("calendarGrid");
 
-    const track = document.querySelector(".carousel-track");
-    const slides = document.querySelectorAll(".carousel-slide");
-    const dotsContainer = document.querySelector(".carousel-dots");
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDate = today.getDate();
 
-    let index = 0;
+    const monthNames = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
 
-    slides.forEach((_, i) => {
-        const dot = document.createElement("span");
-        if (i === 0) dot.classList.add("active");
+    const dayNames = [
+        "Domingo", "Lunes", "Martes", "Miércoles",
+        "Jueves", "Viernes", "Sábado"
+    ];
 
-        dot.addEventListener("click", () => {
-            index = i;
-            updateCarousel();
-        });
+    monthTitle.textContent = monthNames[currentMonth];
+    yearTitle.textContent = "Año " + currentYear;
 
-        dotsContainer.appendChild(dot);
-    });
+    todayNumber.textContent = currentDate;
+    todayText.textContent = dayNames[today.getDay()] + ", " + currentDate + " de " + monthNames[currentMonth];
 
-    const dots = document.querySelectorAll(".carousel-dots span");
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
 
-    function updateCarousel() {
-        track.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach(dot => dot.classList.remove("active"));
-        dots[index].classList.add("active");
+    let startDay = firstDay.getDay();
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    const daysInMonth = lastDay.getDate();
+    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+
+    calendarGrid.innerHTML = "";
+
+    // Días del mes anterior
+    for (let i = startDay; i > 0; i--) {
+        const day = document.createElement("div");
+        day.className = "calendar-day muted";
+        day.textContent = prevMonthLastDay - i + 1;
+        calendarGrid.appendChild(day);
     }
 
-    setInterval(() => {
-        index = (index + 1) % slides.length;
-        updateCarousel();
-    }, 5000);
+    // Días del mes actual
+    for (let i = 1; i <= daysInMonth; i++) {
+        const day = document.createElement("div");
+        day.className = "calendar-day";
+        day.textContent = i;
 
+        if (i === currentDate) {
+            day.classList.add("today");
+        }
+
+        calendarGrid.appendChild(day);
+    }
+
+    // Completar celdas finales
+    const totalCells = calendarGrid.children.length;
+    const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+
+    for (let i = 1; i <= remaining; i++) {
+        const day = document.createElement("div");
+        day.className = "calendar-day muted";
+        day.textContent = i;
+        calendarGrid.appendChild(day);
+    }
 });
 </script>
 

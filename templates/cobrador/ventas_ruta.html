@@ -6,127 +6,342 @@
 
 {% block content %}
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-24 space-y-4">
-<div class="flex items-center gap-3 mb-2">
+<style>
+.credito-shell {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 96px;
+}
 
+.credito-header-card {
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
 
-    <h1 class="text-white text-lg font-semibold">
-        Ventas 
-    </h1>
-<!-- BUSCADOR -->
-<div class="mb-4">
-    <input type="text"
-           id="buscador"
-           placeholder="Buscar por nombre..."
-           onkeyup="filtrarClientes()"
-           class="w-full rounded-xl p-3 text-sm
-                  bg-white/10 text-white placeholder-white/60
-                  border border-white/20
-                  focus:outline-none focus:ring-2 focus:ring-blue-400">
+.credito-title {
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.credito-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.search-modern {
+    width: 100%;
+    border-radius: 18px;
+    padding: 13px 16px;
+    font-size: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #dbe2ea;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    transition: all .2s ease;
+}
+
+.search-modern::placeholder {
+    color: #94a3b8;
+}
+
+.search-modern:focus {
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.12);
+}
+
+.credito-item-modern {
+    display: block;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    transition: all .22s ease;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.credito-item-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
+    border-color: #cbd5e1;
+}
+
+.credito-posicion {
+    flex-shrink: 0;
+    height: 52px;
+    width: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #0f172a, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+}
+
+.credito-nombre {
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.credito-doc {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.credito-arrow {
+    height: 34px;
+    width: 34px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.credito-info {
+    margin-top: 12px;
+    display: grid;
+    gap: 7px;
+    font-size: 12px;
+}
+
+.credito-line {
+    color: #64748b;
+}
+
+.credito-line strong {
+    color: #334155;
+    font-weight: 700;
+}
+
+.credito-line-blue {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.credito-line-green {
+    color: #059669;
+    font-weight: 700;
+}
+
+.credito-line-red {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.credito-empty {
+    background: rgba(255,255,255,0.85);
+    border: 1px dashed #cbd5e1;
+    border-radius: 24px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+.credito-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding-left: 4px;
+}
+
+.fab-modern {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    height: 62px;
+    width: 62px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    font-size: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
+    transition: all .2s ease;
+    z-index: 50;
+}
+
+.fab-modern:hover {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-2px);
+}
+
+.badge-modern {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 12px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    z-index: 2;
+}
+
+.badge-red {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.badge-orange {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+.badge-green {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+</style>
+
+<div class="credito-shell">
+
+    <!-- Header -->
+    <div class="credito-header-card mb-4">
+        <div class="credito-title">
+            Créditos por cobrar
+        </div>
+        <div class="credito-subtitle">
+            Consulta y administra los créditos asignados a esta ruta
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="mt-4">
+            <input type="text"
+                   id="buscador"
+                   placeholder="Buscar por nombre..."
+                   onkeyup="filtrarClientes()"
+                   class="search-modern">
+        </div>
     </div>
-</div>
+
+    <div class="credito-section-label mb-3">
+        Listado de clientes
+    </div>
 
     {% if creditos %}
 
+        <div class="space-y-4">
         {% for credito in creditos %}
 
         <a href="{{ url_for('detalle_credito', credito_id=credito.id) }}"
-        data-nombre="{{ credito.cliente|lower }}"
-        class="credito-item block
-            bg-gradient-to-br from-[#123b63] to-[#0b2847]
-            rounded-2xl p-4 shadow-lg
-            transition hover:scale-[1.02]
-            text-white relative overflow-hidden">
+           data-nombre="{{ credito.cliente|lower }}"
+           class="credito-item credito-item-modern">
 
-            <div class="flex gap-4 items-start">
             {% if credito.color_estado == 'rojo' %}
-            <div class="absolute -top-2 -right-8 rotate-45 bg-red-600
-                        text-white text-[10px] px-10 py-1 font-semibold shadow-md">
-                30+ DÍAS
-            </div>
+                <div class="badge-modern badge-red">
+                    🔴 30+ días
+                </div>
 
             {% elif credito.color_estado == 'naranja' %}
-            <div class="absolute -top-2 -right-8 rotate-45 bg-orange-500
-                        text-white text-[10px] px-10 py-1 font-semibold shadow-md">
-                7+ DÍAS
-            </div>
+                <div class="badge-modern badge-orange">
+                    🟠 7+ días
+                </div>
 
             {% elif credito.color_estado == 'verde' and credito.dias_mora > 0 %}
-            <div class="absolute -top-2 -right-8 rotate-45 bg-green-500
-                        text-white text-[10px] px-10 py-1 font-semibold shadow-md">
-                {{ credito.dias_mora }} DÍAS
-            </div>
+                <div class="badge-modern badge-green">
+                    🟢 {{ credito.dias_mora }} días
+                </div>
             {% endif %}
-                <!-- CÍRCULO POSICIÓN -->
-                <div class="flex-shrink-0 h-12 w-12 rounded-full
-                            bg-gradient-to-br from-gray-300 to-blue-600
-                            flex items-center justify-center
-                            text-sm font-bold text-white">
+
+            <div class="flex gap-4 items-start">
+
+                <!-- POSICIÓN -->
+                <div class="credito-posicion">
                     {{ credito.posicion }}
                 </div>
 
                 <!-- CONTENIDO -->
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
 
                     <!-- HEADER -->
-                    <div class="flex justify-between items-start">
+                    <div class="flex justify-between items-start gap-3">
 
-                        <div>
-                            <div class="text-sm font-semibold">
+                        <div class="min-w-0">
+                            <div class="credito-nombre truncate pr-2">
                                 {{ credito.cliente }}
                             </div>
-                            <div class="text-xs opacity-70">
+                            <div class="credito-doc">
                                 {{ credito.identificacion }}
                             </div>
                         </div>
 
-                        <span class="text-blue-400 text-lg opacity-70">
+                        <div class="credito-arrow">
                             ›
-                        </span>
+                        </div>
 
                     </div>
 
                     <!-- INFO -->
-                    <div class="mt-2 space-y-1 text-xs">
+                    <div class="credito-info">
 
                         {% if credito.telefono %}
-                        <div class="text-blue-300">
+                        <div class="credito-line-blue">
                             📱 {{ credito.telefono }}
                         </div>
                         {% endif %}
 
                         {% if credito.direccion %}
-                        <div class="opacity-70">
-                            📍 {{ credito.direccion }}
+                        <div class="credito-line">
+                            <strong>📍</strong> {{ credito.direccion }}
                         </div>
                         {% endif %}
 
                         {% if credito.tipo_prestamo %}
-                        <div class="opacity-70">
-                            💳 {{ credito.tipo_prestamo }}
+                        <div class="credito-line">
+                            <strong>💳</strong> {{ credito.tipo_prestamo }}
                         </div>
                         {% endif %}
 
                         {% if credito.proxima_cuota %}
-                        <div class="text-blue-300">
+                        <div class="credito-line-blue">
                             📆 Próx: {{ credito.proxima_cuota }}
                         </div>
                         {% else %}
-                        <div class="text-green-400">
-                            ✔ Crédito Pagado
+                        <div class="credito-line-green">
+                            ✔ Crédito pagado
                         </div>
                         {% endif %}
 
-                        <div class="text-green-400">
-                            Saldo Actual: ${{ "{:,.0f}".format(credito.saldo) }}
+                        <div class="credito-line-green">
+                            Saldo actual: ${{ "{:,.0f}".format(credito.saldo) }}
                         </div>
 
                         {% if credito.dias_mora > 0 %}
-                            <div class="text-red-400">
+                            <div class="credito-line-red">
                                 {{ credito.dias_mora }} días en mora
                             </div>
                         {% else %}
-                            <div class="text-green-400">
+                            <div class="credito-line-green">
                                 Al día
                             </div>
                         {% endif %}
@@ -140,10 +355,11 @@
         </a>
 
         {% endfor %}
+        </div>
 
     {% else %}
 
-        <div class="text-center text-sm opacity-60 text-white mt-20">
+        <div class="credito-empty">
             No hay créditos en esta ruta
         </div>
 
@@ -153,17 +369,10 @@
 
 <!-- BOTÓN FLOTANTE -->
 <a href="{{ url_for('nueva_venta_cobrador') }}"
-   class="fixed bottom-6 right-6
-          bg-blue-600 hover:bg-blue-700
-          text-white text-3xl
-          h-16 w-16
-          rounded-full
-          flex items-center justify-center
-          shadow-2xl
-          transition active:scale-95">
-
+   class="fab-modern">
     +
 </a>
+
 <script>
 function filtrarClientes() {
 

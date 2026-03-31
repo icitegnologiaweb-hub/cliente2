@@ -3,77 +3,310 @@
 
 {% block content %}
 
-<div class="max-w-md mx-auto space-y-6 text-white">
+<style>
+.solicitud-shell{
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 96px;
+}
+
+.solicitud-header-title{
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.solicitud-header-subtitle{
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.solicitud-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 26px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+}
+
+.solicitud-section-label{
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 12px;
+}
+
+.solicitud-label{
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.solicitud-input,
+.solicitud-select,
+.solicitud-textarea{
+    width: 100%;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #dbe2ea;
+    border-radius: 16px;
+    padding: 13px 14px;
+    font-size: 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+    transition: all .2s ease;
+}
+
+.solicitud-input::placeholder,
+.solicitud-textarea::placeholder{
+    color: #94a3b8;
+}
+
+.solicitud-input:focus,
+.solicitud-select:focus,
+.solicitud-textarea:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+}
+
+.solicitud-readonly{
+    background: #f8fafc !important;
+    color: #475569 !important;
+}
+
+.solicitud-btn-search{
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    padding: 0 16px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 24px rgba(15,23,42,.14);
+    transition: all .2s ease;
+}
+
+.solicitud-btn-search:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+
+.solicitud-error{
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 12px;
+}
+
+.solicitud-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.solicitud-submit{
+    width: 100%;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    padding: 15px;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 18px 34px rgba(15,23,42,.16);
+    transition: all .2s ease;
+}
+
+.solicitud-submit:hover{
+    background: linear-gradient(135deg, #1e293b, #334155);
+    transform: translateY(-1px);
+}
+
+.solicitud-submit:disabled{
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.solicitud-grid{
+    display: grid;
+    gap: 14px;
+}
+</style>
+
+<div class="solicitud-shell space-y-5">
 
     <!-- HEADER -->
     <div>
-        <h2 class="text-lg font-semibold text-blue-200">
-            Solicitar Aumento de Cupo
+        <h2 class="solicitud-header-title">
+            Nueva solicitud de cupo
         </h2>
-        <p class="text-xs text-gray-400">
-            Solo aplica para clientes existentes
+        <p class="solicitud-header-subtitle">
+            Seleccione si el cliente ya existe o si es un cliente nuevo
         </p>
     </div>
 
     <!-- TARJETA PRINCIPAL -->
-    <div class="bg-[#123b63] rounded-2xl p-5 shadow-lg space-y-4">
+    <div class="solicitud-card">
 
-        <form method="POST" action="{{ url_for('guardar_solicitud_cupo') }}" class="space-y-4">
+        <form method="POST"
+              action="{{ url_for('guardar_solicitud_cupo') }}"
+              class="solicitud-grid">
 
-            <!-- CEDULA -->
             <div>
-                <label class="text-xs text-gray-300 block mb-1">
-                    Número de Cédula
+                <span class="solicitud-chip">
+                    📄 Solicitud de análisis
+                </span>
+            </div>
+
+            <!-- TIPO CLIENTE -->
+            <div>
+                <label class="solicitud-label">
+                    Tipo de cliente
                 </label>
 
-                <div class="flex gap-2">
-                    <input type="text"
-                        id="cedula"
-                        name="cedula"
-                        placeholder="Ingrese la cédula"
-                        class="flex-1 bg-[#0b2847] text-white border border-gray-600 rounded-xl p-3">
+                <select id="tipo_cliente"
+                        name="tipo_cliente"
+                        onchange="cambiarTipoCliente()"
+                        class="solicitud-select">
+                    <option value="existente">Cliente existente</option>
+                    <option value="nuevo">Cliente nuevo</option>
+                </select>
+            </div>
 
-                    <button type="button"
-                            onclick="buscarCliente()"
-                            class="bg-blue-600 px-4 rounded-xl text-white">
-                        Cargar Datos
-                    </button>
+            <!-- =========================
+                 CLIENTE EXISTENTE
+            ========================== -->
+            <div id="bloque_existente" class="space-y-4">
+
+                <div>
+                    <label class="solicitud-label">
+                        Número de cédula
+                    </label>
+
+                    <div class="flex gap-2">
+                        <input type="text"
+                               id="cedula_existente"
+                               name="cedula_existente"
+                               placeholder="Ingrese la cédula"
+                               oninput="limpiarClienteExistente()"
+                               class="solicitud-input flex-1">
+
+                        <button type="button"
+                                onclick="buscarCliente()"
+                                class="solicitud-btn-search">
+                            Buscar
+                        </button>
+                    </div>
                 </div>
+
+                <div>
+                    <label class="solicitud-label">
+                        Nombre del cliente
+                    </label>
+                    <input type="text"
+                           id="nombre_cliente_existente"
+                           readonly
+                           class="solicitud-input solicitud-readonly">
+                </div>
+
+                <div>
+                    <label class="solicitud-label">
+                        Dirección
+                    </label>
+                    <input type="text"
+                           id="direccion_cliente_existente"
+                           readonly
+                           class="solicitud-input solicitud-readonly">
+                </div>
+
+                <div id="cliente_error" class="hidden solicitud-error"></div>
             </div>
 
-            <!-- NOMBRE CLIENTE -->
-            <div>
-                <label class="text-xs text-gray-300 block mb-1">
-                    Nombre del Cliente
-                </label>
-                <input type="text"
-                    id="nombre_cliente"
-                    readonly
-                    class="w-full bg-[#071c33] text-white border border-gray-600 rounded-xl p-3 !bg-[#071c33] focus:outline-none">
-            </div>
+            <!-- =========================
+                 CLIENTE NUEVO
+            ========================== -->
+            <div id="bloque_nuevo" class="space-y-4 hidden">
 
-            <!-- ERROR -->
-            <div id="cliente_error" class="hidden text-red-400 text-xs"></div>
+                <div>
+                    <label class="solicitud-label">
+                        Nombre completo
+                    </label>
+                    <input type="text"
+                           id="nombre_nuevo"
+                           name="nombre_nuevo"
+                           placeholder="Ingrese nombre completo"
+                           class="solicitud-input">
+                </div>
+
+                <div>
+                    <label class="solicitud-label">
+                        Cédula
+                    </label>
+                    <input type="text"
+                           id="cedula_nuevo"
+                           name="cedula_nuevo"
+                           placeholder="Ingrese la cédula"
+                           class="solicitud-input">
+                </div>
+
+                <div>
+                    <label class="solicitud-label">
+                        Dirección
+                    </label>
+                    <input type="text"
+                           id="direccion_nuevo"
+                           name="direccion_nuevo"
+                           placeholder="Ingrese la dirección"
+                           class="solicitud-input">
+                </div>
+
+                <div>
+                    <label class="solicitud-label">
+                        ¿A qué se dedica?
+                    </label>
+                    <textarea id="descripcion_nuevo"
+                              name="descripcion_nuevo"
+                              rows="3"
+                              placeholder="Ej: comerciante, independiente, vende ropa, trabaja en construcción..."
+                              class="solicitud-textarea"></textarea>
+                </div>
+
+            </div>
 
             <!-- MONTO -->
             <div>
-                <label class="text-xs text-gray-300 block mb-1">
+                <label class="solicitud-label">
                     Monto solicitado
                 </label>
 
                 <input type="number"
-                    name="monto"
-                    placeholder="Ej: 500000"
-                    required
-                    class="w-full bg-[#0b2847] text-white border border-gray-600 rounded-xl p-3">
+                       name="monto"
+                       id="monto"
+                       placeholder="Ej: 500000"
+                       required
+                       class="solicitud-input">
             </div>
 
-            <!-- BOTON -->
+            <!-- BOTÓN -->
             <button type="submit"
                     id="btnEnviar"
-                    disabled
-                    class="w-full bg-green-600 py-3 rounded-xl font-semibold text-white disabled:opacity-50">
-                Enviar Solicitud
+                    class="solicitud-submit">
+                Enviar solicitud
             </button>
 
         </form>
@@ -83,34 +316,101 @@
 </div>
 
 <script>
-function buscarCliente(){
+function cambiarTipoCliente() {
+    let tipo = document.getElementById("tipo_cliente").value;
 
-    let cedula = document.getElementById("cedula").value.trim();
-    let nombreInput = document.getElementById("nombre_cliente");
+    let bloqueExistente = document.getElementById("bloque_existente");
+    let bloqueNuevo = document.getElementById("bloque_nuevo");
+    let btnEnviar = document.getElementById("btnEnviar");
+
+    let nombreNuevo = document.getElementById("nombre_nuevo");
+    let cedulaNuevo = document.getElementById("cedula_nuevo");
+    let direccionNuevo = document.getElementById("direccion_nuevo");
+    let descripcionNuevo = document.getElementById("descripcion_nuevo");
+
+    if (tipo === "existente") {
+        bloqueExistente.classList.remove("hidden");
+        bloqueNuevo.classList.add("hidden");
+
+        nombreNuevo.required = false;
+        cedulaNuevo.required = false;
+        direccionNuevo.required = false;
+        descripcionNuevo.required = false;
+
+        btnEnviar.disabled = true;
+        btnEnviar.classList.add("opacity-50");
+    } else {
+        bloqueExistente.classList.add("hidden");
+        bloqueNuevo.classList.remove("hidden");
+
+        nombreNuevo.required = true;
+        cedulaNuevo.required = true;
+        direccionNuevo.required = true;
+        descripcionNuevo.required = true;
+
+        btnEnviar.disabled = false;
+        btnEnviar.classList.remove("opacity-50");
+        limpiarClienteExistente();
+    }
+}
+
+function limpiarClienteExistente() {
+    document.getElementById("nombre_cliente_existente").value = "";
+    document.getElementById("direccion_cliente_existente").value = "";
+    document.getElementById("cliente_error").classList.add("hidden");
+
+    if (document.getElementById("tipo_cliente").value === "existente") {
+        document.getElementById("btnEnviar").disabled = true;
+        document.getElementById("btnEnviar").classList.add("opacity-50");
+    }
+}
+
+function buscarCliente() {
+    let cedula = document.getElementById("cedula_existente").value.trim();
+    let nombreInput = document.getElementById("nombre_cliente_existente");
+    let direccionInput = document.getElementById("direccion_cliente_existente");
     let errorDiv = document.getElementById("cliente_error");
     let btnEnviar = document.getElementById("btnEnviar");
 
-    if(!cedula){
-        alert("Ingrese la cédula");
+    if (!cedula) {
+        errorDiv.innerText = "Ingrese la cédula";
+        errorDiv.classList.remove("hidden");
+        btnEnviar.disabled = true;
+        btnEnviar.classList.add("opacity-50");
         return;
     }
 
     fetch("/buscar_cliente_por_cedula/" + cedula)
     .then(res => res.json())
     .then(data => {
-
-        console.log("RESPUESTA DEL SERVIDOR:", data);  // 👈 AGREGA ESTO
-
-        if(data.success){
-            nombreInput.value = data.cliente.nombre;
+        if (data.success) {
+            nombreInput.value = data.cliente.nombre || "";
+            direccionInput.value = data.cliente.direccion || "";
+            errorDiv.classList.add("hidden");
             btnEnviar.disabled = false;
+            btnEnviar.classList.remove("opacity-50");
         } else {
             nombreInput.value = "";
+            direccionInput.value = "";
+            errorDiv.innerText = "Cliente no encontrado";
+            errorDiv.classList.remove("hidden");
             btnEnviar.disabled = true;
+            btnEnviar.classList.add("opacity-50");
         }
-
+    })
+    .catch(() => {
+        nombreInput.value = "";
+        direccionInput.value = "";
+        errorDiv.innerText = "Error al consultar el cliente";
+        errorDiv.classList.remove("hidden");
+        btnEnviar.disabled = true;
+        btnEnviar.classList.add("opacity-50");
     });
-
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    cambiarTipoCliente();
+});
 </script>
+
 {% endblock %}

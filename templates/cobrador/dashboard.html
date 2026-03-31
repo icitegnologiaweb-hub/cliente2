@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0B3C5D">
+<meta name="theme-color" content="#f8fafc">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_app.png') }}">
 <title>Mis Rutas</title>
@@ -15,94 +15,300 @@
 <style>
 body {
     background:
-        radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     min-height: 100vh;
+    color: #0f172a;
 }
 
-.header-card {
-    background: linear-gradient(180deg, #173c63, #0c2440);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+.app-shell {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 18px 16px 28px;
+}
+
+.topbar {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(15,23,42,.06);
+    padding: 16px 18px;
+}
+
+.topbar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.topbar-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.topbar-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #334155;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(15,23,42,.06);
+    transition: all .2s ease;
+}
+
+.topbar-btn:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, #ffffff, #e5e7eb);
+}
+
+.summary-card {
+    margin-top: 18px;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 28px;
+    padding: 22px 22px;
+    color: white;
+    box-shadow: 0 18px 40px rgba(15,23,42,.18);
+    position: relative;
+    overflow: hidden;
+}
+
+.summary-card::before {
+    content: "";
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: rgba(255,255,255,.05);
+    border-radius: 999px;
+    right: -35px;
+    top: -35px;
+}
+
+.summary-card::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,.04);
+    border-radius: 999px;
+    right: 40px;
+    bottom: -50px;
+}
+
+.summary-small {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: rgba(255,255,255,.72);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.summary-title {
+    position: relative;
+    z-index: 1;
+    font-size: 26px;
+    font-weight: 800;
+    margin-top: 8px;
+    line-height: 1.1;
+}
+
+.summary-text {
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,.78);
+    line-height: 1.6;
+    max-width: 260px;
+}
+
+.section-title {
+    margin-top: 22px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding-left: 4px;
 }
 
 .card-ruta {
-    background: linear-gradient(135deg, #123b63, #0b2847);
-    border-radius: 18px;
-    box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.05),
-        0 10px 22px rgba(0,0,0,.35);
-    transition: all .25s ease;
+    display: block;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 16px 16px;
+    box-shadow: 0 10px 26px rgba(15,23,42,.05);
+    transition: all .22s ease;
+    text-decoration: none;
+    color: inherit;
 }
 
 .card-ruta:hover {
-    transform: translateY(-3px);
-    box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.08),
-        0 18px 30px rgba(0,0,0,.5);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 32px rgba(15,23,42,.08);
+    border-color: #cbd5e1;
 }
 
 .card-icon {
-    background: linear-gradient(135deg, #d8d9db, #1b4f9c);
-    box-shadow: 0 6px 14px rgba(31,111,212,.45);
+    height: 48px;
+    width: 48px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a, #334155);
+    color: white;
+    box-shadow: 0 10px 20px rgba(15,23,42,.12);
+    flex-shrink: 0;
+    font-size: 18px;
 }
 
-.logo-glow {
-    filter: drop-shadow(0 0 12px rgb(255, 255, 255));
+.route-code {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+.route-name {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.route-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 10px;
+    border-radius: 999px;
+}
+
+.arrow-box {
+    height: 34px;
+    width: 34px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 18px;
+}
+
+.empty-state {
+    margin-top: 34px;
+    background: rgba(255,255,255,0.85);
+    border: 1px dashed #cbd5e1;
+    border-radius: 24px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 10px 26px rgba(15,23,42,.04);
+}
+
+.empty-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 12px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 22px;
+}
+
+.empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.empty-text {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+@media (max-width: 420px) {
+    .summary-title {
+        font-size: 22px;
+    }
 }
 </style>
 </head>
 
-<body class="text-white">
+<body>
 
-<div class="max-w-md mx-auto p-4">
+<div class="app-shell">
 
     <!-- Header -->
-    <div class="header-card px-5 py-4 mb-6 flex justify-between items-center">
-        <h2 class="text-lg font-semibold tracking-wide">
-            Mis Rutas
-        </h2>
+    <div class="topbar flex items-center justify-between">
+        <div>
+            <div class="topbar-title">Mis Rutas</div>
+            <div class="topbar-subtitle">Selecciona una ruta para continuar</div>
+        </div>
 
-        <a href="{{ url_for('login_app') }}" class="opacity-80 hover:opacity-100 transition text-lg">
+        <a href="{{ url_for('login_app') }}" class="topbar-btn" aria-label="Salir">
             ⎋
         </a>
     </div>
 
-    <!-- Logo -->
-    <div class="flex justify-center mb-10">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" 
-             class="h-20 logo-glow">
+    <!-- Resumen -->
+    <div class="summary-card">
+        <div class="summary-small">Panel personal</div>
+        <div class="summary-title">Rutas asignadas</div>
+        <div class="summary-text">
+            Accede rápidamente a tus recorridos disponibles y entra a la gestión de cada ruta.
+        </div>
     </div>
 
     <!-- Lista -->
-    <div class="space-y-5">
+    <div class="section-title">Listado disponible</div>
+
+    <div class="space-y-4">
 
         {% if rutas %}
 
             {% for ruta in rutas %}
 
             <a href="{{ url_for('ver_ruta', ruta_id=ruta.id) }}"
-               class="block card-ruta px-5 py-4">
+               class="card-ruta">
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-3">
 
-                    <div class="flex items-center gap-4">
-                        <div class="h-11 w-11 rounded-full flex items-center justify-center card-icon">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="card-icon">
                             🏍
                         </div>
 
-                        <div>
-                            <div class="text-sm font-semibold tracking-wide">
+                        <div class="min-w-0">
+                            <div class="route-code truncate">
                                 {{ ruta.codigo }}
                             </div>
-                            <div class="text-xs opacity-70 mt-0.5">
+                            <div class="route-name truncate">
                                 {{ ruta.nombre }}
                             </div>
                         </div>
                     </div>
 
-                    <span class="text-blue-400 text-xl opacity-80">
-                        ›
-                    </span>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="route-pill">Ruta</span>
+                        <div class="arrow-box">›</div>
+                    </div>
 
                 </div>
 
@@ -112,8 +318,12 @@ body {
 
         {% else %}
 
-            <div class="text-center opacity-60 text-sm mt-20">
-                No tienes rutas asignadas
+            <div class="empty-state">
+                <div class="empty-icon">🗂</div>
+                <div class="empty-title">No tienes rutas asignadas</div>
+                <div class="empty-text">
+                    Cuando se te asignen rutas aparecerán aquí automáticamente.
+                </div>
             </div>
 
         {% endif %}

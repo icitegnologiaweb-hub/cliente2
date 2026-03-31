@@ -5,48 +5,279 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verificar Token</title>
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+
+<style>
+:root{
+    --bg-main: #f8fafc;
+    --bg-soft: #eef2f7;
+    --card: #ffffff;
+    --card-soft: #f8fafc;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --primary: #0f172a;
+    --primary-2: #1e293b;
+    --accent: #2563eb;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --success-text: #047857;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --danger-text: #b91c1c;
+}
+
+body{
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--bg-main) 0%, var(--bg-soft) 100%);
+    color: var(--text-main);
+}
+
+.token-wrapper{
+    width: 100%;
+    max-width: 410px;
+    position: relative;
+}
+
+.token-card{
+    position: relative;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 32px;
+    padding: 34px 26px;
+    box-shadow: 0 24px 60px rgba(15,23,42,.10);
+    border: 1px solid rgba(226,232,240,.95);
+    overflow: hidden;
+}
+
+.token-card::before{
+    content:"";
+    position:absolute;
+    width:180px;
+    height:180px;
+    background: radial-gradient(circle, rgba(37,99,235,.10) 0%, transparent 72%);
+    top:-55px;
+    right:-55px;
+    pointer-events:none;
+}
+
+.token-card::after{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    background: radial-gradient(circle, rgba(148,163,184,.10) 0%, transparent 72%);
+    bottom:-38px;
+    left:-25px;
+    pointer-events:none;
+}
+
+.security-wrap{
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 14px;
+}
+
+.security-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.token-icon-wrap{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.token-icon-box{
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 14px 30px rgba(15,23,42,.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.token-title{
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.token-subtitle{
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.form-label-custom{
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    letter-spacing: .02em;
+}
+
+.form-control-custom{
+    width: 100%;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: .18em;
+    color: var(--text-main);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(15,23,42,.03);
+    transition: .22s ease;
+}
+
+.form-control-custom::placeholder{
+    color: #94a3b8;
+    letter-spacing: normal;
+    font-weight: 500;
+}
+
+.form-control-custom:focus{
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+    background: white;
+    outline: none;
+}
+
+.btn-primary-custom{
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    border-radius: 20px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    transition: .22s ease;
+    box-shadow: 0 16px 32px rgba(15,23,42,.16);
+}
+
+.btn-primary-custom:hover{
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #1e293b, #334155);
+}
+
+.flash-box{
+    margin-top: 8px;
+    font-size: 13px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.flash-error{
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger-text);
+}
+
+.flash-success{
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+}
+
+.token-footer{
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+}
+</style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center px-4"
-style="background:
-radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);">
+<body class="flex items-center justify-center px-4 py-8">
 
-<div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
+<div class="token-wrapper">
 
-    <h2 class="text-xl font-bold text-center mb-6 text-gray-800">
-        Verificar Token
-    </h2>
+    <div class="token-card">
 
-    <form method="POST" class="space-y-6">
-
-        <div>
-            <label class="block text-sm mb-2 text-gray-500">
-                Código de verificación
-            </label>
-
-            <input type="text"
-                   name="token"
-                   required
-                   class="w-full border rounded-xl p-4 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-800">
+        <div class="security-wrap">
+            <div class="security-badge">
+                🔐 Verificación segura
+            </div>
         </div>
 
-        <button type="submit"
-            class="w-full bg-gray-900 text-white p-4 rounded-xl font-semibold hover:bg-gray-800 transition">
-            Validar
-        </button>
+        <div class="token-icon-wrap">
+            <div class="token-icon-box">
+                🔑
+            </div>
+        </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="text-sm text-center mt-4
-                        {% if category == 'error' %} text-red-500 {% else %} text-green-500 {% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <h2 class="token-title">
+            Verificar token
+        </h2>
 
-    </form>
+        <p class="token-subtitle">
+            Ingresa el código de verificación para continuar con el acceso.
+        </p>
+
+        <form method="POST" class="space-y-6">
+
+            <div>
+                <label class="form-label-custom">
+                    Código de verificación
+                </label>
+
+                <input type="text"
+                       name="token"
+                       required
+                       class="form-control-custom"
+                       placeholder="Ingrese el código">
+            </div>
+
+            <button type="submit" class="btn-primary-custom">
+                Validar
+            </button>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-box {% if category == 'error' %}flash-error{% else %}flash-success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+        </form>
+
+        <div class="token-footer">
+            © 2026
+        </div>
+
+    </div>
 
 </div>
 

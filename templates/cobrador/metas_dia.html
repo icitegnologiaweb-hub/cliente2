@@ -4,39 +4,214 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-32 space-y-6 text-white">
+<style>
+.metas-shell{
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 112px;
+}
+
+.metas-hero{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 28px;
+    padding: 24px 22px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 20px 36px rgba(15,23,42,.16);
+    position: relative;
+    overflow: hidden;
+}
+
+.metas-hero::before{
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    right: -30px;
+    top: -25px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+}
+
+.metas-hero::after{
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    left: -20px;
+    bottom: -30px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+}
+
+.metas-hero-label{
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.72);
+}
+
+.metas-hero-value{
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.metas-hero-progress{
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(255,255,255,.88);
+}
+
+.metas-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.metas-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 16px 14px;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(15,23,42,.05);
+}
+
+.metas-card-full{
+    grid-column: span 2;
+}
+
+.metas-card-label{
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.metas-card-value{
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.metas-green{
+    color: #059669;
+}
+
+.metas-red{
+    color: #dc2626;
+}
+
+.metas-chart-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 26px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+}
+
+.metas-chart-title{
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 14px;
+}
+
+.metas-chart-wrap{
+    position: relative;
+    height: 240px;
+}
+
+.metas-pendientes-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 26px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
+}
+
+.metas-pendientes-title{
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.metas-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 12px 14px;
+    box-shadow: 0 6px 16px rgba(15,23,42,.03);
+    margin-bottom: 10px;
+}
+
+.metas-row:last-child{
+    margin-bottom: 0;
+}
+
+.metas-row-name{
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.metas-row-value{
+    font-size: 14px;
+    font-weight: 800;
+    color: #dc2626;
+    white-space: nowrap;
+}
+</style>
+
+<div class="metas-shell space-y-5">
 
     <!-- ================= RESUMEN ================= -->
-    <div class="bg-gradient-to-br from-blue-600 to-blue-500 rounded-3xl p-6 text-center shadow-xl">
-        <div class="text-xs opacity-80">Meta Estimada del Día</div>
-        <div class="text-3xl font-bold mt-1">
+    <div class="metas-hero">
+        <div class="metas-hero-label">Meta estimada del día</div>
+        <div class="metas-hero-value">
             $ {{ "{:,.0f}".format(total_estimado) }}
         </div>
-        <div class="text-sm mt-2 opacity-90">
+        <div class="metas-hero-progress">
             {{ porcentaje }}% cumplido
         </div>
     </div>
 
     <!-- ================= TARJETAS ================= -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="metas-grid">
 
-        <div class="bg-[#123b63] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Cobrado</div>
-            <div class="font-semibold text-green-400 mt-1">
+        <div class="metas-card">
+            <div class="metas-card-label">Cobrado</div>
+            <div class="metas-card-value metas-green">
                 $ {{ "{:,.0f}".format(total_cobrado) }}
             </div>
         </div>
 
-        <div class="bg-[#123b63] rounded-2xl p-4 text-center">
-            <div class="text-xs opacity-60">Por Cobrar</div>
-            <div class="font-semibold text-red-400 mt-1">
+        <div class="metas-card">
+            <div class="metas-card-label">Por cobrar</div>
+            <div class="metas-card-value metas-red">
                 $ {{ "{:,.0f}".format(por_cobrar) }}
             </div>
         </div>
 
-        <div class="bg-[#123b63] rounded-2xl p-4 text-center col-span-2">
-            <div class="text-xs opacity-60">Clientes Asignados Hoy</div>
-            <div class="font-semibold mt-1">
+        <div class="metas-card metas-card-full">
+            <div class="metas-card-label">Clientes asignados hoy</div>
+            <div class="metas-card-value">
                 {{ total_clientes }}
             </div>
         </div>
@@ -44,27 +219,33 @@
     </div>
 
     <!-- ================= GRÁFICO BARRAS ================= -->
-    <div class="bg-[#123b63] rounded-3xl p-5">
-        <canvas id="barChart"></canvas>
+    <div class="metas-chart-card">
+        <div class="metas-chart-title">Comparativo diario</div>
+        <div class="metas-chart-wrap">
+            <canvas id="barChart"></canvas>
+        </div>
     </div>
 
     <!-- ================= GRÁFICO TORTA ================= -->
-    <div class="bg-[#123b63] rounded-3xl p-5">
-        <canvas id="pieChart"></canvas>
+    <div class="metas-chart-card">
+        <div class="metas-chart-title">Distribución de cumplimiento</div>
+        <div class="metas-chart-wrap">
+            <canvas id="pieChart"></canvas>
+        </div>
     </div>
 
     {% if clientes_pendientes %}
-<div class="bg-[#123b63] rounded-3xl p-5 mt-6">
-    <h3 class="font-semibold mb-3">Clientes Pendientes Hoy</h3>
+    <div class="metas-pendientes-card">
+        <h3 class="metas-pendientes-title">Clientes pendientes hoy</h3>
 
-    {% for c in clientes_pendientes %}
-    <div class="flex justify-between text-sm border-b border-white/10 py-2">
-        <span>{{ c.cliente }}</span>
-        <span>$ {{ "{:,.0f}".format(c.valor) }}</span>
+        {% for c in clientes_pendientes %}
+        <div class="metas-row">
+            <span class="metas-row-name">{{ c.cliente }}</span>
+            <span class="metas-row-value">$ {{ "{:,.0f}".format(c.valor) }}</span>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+    {% endif %}
 
 </div>
 
@@ -80,11 +261,27 @@ new Chart(document.getElementById("barChart"), {
         datasets: [{
             label: 'Metas del Día',
             data: [totalCobrado, totalPorCobrar],
-            backgroundColor: ['#22c55e', '#ef4444']
+            backgroundColor: ['#10b981', '#ef4444'],
+            borderRadius: 12,
+            borderSkipped: false
         }]
     },
     options: {
-        plugins: { legend: { display: false } }
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { color: '#64748b', font: { weight: '600' } }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: '#e2e8f0' },
+                ticks: { color: '#64748b' }
+            }
+        }
     }
 });
 
@@ -95,11 +292,24 @@ new Chart(document.getElementById("pieChart"), {
         labels: ['Cobrado', 'Pendiente'],
         datasets: [{
             data: [totalCobrado, totalPorCobrar],
-            backgroundColor: ['#22c55e', '#ef4444']
+            backgroundColor: ['#10b981', '#ef4444'],
+            borderWidth: 0
         }]
     },
     options: {
-        cutout: '70%'
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#475569',
+                    usePointStyle: true,
+                    boxWidth: 10,
+                    padding: 18
+                }
+            }
+        }
     }
 });
 </script>

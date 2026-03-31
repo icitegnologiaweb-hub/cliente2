@@ -2,169 +2,360 @@
 
 {% block titulo %}
 {{ credito.clientes.nombre }}
-
 {% endblock %}
 
 {% block content %}
 
-<!-- =========================
-     INFORMACIÓN GENERAL
-========================= -->
-<div class="bg-gradient-to-br from-[#123b63] to-[#0b2847]
-            rounded-2xl p-5 shadow-lg mb-6 text-white">
+<div class="min-h-screen bg-[#f4f7fb] -m-4 sm:-m-6 p-4 sm:p-6">
 
-    <div class="space-y-3 text-sm">
-        <button onclick="history.back()"
-                class="flex items-center gap-2
-                    bg-white/10 backdrop-blur
-                    px-4 py-2 rounded-xl
-                    text-white text-sm
-                    hover:bg-white/20
-                    transition shadow">
+    <!-- =========================
+         CABECERA / RESUMEN
+    ========================= -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6">
 
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 19l-7-7 7-7"/>
-            </svg>
+<div class="bg-gradient-to-r from-[#123b63] via-[#123b63] to-[#184a79] px-5 py-5 text-white">            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <button onclick="history.back()"
+                        class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 px-4 py-2 rounded-xl text-sm font-medium transition">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Regresar
+                </button>
 
-            Regresar
-        </button>
-        <!-- Nombre -->
-        <div class="text-lg font-semibold text-blue-200 mb-2">
-            {{ credito.clientes.nombre }}
+                <div class="text-xs sm:text-sm bg-white/10 border border-white/10 px-3 py-1.5 rounded-full">
+                    Crédito activo
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h1 class="text-2xl font-bold tracking-tight">
+                    {{ credito.clientes.nombre }}
+                </h1>
+                <p class="text-sm text-blue-100 mt-1">
+                    Detalle del crédito, cuotas y pagos registrados
+                </p>
+            </div>
         </div>
 
-        <!-- Teléfono con WhatsApp -->
-        <div class="flex justify-between items-center">
-            <span class="opacity-70">Teléfono</span>
+        <div class="p-5 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
 
-            {% set codigo = credito.clientes.codigo_pais or '57' %}
-            {% set telefono_limpio = (credito.clientes.telefono_principal or '') 
-                | replace(' ', '') 
-                | replace('-', '') 
-                | replace('(', '') 
-                | replace(')', '') 
-            %}
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="flex justify-between items-center gap-3">
+                        <span class="text-slate-500">Teléfono</span>
 
-            <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
-            target="_blank"
-            class="text-green-400 font-semibold">
-                +{{ codigo }} {{ credito.clientes.telefono_principal }}
-            </a>
-        </div>
-    
-        <!-- Dirección -->
-        <div class="flex justify-between">
-            <span class="opacity-70">Dirección</span>
-            <span class="text-blue-300">
-                {{ credito.clientes.direccion }}
-            </span>
-        </div>
+                        {% set codigo = credito.clientes.codigo_pais or '57' %}
+                        {% set telefono_limpio = (credito.clientes.telefono_principal or '')
+                            | replace(' ', '')
+                            | replace('-', '')
+                            | replace('(', '')
+                            | replace(')', '')
+                        %}
 
-        <!-- Tipo préstamo -->
-        <div class="flex justify-between">
-            <span class="opacity-70">Tipo Préstamo</span>
-            <span class="text-blue-300">
-                {{ credito.tipo_prestamo }}
-            </span>
-        </div>
-        <!-- Fecha Registro Crédito -->
-        <div class="flex justify-between">
-            <span class="opacity-70">Registro Crédito</span>
-            <span class="text-blue-300">
-                {{ credito.created_at[8:10] }}/{{ credito.created_at[5:7] }}/{{ credito.created_at[:4] }}
-                {{ credito.created_at[11:16] }}
-            </span>
-        </div>
-        <div class="flex justify-between">
-            <span class="opacity-70">Cuotas Pactadas</span>
-            <span class="text-blue-300">
-                {{ cuotas|length }}
-            </span>
-        </div>
-        <!-- Próxima cuota -->
-        <div class="flex justify-between">
-            <span class="opacity-70">Próxima Cuota</span>
-            <span class="text-green-400 font-semibold">
-                {{ proxima_cuota }}
-            </span>
-        </div>
+                        <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
+                           target="_blank"
+                           class="text-emerald-600 font-semibold hover:underline text-right">
+                            +{{ codigo }} {{ credito.clientes.telefono_principal }}
+                        </a>
+                    </div>
 
-        <!-- Total venta -->
-        <div class="flex justify-between pt-3 border-t border-blue-500/30">
-            <span>Total Venta Con Intereses</span>
-            <span class="text-green-400 font-semibold">
-                ${{ "{:,.0f}".format(credito.valor_total) }}
-            </span>
-        </div>
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Dirección</span>
+                        <span class="text-slate-700 font-medium text-right">
+                            {{ credito.clientes.direccion }}
+                        </span>
+                    </div>
 
-        <!-- Saldo -->
-        <div class="flex justify-between">
-            <span>Saldo Restante Venta</span>
-            <span class="text-green-400 font-semibold">
-                ${{ "{:,.0f}".format(saldo) }}
-            </span>
-        </div>
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Tipo Préstamo</span>
+                        <span class="text-slate-700 font-semibold text-right">
+                            {{ credito.tipo_prestamo }}
+                        </span>
+                    </div>
 
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Registro Crédito</span>
+                        <span class="text-slate-700 font-medium text-right">
+                            {{ credito.created_at[8:10] }}/{{ credito.created_at[5:7] }}/{{ credito.created_at[:4] }}
+                            {{ credito.created_at[11:16] }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Cuotas Pactadas</span>
+                        <span class="text-slate-800 font-semibold">
+                            {{ cuotas|length }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Próxima Cuota</span>
+                        <span class="text-blue-700 font-semibold">
+                            {{ proxima_cuota }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between gap-3 pt-3 border-t border-slate-200">
+                        <span class="text-slate-500">Total Venta con Intereses</span>
+                        <span class="text-slate-900 font-bold">
+                            ${{ "{:,.0f}".format(credito.valor_total) }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Saldo Restante Venta</span>
+                        <span class="text-emerald-600 font-bold">
+                            ${{ "{:,.0f}".format(saldo) }}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                <button onclick="abrirGaleria()"
+                        class="w-full bg-[#123b63] hover:bg-[#0f3356] text-white py-3 rounded-2xl text-sm font-semibold shadow-sm transition">
+                    Ver Imagen de la Venta
+                </button>
+
+                <a href="javascript:void(0);"
+                   onclick="verUbicacion()"
+                   class="w-full block bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 py-3 rounded-2xl text-sm font-semibold text-center transition">
+                    Ir a ubicación del cliente
+                </a>
+
+                <button onclick="abrirModalCompensatorio()"
+                        class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-2xl text-sm font-semibold transition">
+                    Registrar Pago Compensatorio
+                </button>
+            </div>
+        </div>
     </div>
 
-    <button onclick="abrirGaleria()"
-            class="w-full mt-5 bg-blue-600 hover:bg-blue-700
-                py-3 rounded-xl text-sm font-semibold shadow-md transition">
-        Ver Imagen de la Venta
-    </button>
-    <a href="{{ url_for('historial_cliente', cliente_id=credito.clientes.id) }}"
-    class="w-full mt-3 block bg-indigo-600 hover:bg-indigo-700
-            py-2 rounded-xl text-sm font-semibold text-center transition">
-        Ver historial de créditos
-    </a>
-    <a href="javascript:void(0);"
-    onclick="verUbicacion()"
-    class="w-full mt-3 block bg-green-600 hover:bg-green-700
-            py-2 rounded-xl text-sm font-semibold text-center transition">
-        📍 Ir a ubicación del cliente
-    </a>
+    <!-- =========================
+         LISTA DE CUOTAS
+    ========================= -->
+    <div class="mb-4">
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">Cuotas del crédito</h2>
+                <p class="text-sm text-slate-500">Toca una cuota pendiente para registrar el pago</p>
+            </div>
 
-<!-- ================= MODAL GALERÍA MODERNO ================= -->
+            <button onclick="verPagos()"
+                    class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">
+                Ver pagos realizados
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            {% for cuota in cuotas %}
+            <div
+                {% if cuota.estado != "pagado" %}
+                onclick="handleCardClick(
+                    event,
+                    '{{ cuota.id }}',
+                    {{ (cuota.valor + (cuota.valor_interes_mora or 0))|float }},
+                    {{ (cuota.interes or 0)|float }}
+                )"
+                class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 cursor-pointer active:scale-[0.99] transition"
+                {% else %}
+                class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm transition"
+                {% endif %}>
+
+                <div class="flex justify-between items-center gap-4">
+
+                    <div class="flex items-start gap-4 min-w-0">
+                        <div class="h-11 w-11 rounded-2xl bg-[#123b63] text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+                            {{ cuota.numero }}
+                        </div>
+
+                        <div class="space-y-1 text-sm min-w-0">
+                            <div class="text-slate-900 font-bold text-base">
+                                ${{ "{:,.0f}".format(cuota.valor) }}
+                            </div>
+
+                            <div class="text-xs text-slate-500">
+                                Vence: {{ cuota.fecha_pago }}
+                            </div>
+
+                            {% if cuota.pagado > 0 %}
+
+                                {% set total_cuota = cuota.valor + (cuota.valor_interes_mora or 0) %}
+                                {% set aplicado = cuota.pagado if cuota.pagado <= total_cuota else total_cuota %}
+                                {% set restante = total_cuota - aplicado %}
+                                {% set saldo_favor = cuota.pagado - total_cuota if cuota.pagado > total_cuota else 0 %}
+
+                                <div class="text-xs text-emerald-600 font-medium">
+                                    Total abonado: ${{ "{:,.2f}".format(cuota.pagado) }}
+                                </div>
+
+                                <div class="text-xs text-blue-700 font-medium">
+                                    Aplicado a cuota: ${{ "{:,.2f}".format(aplicado) }}
+                                </div>
+
+                                {% if saldo_favor > 0 %}
+                                <div class="text-xs text-sky-700 font-medium">
+                                    Saldo a favor: ${{ "{:,.2f}".format(saldo_favor) }}
+                                </div>
+
+                                <div class="text-xs text-slate-500">
+                                    Se aplicará a la siguiente cuota
+                                </div>
+                                {% endif %}
+
+                                {% if restante > 0 %}
+                                <div class="text-xs text-amber-600 font-medium">
+                                    Restante cuota: ${{ "{:,.2f}".format(restante) }}
+                                </div>
+                                {% endif %}
+
+                                {% set progreso = (aplicado / total_cuota) * 100 if total_cuota > 0 else 0 %}
+
+                                <div class="w-40 max-w-full bg-slate-200 rounded-full h-2 mt-2 overflow-hidden">
+                                    <div class="bg-emerald-500 h-2 rounded-full"
+                                         style="width: {{ progreso }}%">
+                                    </div>
+                                </div>
+
+                            {% endif %}
+
+                            {% if cuota.dias_mora > 0 %}
+                            <div class="inline-flex items-center gap-1 text-xs text-red-600 font-medium">
+                                Mora: {{ cuota.dias_mora }} días
+                            </div>
+                            {% endif %}
+
+                            {% if cuota.valor_interes_mora > 0 %}
+                            <div class="inline-flex items-center gap-1 text-xs text-orange-600 font-medium">
+                                Interés mora: ${{ "{:,.2f}".format(cuota.valor_interes_mora) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="shrink-0">
+                        {% if cuota.estado == "pagado" %}
+                        <div class="h-10 w-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold shadow-sm">
+                            ✓
+                        </div>
+
+                        {% elif cuota.pagado > 0 %}
+                        <div class="h-10 w-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-sm">
+                            $
+                        </div>
+
+                        {% else %}
+                        <div class="h-10 w-10 rounded-2xl bg-slate-300 text-slate-700 flex items-center justify-center font-bold shadow-sm">
+                            🔒
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- =========================
+     MODAL PAGO COMPENSATORIO
+========================= -->
+<div id="modalCompensatorio"
+     class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition p-4">
+
+    <div class="bg-white w-full sm:w-[400px] rounded-[28px] p-6 text-slate-800 shadow-2xl border border-slate-200">
+
+        <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto mb-5 sm:hidden"></div>
+
+        <h3 class="text-xl font-bold text-center mb-2 text-slate-900">
+            Pago Compensatorio
+        </h3>
+
+        <p class="text-xs text-slate-500 text-center mb-5">
+            Este pago no afecta saldo ni intereses
+        </p>
+
+        <form method="POST" action="{{ url_for('registrar_pago') }}">
+
+            <input type="hidden" name="cuota_id" value="{{ cuotas[0].id if cuotas else '' }}">
+            <input type="hidden" name="tipo_pago" value="compensatorio">
+
+            <div class="mb-4">
+                <label class="text-sm font-medium text-slate-600">Valor</label>
+
+                <input type="number"
+                       name="monto_pago"
+                       id="inputCompensatorio"
+                       step="0.01"
+                       min="0"
+                       placeholder="Ej: 5000"
+                       class="w-full mt-2 border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#123b63] focus:ring-2 focus:ring-blue-100 rounded-2xl p-3 text-center text-lg font-semibold outline-none transition">
+            </div>
+
+            <div class="text-center mb-5 bg-slate-50 border border-slate-200 rounded-2xl py-4">
+                <div class="text-xs text-slate-500">Total</div>
+                <div id="totalCompensatorio"
+                     class="text-2xl font-bold text-slate-900 mt-1">
+                    $0.00
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button type="submit"
+                        class="w-full bg-[#123b63] hover:bg-[#0f3356] text-white py-3 rounded-2xl font-semibold shadow-sm transition">
+                    Registrar Pago
+                </button>
+
+                <button type="button"
+                        onclick="cerrarModalCompensatorio()"
+                        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-2xl font-medium transition">
+                    Cancelar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ================= MODAL GALERÍA ================= -->
 <div id="modalGaleria"
-     class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+     class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
 
-    <div class="relative w-full max-w-md 
-            bg-gradient-to-br from-[#123b63] to-[#0b2847]
-            rounded-3xl shadow-2xl overflow-hidden text-white">
+    <div class="relative w-full max-w-md bg-white rounded-[30px] shadow-2xl overflow-hidden border border-slate-200">
 
-        <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-
-            <div class="text-sm font-semibold text-blue-200">
+        <div class="bg-gradient-to-r from-[#123b63] to-[#0f2f52] flex items-center justify-between px-5 py-4 text-white">
+            <div class="text-sm font-semibold">
                 Documentos del Crédito
             </div>
 
             <button onclick="cerrarGaleria()"
-                    class="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200
-                           flex items-center justify-center text-gray-600 transition">
+                    class="h-9 w-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition">
                 ✕
             </button>
-
         </div>
 
-        <!-- Contenedor imágenes -->
-        <div class="relative bg-transparent">
-
+        <div class="relative bg-slate-50">
             <div id="sliderImagenes"
                  class="flex transition-transform duration-300">
 
                 {% if credito.foto_cliente %}
                 <div class="w-full flex-shrink-0 p-6">
                     <img src="{{ credito.foto_cliente }}"
-                         class="w-full h-72 object-contain rounded-xl shadow">
-                    <div class="text-center text-xs text-gray-500 mt-2">
+                         class="w-full h-72 object-contain rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <div class="text-center text-xs text-slate-500 mt-3">
                         Foto Cliente
                     </div>
                 </div>
@@ -173,8 +364,8 @@
                 {% if credito.foto_cedula %}
                 <div class="w-full flex-shrink-0 p-6">
                     <img src="{{ credito.foto_cedula }}"
-                         class="w-full h-72 object-contain rounded-xl shadow">
-                    <div class="text-center text-xs text-gray-500 mt-2">
+                         class="w-full h-72 object-contain rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <div class="text-center text-xs text-slate-500 mt-3">
                         Foto Cédula
                     </div>
                 </div>
@@ -183,8 +374,8 @@
                 {% if credito.foto_negocio %}
                 <div class="w-full flex-shrink-0 p-6">
                     <img src="{{ credito.foto_negocio }}"
-                         class="w-full h-72 object-contain rounded-xl shadow">
-                    <div class="text-center text-xs text-gray-500 mt-2">
+                         class="w-full h-72 object-contain rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <div class="text-center text-xs text-slate-500 mt-3">
                         Foto Negocio
                     </div>
                 </div>
@@ -193,331 +384,266 @@
                 {% if credito.firma_cliente %}
                 <div class="w-full flex-shrink-0 p-6">
                     <img src="{{ credito.firma_cliente }}"
-                         class="w-full h-48 object-contain bg-white rounded-xl shadow">
-                    <div class="text-center text-xs text-gray-500 mt-2">
+                         class="w-full h-48 object-contain bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-center text-xs text-slate-500 mt-3">
                         Firma Cliente
                     </div>
                 </div>
                 {% endif %}
 
             </div>
-
         </div>
 
-        <!-- Footer navegación -->
-        <div class="flex items-center justify-between px-6 py-4 border-t border-white/10 bg-transparent">
-
+        <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
             <button onclick="prevImagen()"
-                   class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition">
+                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition text-sm font-medium">
                 ← Anterior
             </button>
 
             <div id="contadorImagen"
-                 class="text-xs text-gray-500">
+                 class="text-xs text-slate-500 font-medium">
                 1 / 3
             </div>
 
             <button onclick="nextImagen()"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">
+                    class="px-4 py-2 bg-[#123b63] hover:bg-[#0f3356] text-white rounded-xl transition text-sm font-medium">
                 Siguiente →
             </button>
-
         </div>
 
     </div>
-
 </div>
-     </div>
-<!-- =========================
-     LISTA DE CUOTAS
-========================= -->
-<div class="space-y-4">
-
-{% for cuota in cuotas %}
-
-<div
-{% if cuota.estado != "pagado" %}
-onclick="handleCardClick(event,'{{ cuota.id }}',{{ cuota.valor }})"
-class="cursor-pointer hover:scale-[1.02] transition"
-{% endif %}
-class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
-
-<div class="flex justify-between items-center">
-
-    <!-- IZQUIERDA -->
-    <div class="flex items-center gap-4">
-
-        <!-- NUMERO CUOTA -->
-        <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
-            {{ cuota.numero }}
-        </div>
-
-        <div class="space-y-1 text-sm">
-
-            <div class="text-white font-semibold">
-                ${{ cuota.valor }}
-            </div>
-
-            <div class="text-xs text-gray-300">
-                Vence: {{ cuota.fecha_pago }}
-            </div>
-
-            {% if cuota.pagado > 0 %}
-
-                {% set aplicado = cuota.pagado if cuota.pagado <= cuota.valor else cuota.valor %}
-                {% set restante = cuota.valor - aplicado %}
-                {% set saldo_favor = cuota.pagado - cuota.valor if cuota.pagado > cuota.valor else 0 %}
-
-                <div class="text-xs text-green-400">
-                    Total abonado: ${{ "{:,.2f}".format(cuota.pagado) }}
-                </div>
-
-                <div class="text-xs text-emerald-300">
-                    Aplicado a cuota: ${{ "{:,.2f}".format(aplicado) }}
-                </div>
-
-                {% if saldo_favor > 0 %}
-                <div class="text-xs text-blue-300">
-                    Saldo a favor: ${{ "{:,.2f}".format(saldo_favor) }}
-                </div>
-
-                <div class="text-xs text-gray-400">
-                    Se aplicará a la siguiente cuota
-                </div>
-                {% endif %}
-
-                {% if restante > 0 %}
-                <div class="text-xs text-yellow-300">
-                    Restante cuota: ${{ "{:,.2f}".format(restante) }}
-                </div>
-                {% endif %}
-
-                <!-- barra progreso -->
-                {% set progreso = (aplicado / cuota.valor) * 100 %}
-
-                <div class="w-32 bg-white/10 rounded-full h-1.5 mt-1">
-                    <div class="bg-green-400 h-1.5 rounded-full"
-                        style="width: {{ progreso }}%">
-                    </div>
-                </div>
-
-                {% endif %}
-            {% if cuota.dias_mora > 0 %}
-            <div class="text-xs text-red-400">
-                Mora: {{ cuota.dias_mora }} días
-            </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-    <!-- ESTADO -->
-    <div>
-
-        {% if cuota.estado == "pagado" %}
-        <div class="h-9 w-9 rounded-full bg-green-500 flex items-center justify-center font-bold">
-            ✓
-        </div>
-
-        {% elif cuota.pagado > 0 %}
-        <div class="h-9 w-9 rounded-full bg-yellow-500 flex items-center justify-center font-bold">
-            $
-        </div>
-
-        {% else %}
-        <div class="h-9 w-9 rounded-full bg-gray-500 flex items-center justify-center font-bold">
-            🔒
-        </div>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
 
 <!-- =========================
      MODAL MODERNO DE PAGO
 ========================= -->
+<!-- =========================
+     MODAL MODERNO DE PAGO
+========================= -->
 <div id="modalPago"
-     class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition">
+     class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition p-4">
 
-    <div class="bg-white w-full sm:w-[380px] rounded-t-3xl sm:rounded-3xl p-6 text-gray-800 shadow-2xl animate-fadeInUp">
+    <div class="bg-white w-full sm:w-[400px] rounded-[28px] p-6 text-slate-800 shadow-2xl border border-slate-200">
 
-        <!-- Handle estilo app móvil -->
-        <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-5 sm:hidden"></div>
+        <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto mb-5 sm:hidden"></div>
 
-        <!-- Título -->
-        <h3 class="text-xl font-bold text-center mb-5">
+        <h3 class="text-xl font-bold text-center mb-5 text-slate-900">
             Registrar Pago
         </h3>
 
-        <form method="POST" action="{{ url_for('registrar_pago') }}">
+        <form method="POST" action="{{ url_for('registrar_pago') }}" id="formPago">
 
             <input type="hidden" name="cuota_id" id="cuota_id">
+            <input type="hidden" name="extra_interes" id="extra_interes_hidden" value="0">
+            <input type="hidden" name="aplicar_interes" id="aplicar_interes_hidden" value="false">
 
-            <!-- Tarjeta resumen -->
-            <div class="bg-gray-100 rounded-2xl p-4 mb-5 text-center">
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 mb-5">
 
                 <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-600">
-                        Cuota
+                    <label class="text-sm font-medium text-slate-600">
+                        Tipo de pago
+                    </label>
+
+                    <select name="tipo_pago"
+                            id="tipo_pago"
+                            class="w-full mt-2 border border-slate-300 focus:border-[#123b63] focus:ring-2 focus:ring-blue-100 rounded-2xl p-3 text-sm bg-white outline-none">
+
+                        <option value="normal">Pago cuota</option>
+                        <option value="intereses">Solo interés cuota</option>
+                        <option value="compensatorio">Pago compensatorio</option>
+                    </select>
+                </div>
+
+                <div id="infoBasePago" class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3 text-center">
+                        <div class="text-[11px] text-slate-500">Saldo actual cuota</div>
+                        <div id="saldoTexto" class="text-sm font-bold text-slate-800 mt-1">$0.00</div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3 text-center">
+                        <div class="text-[11px] text-slate-500">Interés base</div>
+                        <div id="interesTexto" class="text-sm font-bold text-slate-800 mt-1">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-sm font-medium text-slate-600" id="labelValorPago">
+                        Valor a registrar
                     </label>
 
                     <input type="number"
-                        name="monto_pago"
-                        id="valorPago"
-                        step="0.01"
-                        min="0"
-                        class="w-full mt-2 border border-gray-300
-                                focus:border-green-500 focus:ring-2
-                                focus:ring-green-200 rounded-xl
-                                p-3 text-center text-lg font-semibold"
-                        oninput="calcularTotal()">
+                           name="monto_pago"
+                           id="valorPago"
+                           step="0.01"
+                           min="0"
+                           class="w-full mt-2 border border-slate-300 bg-white focus:border-[#123b63] focus:ring-2 focus:ring-blue-100 rounded-2xl p-3 text-center text-lg font-semibold outline-none"
+                           oninput="calcularTotal()">
                 </div>
 
-                <div class="text-xs text-gray-500 mt-4">
-                    Total
+                <div id="ajusteInteresWrap" class="hidden mt-3 space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-600 font-medium">
+                            Interés adicional a cargar a esta cuota
+                        </label>
+
+                        <input type="number"
+                               id="extraInteres"
+                               step="0.01"
+                               min="0"
+                               placeholder="Ej: 500"
+                               class="w-full mt-1 border border-slate-300 bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 rounded-2xl p-2.5 text-center text-sm outline-none">
+                    </div>
+
+                    <label class="flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-xl px-3 py-2">
+                        <input type="checkbox"
+                               id="aplicarInteres"
+                               class="accent-amber-500">
+                        Aplicar este interés a la cuota
+                    </label>
                 </div>
-                <div id="totalTexto"
-                     class="text-xl font-semibold text-gray-800 mt-1">
+
+                <div id="textoCompensatorio" class="hidden text-xs text-slate-500 text-center mt-2">
+                    Este pago no afecta saldo ni intereses.
+                </div>
+
+                <div class="text-center mt-4 bg-white border border-slate-200 rounded-2xl py-4">
+                    <div class="text-xs text-slate-500">Total</div>
+                    <div id="totalTexto"
+                         class="text-2xl font-bold text-slate-900 mt-1">
+                        $0.00
+                    </div>
+                    <div id="detalleTotal"
+                         class="text-xs text-slate-500 mt-2 px-3">
+                        -
+                    </div>
                 </div>
 
             </div>
 
-
-            <!-- Botones -->
             <div class="space-y-3">
-
                 <button type="submit"
-                        class="w-full bg-green-600 hover:bg-green-700
-                               text-white py-3 rounded-xl font-semibold shadow-md transition">
+                        class="w-full bg-[#123b63] hover:bg-[#0f3356] text-white py-3 rounded-2xl font-semibold shadow-sm transition">
                     Confirmar Pago
                 </button>
 
                 <button type="button"
                         onclick="cerrarModal()"
-                        class="w-full bg-gray-200 hover:bg-gray-300
-                               text-gray-700 py-3 rounded-xl font-medium transition">
+                        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-2xl font-medium transition">
                     Cancelar
                 </button>
-
             </div>
 
         </form>
 
     </div>
-
 </div>
+
+<!-- =========================
+     HISTORIAL PAGOS
+========================= -->
 <div id="modalPagos"
-     class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+     class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
 
-    <div class="bg-white w-full max-w-md rounded-2xl p-5 max-h-[80vh] overflow-y-auto">
+    <div class="bg-white w-full max-w-md rounded-[28px] p-5 max-h-[80vh] overflow-y-auto border border-slate-200 shadow-2xl">
 
-        <h3 class="text-lg font-bold mb-4">Pagos realizados</h3>
+        <h3 class="text-lg font-bold mb-4 text-slate-900">Pagos realizados</h3>
 
         {% for pago in historial_pagos %}
-        <div class="bg-gray-100 rounded-xl p-4 mb-3 shadow">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-3 shadow-sm">
 
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-slate-500">
                 {{ pago.fecha }}
             </div>
 
-            <div class="font-semibold text-green-600">
+            <div class="font-bold text-emerald-600 text-lg">
                 ${{ "{:,.0f}".format(pago.monto) }}
             </div>
 
-            <div class="text-xs text-gray-600 mt-1">
+            <div class="text-xs text-slate-600 mt-1">
                 Cuota: {{ pago.cuota_numero }}
             </div>
 
-            <div class="text-xs text-gray-600">
+            <div class="text-xs text-slate-600">
                 Registrado por: {{ pago.registrado_por or "Cobrador" }}
             </div>
+
+            {% if pago.tipo_pago == "compensatorio" %}
+            <div class="text-xs text-blue-700 font-semibold mt-1">
+                Pago compensatorio
+            </div>
+            {% endif %}
+
+            {% if pago.tipo_pago == "intereses" %}
+            <div class="text-xs text-orange-600 font-semibold mt-1">
+                Pago de interés
+            </div>
+            {% endif %}
 
         </div>
         {% endfor %}
 
         <button onclick="cerrarPagos()"
-                class="w-full mt-3 bg-gray-200 py-2 rounded-xl">
+                class="w-full mt-3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-2xl font-medium transition">
             Cerrar
         </button>
 
     </div>
 </div>
+
 <script>
-function handleCardClick(e, cuotaId, valor) {
+let indexImagen = 0;
+let interesActual = 0;
+let saldoCuotaActual = 0;
 
-    // Si el click viene del botón de menú o del menú, no hacer nada
-    if (e.target.closest('#menuOpciones') || e.target.closest('[onclick*="toggleMenu"]')) {
-        return;
-    }
-
-    abrirModal(cuotaId, valor);
+function formatMoney(valor) {
+    const numero = parseFloat(valor) || 0;
+    return "$" + numero.toFixed(2);
 }
-</script>
 
-<script>
 function toggleAcciones() {
     const menu = document.getElementById("accionesMenu");
     const icon = document.getElementById("iconAcciones");
 
-    menu.classList.toggle("hidden");
+    if (!menu || !icon) return;
 
-    if(menu.classList.contains("hidden")){
-        icon.innerText = "▾";
-    } else {
-        icon.innerText = "▴";
-    }
+    menu.classList.toggle("hidden");
+    icon.innerText = menu.classList.contains("hidden") ? "▾" : "▴";
 }
 
-
-
-function verPagos(){
+function verPagos() {
     document.getElementById("modalPagos").classList.remove("hidden");
     document.getElementById("modalPagos").classList.add("flex");
 }
 
-function cerrarPagos(){
+function cerrarPagos() {
     document.getElementById("modalPagos").classList.add("hidden");
+    document.getElementById("modalPagos").classList.remove("flex");
 }
 
-function verUbicacion(){
+function verUbicacion() {
     const lat = "{{ credito.latitud }}";
     const lng = "{{ credito.longitud }}";
 
-    if(lat && lng){
+    if (lat && lng) {
         window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
     } else {
         alert("Este crédito no tiene ubicación registrada.");
     }
 }
 
-function intentarRenovar(){
+function intentarRenovar() {
     const puede = {{ 'true' if puede_renovar else 'false' }};
 
-    if(puede){
+    if (puede) {
         window.location.href = "/renovar_credito/{{ credito.clientes.id }}/{{ ruta_id }}";
     } else {
         alert("No se puede renovar hasta que pague todas las cuotas.");
     }
 }
 
-function verFicha(){
+function verFicha() {
     window.location.href = "/ficha_cliente/{{ credito.clientes.id }}";
 }
-
-</script>
-<script>
-
-let indexImagen = 0;
 
 function abrirGaleria() {
     document.getElementById("modalGaleria").classList.remove("hidden");
@@ -527,6 +653,7 @@ function abrirGaleria() {
 
 function cerrarGaleria() {
     document.getElementById("modalGaleria").classList.add("hidden");
+    document.getElementById("modalGaleria").classList.remove("flex");
 }
 
 function actualizarSlider() {
@@ -554,20 +681,30 @@ function prevImagen() {
     }
 }
 
-</script>
-<!-- =========================
-     SCRIPT
-========================= -->
-<script>
+function handleCardClick(e, cuotaId, saldoCuota, interes = 0) {
+    if (e.target.closest('#menuOpciones') || e.target.closest('[onclick*="toggleMenu"]')) {
+        return;
+    }
+    abrirModal(cuotaId, saldoCuota, interes);
+}
 
-function abrirModal(cuotaId, valor) {
-
+function abrirModal(cuotaId, saldoCuota, interes = 0) {
     document.getElementById("cuota_id").value = cuotaId;
 
-    // valor por defecto
-    document.getElementById("valorPago").value = parseFloat(valor).toFixed(2);
+    saldoCuotaActual = parseFloat(saldoCuota) || 0;
+    interesActual = parseFloat(interes) || 0;
 
-    calcularTotal();
+    document.getElementById("saldoTexto").innerText = formatMoney(saldoCuotaActual);
+    document.getElementById("interesTexto").innerText = formatMoney(interesActual);
+
+    document.getElementById("tipo_pago").value = "normal";
+    document.getElementById("valorPago").value = saldoCuotaActual.toFixed(2);
+    document.getElementById("extraInteres").value = "";
+    document.getElementById("aplicarInteres").checked = false;
+    document.getElementById("extra_interes_hidden").value = "0";
+    document.getElementById("aplicar_interes_hidden").value = "false";
+
+    actualizarModoPago();
 
     document.getElementById("modalPago").classList.remove("hidden");
     document.getElementById("modalPago").classList.add("flex");
@@ -575,16 +712,126 @@ function abrirModal(cuotaId, valor) {
 
 function cerrarModal() {
     document.getElementById("modalPago").classList.add("hidden");
+    document.getElementById("modalPago").classList.remove("flex");
 }
 
 function calcularTotal() {
+    const tipo = document.getElementById("tipo_pago").value;
+    const input = document.getElementById("valorPago");
+    const extraInput = document.getElementById("extraInteres");
+    const aplicarInteres = document.getElementById("aplicarInteres");
 
-    let valor = parseFloat(document.getElementById("valorPago").value) || 0;
+    const monto = parseFloat(input.value) || 0;
+    const extra = parseFloat(extraInput.value) || 0;
+    const aplicar = aplicarInteres.checked;
 
-    document.getElementById("totalTexto").innerText =
-        "$" + valor.toFixed(2);
+    let total = monto;
+    let detalle = "Sin cálculo";
+
+    if (tipo === "normal") {
+        total = monto + (aplicar ? extra : 0);
+        detalle = aplicar && extra > 0
+            ? `Saldo ingresado ${formatMoney(monto)} + interés aplicado ${formatMoney(extra)}`
+            : `Saldo ingresado ${formatMoney(monto)}`;
+
+    } else if (tipo === "intereses") {
+        total = monto;
+        detalle = `Pago solo interés por ${formatMoney(monto)}`;
+
+    } else if (tipo === "compensatorio") {
+        total = monto;
+        detalle = `Pago compensatorio por ${formatMoney(monto)}`;
+    }
+
+    document.getElementById("totalTexto").innerText = formatMoney(total);
+    document.getElementById("detalleTotal").innerText = detalle;
+
+    document.getElementById("extra_interes_hidden").value =
+        (tipo === "normal" && aplicar) ? extra.toFixed(2) : "0";
+
+    document.getElementById("aplicar_interes_hidden").value =
+        (tipo === "normal" && aplicar) ? "true" : "false";
 }
 
-</script>
+function actualizarModoPago() {
+    const tipo = document.getElementById("tipo_pago").value;
+    const input = document.getElementById("valorPago");
 
+    const ajusteInteresWrap = document.getElementById("ajusteInteresWrap");
+    const textoCompensatorio = document.getElementById("textoCompensatorio");
+    const labelValorPago = document.getElementById("labelValorPago");
+
+    ajusteInteresWrap.classList.add("hidden");
+    textoCompensatorio.classList.add("hidden");
+
+    input.readOnly = false;
+
+    if (tipo === "normal") {
+        labelValorPago.innerText = "Saldo / valor a registrar";
+        input.value = saldoCuotaActual.toFixed(2);
+        ajusteInteresWrap.classList.remove("hidden");
+
+    } else if (tipo === "intereses") {
+        labelValorPago.innerText = "Valor de interés a registrar";
+        input.value = interesActual > 0 ? interesActual.toFixed(2) : "";
+
+    } else if (tipo === "compensatorio") {
+        labelValorPago.innerText = "Valor a registrar";
+        input.value = "";
+        textoCompensatorio.classList.remove("hidden");
+    }
+
+    calcularTotal();
+}
+
+function abrirModalCompensatorio() {
+    document.getElementById("inputCompensatorio").value = "";
+    document.getElementById("totalCompensatorio").innerText = "$0.00";
+    document.getElementById("modalCompensatorio").classList.remove("hidden");
+    document.getElementById("modalCompensatorio").classList.add("flex");
+}
+
+function cerrarModalCompensatorio() {
+    document.getElementById("modalCompensatorio").classList.add("hidden");
+    document.getElementById("modalCompensatorio").classList.remove("flex");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const tipoPago = document.getElementById("tipo_pago");
+    const extraInteres = document.getElementById("extraInteres");
+    const aplicarInteres = document.getElementById("aplicarInteres");
+    const formPago = document.getElementById("formPago");
+    const inputCompensatorio = document.getElementById("inputCompensatorio");
+    const valorPago = document.getElementById("valorPago");
+
+    if (tipoPago) {
+        tipoPago.addEventListener("change", actualizarModoPago);
+    }
+
+    if (valorPago) {
+        valorPago.addEventListener("input", calcularTotal);
+    }
+
+    if (extraInteres) {
+        extraInteres.addEventListener("input", calcularTotal);
+    }
+
+    if (aplicarInteres) {
+        aplicarInteres.addEventListener("change", calcularTotal);
+    }
+
+    if (formPago) {
+        formPago.addEventListener("submit", function() {
+            calcularTotal();
+        });
+    }
+
+    if (inputCompensatorio) {
+        inputCompensatorio.addEventListener("input", function() {
+            let valor = parseFloat(this.value) || 0;
+            document.getElementById("totalCompensatorio").innerText = "$" + valor.toFixed(2);
+        });
+    }
+});
+</script>
 {% endblock %}

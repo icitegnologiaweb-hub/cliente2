@@ -5,45 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0B3C5D">
+<meta name="theme-color" content="#f8fafc">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_app.png') }}">
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
 <style>
-body {
-    background: radial-gradient(circle at top, #163a5f 0%, #0b223a 50%, #061423 100%);
-    min-height: 100vh;
-    overflow-x: hidden;
+:root{
+    --bg-main: #f8fafc;
+    --bg-soft: #eef2f7;
+    --card: #ffffff;
+    --card-soft: #f8fafc;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --primary: #0f172a;
+    --primary-2: #1e293b;
+    --accent: #2563eb;
+    --accent-2: #1d4ed8;
+    --danger: #dc2626;
 }
 
-/* ===== SIDEBAR MODERNO ===== */
+body {
+    background: linear-gradient(180deg, var(--bg-main) 0%, var(--bg-soft) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text-main);
+}
+
+/* ===== SIDEBAR BLANCO / GRIS ===== */
 .sidebar {
     position: fixed;
     top: 0;
     left: -320px;
     width: 300px;
     height: 100%;
-    background: linear-gradient(180deg, #0e2a47 0%, #071a2d 100%);
-    box-shadow: 0 0 50px rgba(0,0,0,.6);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 0 50px rgba(15,23,42,.14);
     transition: .35s cubic-bezier(.4,0,.2,1);
     z-index: 1000;
-    padding: 28px 22px;
+    padding: 22px 18px;
     display: flex;
     flex-direction: column;
-    backdrop-filter: blur(8px);
+    border-right: 1px solid #e2e8f0;
 }
 
 .sidebar.active {
     left: 0;
 }
 
-/* Overlay más suave */
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.55);
-    backdrop-filter: blur(3px);
+    background: rgba(15,23,42,.35);
+    backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
     transition: .3s;
@@ -57,101 +72,259 @@ body {
 
 /* ===== PERFIL ===== */
 .profile-card {
-    background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 20px;
-    padding: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15,23,42,.05);
 }
 
-/* Avatar */
 .avatar {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    height: 52px;
+    width: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 18px;
+    color: white;
+    box-shadow: 0 10px 24px rgba(37,99,235,.22);
 }
 
-/* Ruta badge premium */
 .ruta-badge {
     margin-top: 16px;
-    padding: 8px 12px;
+    padding: 9px 12px;
     border-radius: 14px;
-    background: linear-gradient(90deg, #1e40af, #2563eb);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 700;
+    color: #1d4ed8;
 }
 
 /* ===== MENU ===== */
 .menu-item {
     padding: 14px 16px;
     border-radius: 18px;
-    transition: .2s;
+    transition: .22s ease;
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(255,255,255,.04);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(15,23,42,.03);
 }
 
 .menu-item:hover {
-    background: rgba(255,255,255,.1);
+    background: #303238;
     transform: translateX(3px);
+    border-color: #cbd5e1;
 }
 
-.menu-item.active {
-    background: linear-gradient(90deg,#2563eb,#1d4ed8);
-}
-
-/* Cambio ruta especial */
 .menu-route {
-    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    background: linear-gradient(135deg, #303238, #303238);
+    color: white;
+    border: none;
+    box-shadow: 0 12px 24px rgba(37,99,235,.18);
 }
 
 .menu-route:hover {
-    background: linear-gradient(90deg,#0284c7,#1d4ed8);
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    color: white;
+}
+
+.menu-logout {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+.menu-logout:hover {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 /* ===== TOPBAR ===== */
-.topbar {
-    max-width: 430px;
-    margin: auto;
-    padding: 18px 16px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.topbar-shell {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 16px 16px 8px;
 }
 
-.menu-btn {
+.topbar {
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(226,232,240,.95);
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(15,23,42,.06);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: relative;
+}
+
+.topbar-title {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.icon-btn {
+    position: relative;
     height: 42px;
     width: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+    border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    color: #334155;
+    box-shadow: 0 8px 20px rgba(15,23,42,.06);
+    transition: all .2s ease;
+    flex-shrink: 0;
 }
 
-.menu-btn:hover {
-    background: rgba(255,255,255,.15);
+.icon-btn:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, #ffffff, #e5e7eb);
+}
+
+.menu-icon {
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.noti-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(220,38,38,.22);
+    border: 2px solid white;
+}
+
+/* ===== PANEL NOTIFICACIONES ===== */
+.panel-notificaciones {
+    position: absolute;
+    right: 0;
+    top: 58px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    background: rgba(255,255,255,.97);
+    backdrop-filter: blur(14px);
+    border-radius: 24px;
+    border: 1px solid rgba(226,232,240,.95);
+    box-shadow: 0 20px 60px rgba(15,23,42,.18);
+    color: #0f172a;
+    z-index: 50;
+    overflow: hidden;
+}
+
+.panel-head {
+    padding: 16px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.panel-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.panel-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.panel-body {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.noti-item {
+    padding: 15px 18px;
+    border-bottom: 1px solid #eef2f7;
+    transition: .2s ease;
+}
+
+.noti-item:hover {
+    background: #f8fafc;
+}
+
+.noti-item:last-child {
+    border-bottom: none;
+}
+
+.noti-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.noti-text {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+    line-height: 1.45;
+}
+
+.noti-empty {
+    padding: 24px 18px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* ===== TOASTS ===== */
+.toast {
+    box-shadow: 0 16px 30px rgba(15,23,42,.18);
+}
+
+/* ===== PAGE CONTENT ===== */
+.page-content {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 8px 16px 80px;
 }
 </style>
 
 </head>
 
-<body class="text-white">
+<body>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 <div id="toast-container"
      class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 space-y-2 w-[90%] max-w-sm">
 
     {% for category, message in messages %}
-    <div class="toast px-4 py-3 rounded-2xl text-sm font-semibold text-white shadow-xl transition-all duration-300
+    <div class="toast px-4 py-3 rounded-2xl text-sm font-semibold text-white transition-all duration-300
         {% if category == 'success' %}
             bg-green-600
         {% elif category in ['danger','error'] %}
@@ -171,221 +344,190 @@ body {
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar">
-<div class="profile-card mb-8">
 
-    <div class="flex items-center justify-between">
+    <div class="profile-card mb-8">
 
-        <div class="flex items-center gap-3">
-            <div class="avatar">
-                {{ session.get('nombre_completo','U')[0] }}
-            </div>
-
-            <div>
-                <div class="text-sm font-semibold">
-                    {{ session.get('nombre_completo','') }}
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="avatar">
+                    {{ session.get('nombre_completo','U')[0] }}
                 </div>
-                <div class="text-xs opacity-70">
-                    {{ session.get('email','') }}
+
+                <div>
+                    <div class="text-sm font-semibold text-slate-900">
+                        {{ session.get('nombre_completo','') }}
+                    </div>
+                    <div class="text-xs text-slate-500">
+                        {{ session.get('email','') }}
+                    </div>
                 </div>
             </div>
         </div>
 
-      
+        {% if session.get("ruta_nombre") %}
+        <div class="ruta-badge">
+            Ruta activa: {{ session.get("ruta_nombre") }}
+        </div>
+        {% endif %}
 
     </div>
 
-    {% if session.get("ruta_nombre") %}
-    <div class="ruta-badge">
-        Ruta activa: {{ session.get("ruta_nombre") }}
-    </div>
-    {% endif %}
+    <div class="space-y-3">
 
-</div>
+        <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
+            </svg>
+            <span>Créditos por cobrar</span>
+        </a>
 
+        <a href="{{ url_for('todas_las_ventas', ruta_id=session.get('ruta_id')) }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
+            </svg>
+            <span>Todos los créditos</span>
+        </a>
 
-    <!-- Menu -->
-    <!-- Menu -->
-<div class="space-y-3">
+        <a href="{{ url_for('caja_cobrador') }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 7h18M5 7v10h14V7M9 11h6"/>
+            </svg>
+            <span>Caja</span>
+        </a>
 
-    <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
-    class="flex items-center gap-3 menu-item">
-            <!-- Ventas -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
-        </svg>
-        <span>Ventas por cobrar</span>
-    </a>
+        <a href="{{ url_for('clientes_ruta', ruta_id=session.get('ruta_id')) }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M17 20h5V4H2v16h5m10 0a4 4 0 00-8 0m8 0H9"/>
+            </svg>
+            <span>Clientes actuales</span>
+        </a>
 
-    <a href="{{ url_for('todas_las_ventas', ruta_id=session.get('ruta_id')) }}"
-    class="flex items-center gap-3 menu-item">
-            <!-- Ventas -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
-        </svg>
-        <span>Todas las ventas</span>
-    </a>
+        <a href="{{ url_for('metas_dia') }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M12 6v6l4 2"/>
+            </svg>
+            <span>Metas hoy</span>
+        </a>
 
-    <a href="{{ url_for('caja_cobrador') }}"
-        class="flex items-center gap-3 menu-item">
-
-        <!-- Caja -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M3 7h18M5 7v10h14V7M9 11h6"/>
-        </svg>
-        <span>Caja</span>
-    </a>
-    
-    <a href="{{ url_for('clientes_ruta', ruta_id=session.get('ruta_id')) }}" class="flex items-center gap-3 menu-item">
-        <!-- Clientes -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M17 20h5V4H2v16h5m10 0a4 4 0 00-8 0m8 0H9"/>
-        </svg>
-        <span>Clientes</span>
-    </a>
-
-    <a href="{{ url_for('metas_dia') }}" class="flex items-center gap-3 menu-item">
-        <!-- Metas -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M12 6v6l4 2"/>
-        </svg>
-        <span>Metas del día</span>
-    </a>
-    <a href="{{ url_for('buzon_aumento_cupo') }}" class="flex items-center gap-3 menu-item">
-        <!-- Metas -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M12 6v6l4 2"/>
-        </svg>
-        <span>Solicitudes</span>
-    </a>
-
+        <a href="{{ url_for('buzon_aumento_cupo') }}"
+           class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M12 6v6l4 2"/>
+            </svg>
+            <span>Solicitudes</span>
+        </a>
 
         <a href="{{ url_for('dashboard_cobrador') }}"
-    class="menu-item menu-route justify-between">
+           class="menu-item menu-route justify-between">
+            <span>Cambio de ruta</span>
 
-        <span>🏍 Cambio de Ruta</span>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 opacity-80"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
 
-        <svg xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 opacity-80"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7" />
-        </svg>
+        <a href="{{ url_for('logout_app') }}"
+           class="menu-item menu-logout justify-center gap-2 mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-4 w-4"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-13V4" />
+            </svg>
+            <span>Cerrar sesión</span>
+        </a>
 
-    </a>
-<a href="{{ url_for('logout_app') }}"
-   class="flex items-center justify-center gap-2
-          mt-4 w-full
-          bg-red-500/10 hover:bg-red-500/20
-          text-red-400 hover:text-red-300
-          border border-red-500/30
-          py-2.5 rounded-xl
-          text-sm font-semibold
-          transition duration-200">
-
-    <svg xmlns="http://www.w3.org/2000/svg"
-         class="h-4 w-4"
-         fill="none"
-         viewBox="0 0 24 24"
-         stroke="currentColor">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-13V4" />
-    </svg>
-
-    Cerrar sesión
-</a>
-
-</div>
+    </div>
 
 </div>
 
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
 <!-- Top Bar -->
-<div class="topbar text-white flex items-center justify-between px-4 py-3 relative">
-    <button onclick="toggleMenu()" class="menu-btn">
-        ☰
-    </button>
+<div class="topbar-shell">
+    <div class="topbar">
 
-    <div class="text-lg font-semibold tracking-wide">
-        {% block titulo %}{% endblock %}
-    </div>
+        <button onclick="toggleMenu()" class="icon-btn" aria-label="Abrir menú">
+            <span class="menu-icon">☰</span>
+        </button>
 
-    <div style="width:42px;"></div>
-    <div class="relative">
+        <div class="topbar-title">
+            {% block titulo %}{% endblock %}
+        </div>
 
-    <button onclick="toggleNotificaciones()" 
-            class="relative text-white text-xl">
+        <div class="relative">
+            <button onclick="toggleNotificaciones(event)"
+                    class="icon-btn text-xl"
+                    aria-label="Ver notificaciones">
+                🔔
 
-        🔔
+                {% if notificaciones %}
+                <span class="noti-badge">
+                    {{ notificaciones|length }}
+                </span>
+                {% endif %}
+            </button>
 
-        {% if notificaciones %}
-        <span class="absolute -top-2 -right-2
-                     bg-red-600 text-white text-xs
-                     h-5 w-5 rounded-full
-                     flex items-center justify-center">
-            {{ notificaciones|length }}
-        </span>
-        {% endif %}
+            <div id="panelNotificaciones" class="panel-notificaciones hidden">
+                <div class="panel-head">
+                    <div class="panel-title">Notificaciones</div>
+                    <div class="panel-subtitle">
+                        {{ notificaciones|length if notificaciones else 0 }} pendientes
+                    </div>
+                </div>
 
-    </button>
-
-</div>
-<div id="panelNotificaciones"
-     class="hidden absolute right-0 top-14
-            w-80
-            bg-white rounded-2xl
-            shadow-[0_20px_60px_rgba(0,0,0,0.35)]
-            text-gray-800
-            z-50 overflow-hidden
-            animate-fadeIn">
-
-    <div class="px-5 py-4 border-b font-semibold text-gray-700">
-        Notificaciones
-    </div>
-
-    <div class="max-h-80 overflow-y-auto">
-
-        {% for n in notificaciones %}
-        <div class="px-5 py-4 border-b hover:bg-gray-50 transition">
-            <div class="font-semibold text-sm">
-                {{ n.titulo }}
-            </div>
-            <div class="text-xs text-gray-600 mt-1">
-                {{ n.mensaje }}
+                <div class="panel-body">
+                    {% for n in notificaciones %}
+                    <div class="noti-item">
+                        <div class="noti-title">
+                            {{ n.titulo }}
+                        </div>
+                        <div class="noti-text">
+                            {{ n.mensaje }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="noti-empty">
+                        No hay notificaciones
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        {% else %}
-        <div class="px-5 py-6 text-sm text-gray-500">
-            No hay notificaciones
-        </div>
-        {% endfor %}
 
     </div>
-
-</div>
-
 </div>
 
 <!-- Page Content -->
-<div class="max-w-md mx-auto px-4 pb-20">
+<div class="page-content">
     {% block content %}{% endblock %}
 </div>
 
@@ -395,6 +537,7 @@ function toggleMenu() {
     document.getElementById("overlay").classList.toggle("active");
 }
 </script>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const toasts = document.querySelectorAll(".toast");
@@ -408,11 +551,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2500);
 });
 </script>
+
 <script>
-function toggleNotificaciones(){
+function toggleNotificaciones(event){
+    if (event) event.stopPropagation();
+
     document.getElementById("panelNotificaciones")
         .classList.toggle("hidden");
 }
+
+document.addEventListener("click", function(e){
+    const panel = document.getElementById("panelNotificaciones");
+    const trigger = e.target.closest('[onclick*="toggleNotificaciones"]');
+
+    if (!e.target.closest("#panelNotificaciones") && !trigger) {
+        panel.classList.add("hidden");
+    }
+});
 </script>
+
 </body>
 </html>
