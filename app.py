@@ -1143,12 +1143,17 @@ def registrar_pago():
         "cuota_id": cuota_id,
         "credito_id": credito_id,
         "monto": monto_pago,
+        "extra_interes": extra_interes if aplicar_interes else 0,  # 🔥 CLAVE
         "fecha": ahora_colombia().isoformat(),
         "cobrador_id": session["user_id"],
         "tipo_pago": tipo_pago
     }).execute()
 
     pago_id = pago_resp.data[0]["id"]
+
+        # 🔥 REPARAR TODAS LAS CUOTAS SIEMPRE
+    recalcular_credito(credito_id)
+
 
     # =========================
     # VERIFICAR SI CRÉDITO TERMINÓ

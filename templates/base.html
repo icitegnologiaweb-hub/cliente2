@@ -11,7 +11,6 @@
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
 </head>
 
 <style>
@@ -51,6 +50,9 @@ header {
 #sidebar {
     background: linear-gradient(180deg,#1f2022,#1f2022);
     min-height: 100vh;
+    width: 256px;
+    flex-shrink: 0;
+    z-index: 1045;
 }
 
 /* Quitar subrayado */
@@ -85,10 +87,13 @@ header {
     border-radius: 10px;
     color: #cbd5e1;
     transition: all .2s ease;
+    margin-bottom: 4px;
 }
 
 .menu-item i {
     font-size: 16px;
+    min-width: 18px;
+    text-align: center;
 }
 
 /* Hover */
@@ -112,7 +117,7 @@ header {
     margin: 18px 0 8px 10px;
 }
 
-/* COLAPSADO */
+/* COLAPSADO ESCRITORIO */
 #sidebar.collapsed {
     width: 80px !important;
 }
@@ -128,6 +133,7 @@ header {
 /* Scroll interno */
 .sidebar-scroll {
     overflow-y: auto;
+    min-height: 0;
 }
 
 /* Scroll más elegante */
@@ -165,12 +171,16 @@ header {
     background: rgba(255,255,255,0.88);
     border-bottom: 1px solid rgba(15,23,42,0.08);
     box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
 }
 
 .topbar-brand {
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
 }
 
 .topbar-logo-box {
@@ -223,6 +233,7 @@ header {
     color: #334155;
     transition: all .2s ease;
     text-decoration: none;
+    flex-shrink: 0;
 }
 
 .topbar-notification:hover {
@@ -254,6 +265,7 @@ header {
     border-radius: 16px !important;
     padding: 6px 10px !important;
     box-shadow: 0 4px 16px rgba(15,23,42,.05);
+    max-width: 100%;
 }
 
 .topbar-user-btn:hover {
@@ -282,13 +294,88 @@ header {
     border: 1px solid #e2e8f0 !important;
     background: #ffffff !important;
     box-shadow: 0 4px 16px rgba(15,23,42,.05);
+    flex-shrink: 0;
 }
 
 .topbar-toggle:hover {
     background: #f8fafc !important;
 }
 
-@media (max-width: 768px) {
+/* Overlay móvil */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .25s ease;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Toast */
+.custom-toast {
+    min-width: 260px;
+    max-width: 380px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slideIn {
+    animation: slideIn .35s ease;
+}
+
+/* RESPONSIVE */
+@media (max-width: 991.98px) {
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px !important;
+        transform: translateX(-100%);
+        transition: transform .28s ease;
+        box-shadow: 0 20px 40px rgba(0,0,0,.28);
+    }
+
+    #sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    #sidebar.collapsed {
+        width: 280px !important;
+    }
+
+    #sidebar.collapsed .sidebar-text {
+        display: inline;
+    }
+
+    #sidebar.collapsed .sidebar-user div:last-child {
+        display: block;
+    }
+
+    .topbar {
+        padding: 12px 14px !important;
+    }
+
+    main.flex-1 {
+        padding: 14px !important;
+    }
+
     .topbar-title {
         display: none;
     }
@@ -300,13 +387,75 @@ header {
     .oficina-selector span {
         display: none;
     }
+
+    .custom-toast {
+        min-width: unset;
+        max-width: unset;
+        width: calc(100vw - 32px);
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        gap: 10px;
+    }
+
+    .topbar > div:first-child,
+    .topbar > div:last-child {
+        min-width: 0;
+    }
+
+    .topbar-user-btn {
+        padding: 6px !important;
+    }
+
+    .topbar-pill {
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    #sidebar {
+        width: 86vw !important;
+        max-width: 320px;
+    }
+
+    .topbar {
+        padding: 10px 12px !important;
+    }
+
+    .topbar-user-btn {
+        border-radius: 14px !important;
+    }
+
+    .topbar-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+    }
+
+    .topbar-toggle,
+    .topbar-notification {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px !important;
+    }
+
+    main.flex-1 {
+        padding: 12px !important;
+    }
+
+    .dropdown-menu {
+        max-width: 92vw;
+    }
 }
 </style>
-<body class="bg-white">
+
+<body class="bg-white overflow-x-hidden">
 <!-- TOAST NOTIFICATIONS -->
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-<div class="fixed top-6 right-6 space-y-4 z-[9999]">
+<div class="fixed top-4 sm:top-6 right-4 sm:right-6 space-y-4 z-[9999]">
     {% for category, message in messages %}
     <div class="custom-toast
         flex items-center gap-3
@@ -345,217 +494,212 @@ header {
 {% endif %}
 {% endwith %}
 
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
 <div class="min-h-screen flex">
     <aside id="sidebar"
-    class="w-64 transition-all duration-300 flex flex-col shadow-lg">
+        class="w-64 transition-all duration-300 flex flex-col shadow-lg">
 
+        <!-- MENU (CON SCROLL) -->
+        <nav class="flex-grow-1 ps-2 pe-3 py-4 sidebar-scroll">
 
-    <!-- MENU (CON SCROLL) -->
-    <nav class="flex-grow-1 ps-2 pe-3 py-4 sidebar-scroll">
+            <div class="sidebar-section sidebar-text">MENÚ</div>
 
-        <div class="sidebar-section sidebar-text">MENÚ</div>
+            <a href="{{ url_for('listar_ventas') }}" class="menu-item {{ is_active('listar_ventas') }}">
+                <i class="bi bi-map"></i>
+                <span class="sidebar-text">Creditos Activos</span>
+            </a>
 
-        <a href="{{ url_for('listar_ventas') }}" class="menu-item {{ is_active('listar_ventas') }}">
-            <i class="bi bi-map"></i>
-            <span class="sidebar-text">Creditos Activos</span>
-        </a>
-
-        <a href="{{ url_for('clientes') }}" class="menu-item {{ is_active('clientes') }}">
+            <a href="{{ url_for('clientes') }}" class="menu-item {{ is_active('clientes') }}">
                 <i class="bi bi-people"></i>
-            <span class="sidebar-text">Clientes/Creditos Registrados</span>
-        </a>
+                <span class="sidebar-text">Clientes/Creditos Registrados</span>
+            </a>
 
-        
-        <a href="{{ url_for('ver_solicitudes_cupo') }}" class="menu-item {{ is_active('ver_solicitudes_cupo') }}" >
-            <i class="bi bi-people"></i>
-            <span class="sidebar-text">Solicitudes</span>
-        </a>
+            <a href="{{ url_for('ver_solicitudes_cupo') }}" class="menu-item {{ is_active('ver_solicitudes_cupo') }}">
+                <i class="bi bi-people"></i>
+                <span class="sidebar-text">Solicitudes</span>
+            </a>
 
-        <a href="{{ url_for('capital') }}" class="menu-item {{ is_active('capital') }}">
-            <i class="bi bi-cash-stack"></i>
-            <span class="sidebar-text">Capital</span>
-        </a>
+            <a href="{{ url_for('capital') }}" class="menu-item {{ is_active('capital') }}">
+                <i class="bi bi-cash-stack"></i>
+                <span class="sidebar-text">Capital</span>
+            </a>
 
-        <a href="{{ url_for('gastos') }}" class="menu-item {{ is_active('gastos') }}">
-            <i class="bi bi-wallet2"></i>
-            <span class="sidebar-text">Gastos</span>
-        </a>
+            <a href="{{ url_for('gastos') }}" class="menu-item {{ is_active('gastos') }}">
+                <i class="bi bi-wallet2"></i>
+                <span class="sidebar-text">Gastos</span>
+            </a>
 
-        <a href="{{ url_for('caja_reportes') }}" class="menu-item {{ is_active('caja_reportes') }}">
-            <i class="bi bi-graph-up-arrow"></i>
-            <span class="sidebar-text">Reportes</span>
-        </a>
+            <a href="{{ url_for('caja_reportes') }}" class="menu-item {{ is_active('caja_reportes') }}">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span class="sidebar-text">Reportes</span>
+            </a>
 
-        <a href="{{ url_for('liquidacion') }}" class="menu-item {{ is_active('liquidacion') }}">
-            <i class="bi bi-calendar-week"></i>
-            <span class="sidebar-text">Liquidación</span>
-        </a>
+            <a href="{{ url_for('liquidacion') }}" class="menu-item {{ is_active('liquidacion') }}">
+                <i class="bi bi-calendar-week"></i>
+                <span class="sidebar-text">Liquidación</span>
+            </a>
 
-        <div class="sidebar-section sidebar-text mt-4">CONFIGURACIÓN</div>
+            <div class="sidebar-section sidebar-text mt-4">CONFIGURACIÓN</div>
 
-        <a  href="{{ url_for('usuarios') }}" class="menu-item {{ is_active('usuarios') }}">
-            <i class="bi bi-person-gear"></i>
-            <span class="sidebar-text">Usuarios</span>
-        </a>
+            <a href="{{ url_for('usuarios') }}" class="menu-item {{ is_active('usuarios') }}">
+                <i class="bi bi-person-gear"></i>
+                <span class="sidebar-text">Usuarios</span>
+            </a>
 
-        <a href="{{ url_for('listar_rutas') }}" class="menu-item {{ is_active('listar_rutas') }}">
-            <i class="bi bi-map"></i>
-            <span class="sidebar-text">Rutas</span>
-        </a>
-        <a href="{{ url_for('categorias_gastos') }}" class="menu-item {{ is_active('categorias_gastos') }}">
-            <i class="bi bi-grid"></i>
-            <span class="sidebar-text">Categorías Gastos</span>
-        </a>
+            <a href="{{ url_for('listar_rutas') }}" class="menu-item {{ is_active('listar_rutas') }}">
+                <i class="bi bi-map"></i>
+                <span class="sidebar-text">Rutas</span>
+            </a>
 
-    </nav>
+            <a href="{{ url_for('categorias_gastos') }}" class="menu-item {{ is_active('categorias_gastos') }}">
+                <i class="bi bi-grid"></i>
+                <span class="sidebar-text">Categorías Gastos</span>
+            </a>
 
-</aside>
+        </nav>
+    </aside>
 
     <!-- CONTENIDO -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col min-w-0">
         <header class="topbar px-4 py-3 d-flex justify-content-between align-items-center">
 
-    <!-- IZQUIERDA -->
-    <div class="d-flex align-items-center gap-3">
+            <!-- IZQUIERDA -->
+            <div class="d-flex align-items-center gap-3 min-w-0">
 
-        <!-- Toggle -->
-        <button id="toggleSidebar"
-                class="btn topbar-toggle d-flex align-items-center justify-content-center">
-            <i class="bi bi-list fs-5 text-dark"></i>
-        </button>
+                <!-- Toggle -->
+                <button id="toggleSidebar"
+                        class="btn topbar-toggle d-flex align-items-center justify-content-center"
+                        type="button">
+                    <i class="bi bi-list fs-5 text-dark"></i>
+                </button>
 
-        <!-- Marca -->
-        <div class="topbar-brand">
-        
-
-            <div class="topbar-title">
-                <h6>Panel Administrativo</h6>
-                <span>Control general del sistema</span>
+                <!-- Marca -->
+                <div class="topbar-brand">
+                    <div class="topbar-title">
+                        <h6>Panel Administrativo</h6>
+                        <span>Control general del sistema</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-    </div>
+            <!-- DERECHA -->
+            <div class="d-flex align-items-center gap-3 min-w-0">
 
-    <!-- DERECHA -->
-    <div class="d-flex align-items-center gap-3">
-
-        {% if session.get('oficina_nombre') %}
-        <div class="dropdown">
-            <button class="oficina-selector"
-                    data-bs-toggle="dropdown"
-                    type="button">
-                <div class="topbar-pill">
-                    <i class="bi bi-buildings text-secondary"></i>
-                
-                    <i class="bi bi-chevron-down small text-muted"></i>
-                </div>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-4">
-                <li>
-                    <a class="dropdown-item py-2"
-                       href="{{ url_for('cambiar_oficina') }}">
-                        <i class="bi bi-arrow-repeat me-2 text-primary"></i>
-                        Cambiar oficina
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Notificaciones -->
-        <a href="{{ url_for('ver_solicitudes_cupo') }}" class="topbar-notification">
-            <i class="bi bi-bell fs-5"></i>
-
-            {% if total_solicitudes_pendientes > 0 %}
-            <span class="topbar-badge">
-                {{ total_solicitudes_pendientes }}
-            </span>
-            {% endif %}
-        </a>
-        {% endif %}
-
-        <!-- Usuario -->
-        <div class="dropdown">
-            <button class="btn p-0 border-0 bg-transparent topbar-user-btn"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    type="button">
-
-                <div class="d-flex align-items-center gap-3">
-
-                    <div class="text-end lh-sm topbar-user-info">
-                        <div class="fw-semibold text-dark" style="font-size:14px;">
-                            {{ session.get('nombre') }} {{ session.get('apellido') }}
+                {% if session.get('oficina_nombre') %}
+                <div class="dropdown">
+                    <button class="oficina-selector"
+                            data-bs-toggle="dropdown"
+                            type="button">
+                        <div class="topbar-pill">
+                            <i class="bi bi-buildings text-secondary"></i>
+                            <i class="bi bi-chevron-down small text-muted"></i>
                         </div>
-                        <div class="text-muted" style="font-size:12px;">
-                            {{ session.get('rol') }}
-                        </div>
-                    </div>
-
-                    <div class="topbar-avatar">
-                        <img src="{{ url_for('static', filename='img/user.png') }}"
-                             alt="Usuario">
-                    </div>
-
-                </div>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-4">
-                <li class="px-3 py-2">
-                    <div class="fw-semibold">
-                        {{ session.get('nombre') }} {{ session.get('apellido') }}
-                    </div>
-                    <small class="text-muted">
-                        {{ session.get('rol') }}
-                    </small>
-                </li>
-
-                <li><hr class="dropdown-divider"></li>
-
-                <li>
-                    <button class="dropdown-item text-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#logoutModal">
-                        <i class="bi bi-box-arrow-right me-2"></i>
-                        Cerrar sesión
                     </button>
-                </li>
-            </ul>
-        </div>
 
-    </div>
-</header>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-4">
+                        <li>
+                            <a class="dropdown-item py-2"
+                               href="{{ url_for('cambiar_oficina') }}">
+                                <i class="bi bi-arrow-repeat me-2 text-primary"></i>
+                                Cambiar oficina
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Notificaciones -->
+                <a href="{{ url_for('ver_solicitudes_cupo') }}" class="topbar-notification">
+                    <i class="bi bi-bell fs-5"></i>
+
+                    {% if total_solicitudes_pendientes > 0 %}
+                    <span class="topbar-badge">
+                        {{ total_solicitudes_pendientes }}
+                    </span>
+                    {% endif %}
+                </a>
+                {% endif %}
+
+                <!-- Usuario -->
+                <div class="dropdown">
+                    <button class="btn p-0 border-0 bg-transparent topbar-user-btn"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            type="button">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="text-end lh-sm topbar-user-info">
+                                <div class="fw-semibold text-dark" style="font-size:14px;">
+                                    {{ session.get('nombre') }} {{ session.get('apellido') }}
+                                </div>
+                                <div class="text-muted" style="font-size:12px;">
+                                    {{ session.get('rol') }}
+                                </div>
+                            </div>
+
+                            <div class="topbar-avatar">
+                                <img src="{{ url_for('static', filename='img/user.png') }}"
+                                     alt="Usuario">
+                            </div>
+
+                        </div>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-4">
+                        <li class="px-3 py-2">
+                            <div class="fw-semibold">
+                                {{ session.get('nombre') }} {{ session.get('apellido') }}
+                            </div>
+                            <small class="text-muted">
+                                {{ session.get('rol') }}
+                            </small>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <button class="dropdown-item text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#logoutModal">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Cerrar sesión
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </header>
 
         <!-- MAIN -->
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6">
             {% block content %}{% endblock %}
         </main>
-
     </div>
-
 </div>
 
 <!-- MODAL CERRAR SESIÓN -->
 <div class="modal fade" id="logoutModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title">Cerrar sesión</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro que deseas cerrar sesión?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Cancelar
-        </button>
-        <a href="{{ url_for('logout') }}" class="btn btn-danger">
-            Sí, cerrar sesión
-        </a>
-      </div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Cerrar sesión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro que deseas cerrar sesión?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                    Sí, cerrar sesión
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -563,32 +707,87 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("toggleSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
     if (!sidebar || !toggleBtn) return;
 
-    // Restaurar estado guardado
-    const isCollapsed = localStorage.getItem("sidebarCollapsed");
-
-    if (isCollapsed === "true") {
-        sidebar.classList.add("collapsed");
+    function isMobile() {
+        return window.innerWidth <= 991.98;
     }
 
-    // Evento toggle
+    function closeMobileSidebar() {
+        sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.classList.remove("show");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    function openMobileSidebar() {
+        sidebar.classList.add("mobile-open");
+        if (overlay) overlay.classList.add("show");
+        document.body.classList.add("overflow-hidden");
+    }
+
+    function applyInitialState() {
+        if (isMobile()) {
+            sidebar.classList.remove("collapsed");
+            closeMobileSidebar();
+        } else {
+            const isCollapsed = localStorage.getItem("sidebarCollapsed");
+            sidebar.classList.remove("mobile-open");
+            if (overlay) overlay.classList.remove("show");
+            document.body.classList.remove("overflow-hidden");
+
+            if (isCollapsed === "true") {
+                sidebar.classList.add("collapsed");
+            } else {
+                sidebar.classList.remove("collapsed");
+            }
+        }
+    }
+
+    applyInitialState();
+
     toggleBtn.addEventListener("click", function () {
+        if (isMobile()) {
+            if (sidebar.classList.contains("mobile-open")) {
+                closeMobileSidebar();
+            } else {
+                openMobileSidebar();
+            }
+        } else {
+            sidebar.classList.toggle("collapsed");
 
-        sidebar.classList.toggle("collapsed");
+            localStorage.setItem(
+                "sidebarCollapsed",
+                sidebar.classList.contains("collapsed")
+            );
+        }
+    });
 
-        localStorage.setItem(
-            "sidebarCollapsed",
-            sidebar.classList.contains("collapsed")
-        );
+    if (overlay) {
+        overlay.addEventListener("click", function () {
+            closeMobileSidebar();
+        });
+    }
+
+    window.addEventListener("resize", function () {
+        applyInitialState();
+    });
+
+    document.querySelectorAll("#sidebar a").forEach(link => {
+        link.addEventListener("click", function () {
+            if (isMobile()) {
+                closeMobileSidebar();
+            }
+        });
     });
 
 });
 </script>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-const toasts = document.querySelectorAll(".custom-toast");
+    const toasts = document.querySelectorAll(".custom-toast");
     toasts.forEach(toast => {
         setTimeout(() => {
             toast.style.opacity = "0";
@@ -598,7 +797,8 @@ const toasts = document.querySelectorAll(".custom-toast");
     });
 });
 </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -151,10 +151,7 @@
                 <p class="text-sm text-slate-500">Toca una cuota pendiente para registrar el pago</p>
             </div>
 
-            <button onclick="verPagos()"
-                    class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">
-                Ver pagos realizados
-            </button>
+           
         </div>
 
         <div class="space-y-4">
@@ -725,14 +722,18 @@ function calcularTotal() {
     const extra = parseFloat(extraInput.value) || 0;
     const aplicar = aplicarInteres.checked;
 
+    // 🔥 convertir % a valor real
+    const extraCalculado = (monto * extra) / 100;
+
     let total = monto;
     let detalle = "Sin cálculo";
 
     if (tipo === "normal") {
-        total = monto + (aplicar ? extra : 0);
+        total = monto + (aplicar ? extraCalculado : 0);
+
         detalle = aplicar && extra > 0
-            ? `Saldo ingresado ${formatMoney(monto)} + interés aplicado ${formatMoney(extra)}`
-            : `Saldo ingresado ${formatMoney(monto)}`;
+            ? `Saldo ${formatMoney(monto)} + ${extra}% (${formatMoney(extraCalculado)})`
+            : `Saldo ${formatMoney(monto)}`;
 
     } else if (tipo === "intereses") {
         total = monto;
@@ -746,8 +747,9 @@ function calcularTotal() {
     document.getElementById("totalTexto").innerText = formatMoney(total);
     document.getElementById("detalleTotal").innerText = detalle;
 
+    // 🔥 enviar valor ya calculado al backend
     document.getElementById("extra_interes_hidden").value =
-        (tipo === "normal" && aplicar) ? extra.toFixed(2) : "0";
+        (tipo === "normal" && aplicar) ? extraCalculado.toFixed(2) : "0";
 
     document.getElementById("aplicar_interes_hidden").value =
         (tipo === "normal" && aplicar) ? "true" : "false";

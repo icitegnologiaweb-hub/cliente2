@@ -9,22 +9,20 @@
         class="bg-white w-[250px] p-4 
                 text-black font-mono text-[11px] leading-tight rounded-xl">
 
-        <!-- LOGO PEQUEÑO -->
         <div class="text-center mb-2 text-[10px] leading-tight">
 
-    
             <div>
                 <strong>Factura:</strong> {{ pago.id[:8] }}
             </div>
 
             <div>
                 <strong>Fecha Impresion:</strong> {{ pago.fecha_formateada }}
-                
             </div>
 
         </div>
 
         <div>------------------------------------</div>
+
         {% if pago.tipo_pago == "compensatorio" %}
             <div class="text-center mb-3">
                 <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-sm">
@@ -34,7 +32,6 @@
         {% endif %}
 
         <!-- DATOS -->
-
         <div class="mt-1">
             <div><strong>Datos del cliente:</strong></div>
             <div>Cliente: {{ pago.cuotas.creditos.clientes.nombre }}</div>
@@ -49,10 +46,19 @@
             <span>#{{ pago.cuotas.numero }}</span>
         </div>
 
+        <!-- 🔥 ABONO -->
         <div class="flex justify-between">
-            <span>Abono realizado</span>
+            <span>Abono</span>
             <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
         </div>
+
+        <!-- 🔥 INTERÉS ADICIONAL -->
+        {% if pago.extra_interes and pago.extra_interes > 0 %}
+        <div class="flex justify-between text-orange-600">
+            <span>Interés adicional</span>
+            <span>+ ${{ "{:,.2f}".format(pago.extra_interes) }}</span>
+        </div>
+        {% endif %}
 
         <div class="flex justify-between">
             <span>Saldo restante</span>
@@ -63,6 +69,7 @@
 
         <!-- TABLA -->
         <div class="mt-1">
+
             <div class="flex justify-between">
                 <span><strong>Descripción</strong></span>
                 <span><strong>Monto</strong></span>
@@ -73,10 +80,27 @@
                 <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
             </div>
 
-            <div>{{ pago.fecha_formateada }}</div>
-        </div>
-        <div>------------------------------------</div>
+            {% if pago.extra_interes and pago.extra_interes > 0 %}
+            <div class="flex justify-between text-orange-600">
+                <span>Interés adicional</span>
+                <span>+ ${{ "{:,.2f}".format(pago.extra_interes) }}</span>
+            </div>
+            {% endif %}
 
+            <!-- 🔥 TOTAL REAL -->
+            <div class="flex justify-between font-bold">
+                <span>Total aplicado</span>
+                <span>
+                    ${{ "{:,.2f}".format((pago.monto or 0) + (pago.extra_interes or 0)) }}
+                </span>
+            </div>
+
+            <div class="text-[10px] mt-1 text-gray-500">
+                {{ pago.fecha_formateada }}
+            </div>
+        </div>
+
+        <div>------------------------------------</div>
 
         <!-- TOTAL -->
         <div class="flex justify-between font-bold">
@@ -88,8 +112,15 @@
             <span>Saldo Restante:</span>
             <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
         </div>
-        <div>------------------------------------</div>
 
+        <!-- 🔥 NOTA -->
+        {% if pago.extra_interes and pago.extra_interes > 0 %}
+        <div class="text-[9px] text-gray-400 text-center mt-1">
+            * El interés adicional incrementa la deuda, no reduce el saldo directamente
+        </div>
+        {% endif %}
+
+        <div>------------------------------------</div>
 
         <div class="text-center mt-2">
             🗸 ¡Gracias por su pago!

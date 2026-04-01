@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-4 sm:px-6 md:px-10 py-6 md:py-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+<div class="px-3 sm:px-5 md:px-8 py-4 sm:py-6 md:py-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
     <!-- ================= HEADER ================= -->
-    <div class="flex items-center justify-between mb-10">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
 
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-800">
+        <div class="min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-tight">
                 Creditos Activos
             </h1>
             <p class="text-sm text-gray-600 mt-1">
@@ -15,8 +15,8 @@
         </div>
 
         <a href="{{ url_for('nueva_venta') }}"
-           class="bg-gradient-to-r from-blue-700 to-blue-600 
-                  hover:scale-105 text-white px-6 py-3 
+           class="w-full sm:w-auto text-center bg-gradient-to-r from-blue-700 to-blue-600 
+                  hover:scale-[1.01] sm:hover:scale-105 text-white px-5 py-3 
                   rounded-xl shadow-xl transition-all duration-200">
             + Nueva Venta
         </a>
@@ -25,31 +25,31 @@
 
 
     <!-- ================= TARJETAS RESUMEN ================= -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
 
-        <div class="bg-white rounded-3xl shadow-lg p-6">
-            <div class="text-xs uppercase text-gray-500">Total Ventas</div>
+        <div class="bg-white rounded-3xl shadow-lg p-5 sm:p-6">
+            <div class="text-[11px] sm:text-xs uppercase text-gray-500">Total Ventas</div>
             <div class="text-3xl font-bold text-gray-800 mt-2">
                 {{ ventas|length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-lg p-6">
-            <div class="text-xs uppercase text-gray-500">Saldo Cartera</div>
-            <div class="text-2xl font-bold text-blue-600 mt-2">
+        <div class="bg-white rounded-3xl shadow-lg p-5 sm:p-6">
+            <div class="text-[11px] sm:text-xs uppercase text-gray-500">Saldo Cartera</div>
+            <div class="text-2xl font-bold text-blue-600 mt-2 break-words">
                 $ {{ "{:,.2f}".format(saldo_total) }}
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-lg p-6">
-            <div class="text-xs uppercase text-gray-500">En Mora</div>
+        <div class="bg-white rounded-3xl shadow-lg p-5 sm:p-6">
+            <div class="text-[11px] sm:text-xs uppercase text-gray-500">En Mora</div>
             <div class="text-2xl font-bold text-red-600 mt-2">
                 {{ ventas | selectattr("dias_mora", "gt", 0) | list | length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-lg p-6">
-            <div class="text-xs uppercase text-gray-500">Al Día</div>
+        <div class="bg-white rounded-3xl shadow-lg p-5 sm:p-6">
+            <div class="text-[11px] sm:text-xs uppercase text-gray-500">Al Día</div>
             <div class="text-2xl font-bold text-green-600 mt-2">
                 {{ ventas | selectattr("dias_mora", "equalto", 0) | list | length }}
             </div>
@@ -61,9 +61,9 @@
     <!-- ================= FILTROS ================= -->
     <form method="GET" action="{{ url_for('listar_ventas') }}">
 
-        <div class="bg-white rounded-3xl shadow-lg p-6 mb-8">
+        <div class="bg-white rounded-3xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
 
-            <div class="grid grid-cols-1 md:grid-cols-7 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-7 gap-4 sm:gap-5">
 
                 <!-- Ruta -->
                 <div>
@@ -72,7 +72,7 @@
                     </label>
                     <select name="ruta_id"
                             onchange="this.form.submit()"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500">
                         <option value="">Seleccione una ruta</option>
                         {% for ruta in rutas %}
                             <option value="{{ ruta.id }}"
@@ -92,7 +92,7 @@
                            name="buscar"
                            value="{{ request.args.get('buscar','') }}"
                            placeholder="Nombre o identificación"
-                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                           class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- Filtro Mora -->
@@ -102,7 +102,7 @@
                     </label>
                     <select name="filtro_mora"
                             onchange="this.form.submit()"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500">
 
                         <option value="">Todos</option>
                         <option value="21" {% if request.args.get('filtro_mora') == '21' %} selected {% endif %}>
@@ -117,6 +117,7 @@
 
                     </select>
                 </div>
+
                 <!-- Fecha Inicio -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">
@@ -125,7 +126,7 @@
                     <input type="date"
                         name="fecha_inicio"
                         value="{{ request.args.get('fecha_inicio','') }}"
-                        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- Fecha Fin -->
@@ -136,8 +137,9 @@
                     <input type="date"
                         name="fecha_fin"
                         value="{{ request.args.get('fecha_fin','') }}"
-                        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500">
                 </div>
+
                 <!-- Botón Filtrar -->
                 <div class="flex items-end">
                     <button type="submit"
@@ -147,6 +149,7 @@
                          Filtrar
                     </button>
                 </div>
+
                 <!-- Limpiar -->
                 <div class="flex items-end">
                     <a href="{{ url_for('listar_ventas') }}"
@@ -163,8 +166,8 @@
     </form>
 
 
-    <!-- ================= TABLA PREMIUM ================= -->
-    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
+    <!-- ================= TABLA DESKTOP ================= -->
+    <div class="hidden xl:block bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
 
         <div class="overflow-x-auto">
 
@@ -190,7 +193,7 @@
                     {% for venta in ventas %}
                     <tr class="hover:bg-gray-50 transition">
 
-                         <!-- POSICIÓN -->
+                        <!-- POSICIÓN -->
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <span class="font-bold text-gray-800 text-lg">
@@ -233,6 +236,7 @@
                         <td class="px-6 py-4">
                             {{ venta.fecha_registro }}
                         </td>
+
                         <!-- MORA -->
                         <td class="px-6 py-4 text-center">
                             {% if venta.dias_mora > 0 %}
@@ -247,6 +251,7 @@
                                 </span>
                             {% endif %}
                         </td>
+
                         <td class="px-6 py-4 text-center">
                             <div class="flex items-center justify-center gap-3">
 
@@ -271,7 +276,6 @@
                                     <i class="bi bi-geo-alt-fill text-sm"></i>
                                 </button>
 
-
                             </div>
                         </td>
                     </tr>
@@ -285,25 +289,124 @@
 
     </div>
 
+    <!-- ================= CARDS MOBILE / TABLET ================= -->
+    <div class="xl:hidden space-y-4">
+        {% for venta in ventas %}
+        <div class="bg-white rounded-3xl shadow-lg border border-gray-200 p-4">
+
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="min-w-0">
+                    <div class="text-[11px] uppercase text-gray-500">Cliente</div>
+                    <div class="font-bold text-gray-800 text-base leading-tight break-words">
+                        {{ venta.cliente }}
+                    </div>
+                    <div class="text-sm text-gray-500 break-words mt-1">
+                        {{ venta.identificacion }}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="font-bold text-gray-800 text-lg">
+                        {{ venta.posicion }}
+                    </span>
+
+                    <button onclick="editarPosicion('{{ venta.credito_id }}',
+                                                     '{{ venta.cliente }}',
+                                                     '{{ venta.posicion }}')"
+                            class="text-blue-500 hover:text-blue-700 text-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-4">
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Código</span>
+                    <span class="font-semibold text-gray-800 text-right break-words">{{ venta.codigo }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Fecha</span>
+                    <span class="font-semibold text-gray-800 text-right break-words">{{ venta.fecha_registro }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Valor Venta</span>
+                    <span class="font-semibold text-blue-600 text-right break-words">$ {{ venta.valor_venta }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Total a Pagar</span>
+                    <span class="font-semibold text-gray-800 text-right break-words">$ {{ venta.valor_total }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Saldo</span>
+                    <span class="font-bold text-gray-900 text-right break-words">$ {{ venta.saldo }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-3">
+                    <span class="text-xs uppercase text-gray-500">Días de Mora</span>
+                    <div class="text-right">
+                        {% if venta.dias_mora > 0 %}
+                            <span class="inline-flex px-3 py-1 text-xs rounded-full bg-red-600 text-white font-semibold shadow-md">
+                                {{ venta.dias_mora }} días
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 text-xs rounded-full bg-green-600 text-white font-semibold shadow-md">
+                                0
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
+                <a href="{{ url_for('historial_creditos', cliente_id=venta.cliente_id) }}"
+                   class="w-10 h-10 flex items-center justify-center rounded-full
+                          bg-blue-50 text-blue-600
+                          hover:bg-blue-600 hover:text-white
+                          transition-all duration-200 shadow-sm"
+                   title="Ver Créditos">
+                    <i class="bi bi-eye-fill text-sm"></i>
+                </a>
+
+                <button type="button"
+                        onclick="verUbicacion('{{ venta.latitud }}','{{ venta.longitud }}')"
+                        class="w-10 h-10 flex items-center justify-center rounded-full
+                               bg-red-50 text-red-600
+                               hover:bg-red-600 hover:text-white
+                               transition-all duration-200 shadow-sm"
+                        title="Ver ubicación">
+                    <i class="bi bi-geo-alt-fill text-sm"></i>
+                </button>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
 
 
 <!-- ================= MODAL PRO ================= -->
 <div id="modalPosicion"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 px-3 sm:px-4">
 
-    <div class="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl relative">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-5 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
 
         <button onclick="cerrarModal()"
                 class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-xl">
             ✕
         </button>
 
-        <h2 class="text-xl font-bold mb-6 text-gray-800">
+        <h2 class="text-lg sm:text-xl font-bold mb-6 text-gray-800 pr-8">
             Editar Posición del Cliente
         </h2>
 
-<form method="POST" action="{{ url_for('actualizar_posicion_cliente') }}">
+        <form method="POST" action="{{ url_for('actualizar_posicion_cliente') }}">
             <input type="hidden" name="credito_id" id="credito_id">
 
             <div class="space-y-5">
@@ -314,7 +417,7 @@
                     </label>
                     <input type="text"
                            id="cliente_nombre"
-                           class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-100"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-100 text-sm sm:text-base"
                            readonly>
                 </div>
 
@@ -325,13 +428,13 @@
                     <input type="number"
                            name="posicion"
                            id="cliente_posicion"
-                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                            required>
                 </div>
 
                 <button type="submit"
                         class="w-full bg-gradient-to-r from-blue-600 to-blue-500
-                               hover:scale-105 text-white py-3 rounded-xl font-semibold transition-all">
+                               hover:scale-[1.01] sm:hover:scale-105 text-white py-3 rounded-xl font-semibold transition-all">
                     Guardar Cambios
                 </button>
 
@@ -355,8 +458,10 @@ function editarPosicion(id, nombre, posicion){
 
 function cerrarModal(){
     document.getElementById("modalPosicion").classList.add("hidden");
+    document.getElementById("modalPosicion").classList.remove("flex");
 }
 </script>
+
 <script>
 function verUbicacion(lat, lng){
 
