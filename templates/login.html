@@ -2,227 +2,432 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
     <style>
-    :root {
-        --primary: #111827; /* Negro elegante */
-        --primary-hover: #1F2937;
-        --bg-light: #F3F4F6;
-        --text-muted: #6B7280;
-        --border-light: #E5E7EB;
-    }
+        :root {
+            --primary: #0F172A;          /* Azul oscuro bancario */
+            --primary-hover: #1E293B;
+            --secondary: #1D4ED8;        /* Azul elegante */
+            --secondary-soft: #DBEAFE;
+            --bg-light: #F8FAFC;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-light: #E2E8F0;
+            --input-bg: #F8FAFC;
+            --success-soft: #ECFDF5;
+        }
 
-    body {
-        background: var(--bg-light);
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    .login-card {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
 
-    .form-control-custom {
-        border: 1px solid var(--border-light);
-        border-radius: 12px;
-        padding: 14px 16px;
-        transition: .2s ease;
-        background: #F9FAFB;
-    }
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(29, 78, 216, 0.10), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.08), transparent 35%),
+                linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
+            color: var(--text-main);
+        }
 
-    .form-control-custom:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
-        background: white;
-        outline: none;
-    }
+        .bank-shell {
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .btn-primary-custom {
-        background: var(--primary);
-        border-radius: 12px;
-        padding: 14px;
-        transition: .2s ease;
-        font-weight: 500;
-    }
+        .bank-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            opacity: 0.4;
+        }
 
-    .btn-primary-custom:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-    }
+        .left-panel {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(160deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.98) 45%, rgba(29,78,216,0.92) 100%);
+        }
 
-    .carousel-slide {
-        display: none;
-    }
+        .left-panel::before {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 999px;
+            top: -120px;
+            right: -120px;
+            background: rgba(255,255,255,0.06);
+            filter: blur(10px);
+        }
 
-    .carousel-slide.active {
-        display: block;
-    }
-</style>
+        .left-panel::after {
+            content: "";
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border-radius: 999px;
+            bottom: -100px;
+            left: -80px;
+            background: rgba(255,255,255,0.05);
+            filter: blur(8px);
+        }
 
+        .glass-line {
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-wrapper {
+            position: relative;
+        }
+
+        .login-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 28px;
+            box-shadow:
+                0 20px 60px rgba(15, 23, 42, 0.10),
+                0 8px 24px rgba(15, 23, 42, 0.05);
+            backdrop-filter: blur(12px);
+        }
+
+        .mini-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #EFF6FF;
+            color: #1E40AF;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #DBEAFE;
+        }
+
+        .form-label-custom {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 15px 16px;
+            transition: .22s ease;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        .form-control-custom::placeholder {
+            color: #94A3B8;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+            background: #ffffff;
+            outline: none;
+        }
+
+        .btn-primary-custom {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 15px 18px;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.2px;
+            transition: .25s ease;
+            box-shadow: 0 14px 30px rgba(29, 78, 216, 0.20);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 35px rgba(29, 78, 216, 0.24);
+            background: linear-gradient(135deg, var(--primary-hover) 0%, #1D4ED8 100%);
+        }
+
+        .carousel-slide {
+            display: none;
+            animation: fadeIn .45s ease;
+        }
+
+        .carousel-slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .security-box {
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+        }
+
+        .field-icon-btn {
+            position: absolute;
+            right: 14px;
+            top: 46px;
+            color: #64748B;
+            transition: .2s ease;
+        }
+
+        .field-icon-btn:hover {
+            color: #0F172A;
+        }
+
+        .divider-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #E2E8F0, transparent);
+        }
+
+        @media (max-width: 1023px) {
+            .bank-shell {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                min-height: 260px;
+                width: 100%;
+            }
+
+            .login-wrapper {
+                width: 100%;
+                padding: 20px 16px 28px;
+                margin-top: -34px;
+                z-index: 2;
+            }
+
+            .login-card {
+                border-radius: 24px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .left-panel {
+                min-height: 220px;
+                padding: 24px 18px;
+            }
+
+            .login-wrapper {
+                padding: 14px 12px 24px;
+                margin-top: -28px;
+            }
+
+            .login-card {
+                padding: 22px 18px !important;
+                border-radius: 22px;
+            }
+
+            .field-icon-btn {
+                top: 44px;
+            }
+        }
+    </style>
 </head>
 
-<body class="min-h-screen flex">
-
-<!-- LADO IZQUIERDO - CARRUSEL -->
-<div class="hidden lg:flex w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative items-center justify-center p-10">
-
-    <div class="w-full max-w-md text-center">
-
-        <!-- Slides -->
-        <div class="carousel-slide active">
-            <h2 class="text-3xl font-bold mb-4">Bienvenido al Sistema</h2>
-            <p class="opacity-90">
-                Gestiona clientes, cobradores y movimientos en tiempo real.
-            </p>
-        </div>
-
-        <div class="carousel-slide">
-            <h2 class="text-3xl font-bold mb-4">Control Total</h2>
-            <p class="opacity-90">
-                Visualiza reportes y controla toda la operación desde el panel.
-            </p>
-        </div>
-
-        <div class="carousel-slide">
-            <h2 class="text-3xl font-bold mb-4">Acceso Seguro</h2>
-            <p class="opacity-90">
-                Sistema protegido y disponible 24/7.
-            </p>
-        </div>
-
-        <!-- Indicadores -->
-        <div class="flex justify-center mt-8 space-x-2">
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-100"></span>
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-40"></span>
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-40"></span>
-        </div>
-
-    </div>
-</div>
+<body>
 
 
-<!-- LADO DERECHO - LOGIN -->
-<div class="flex w-full lg:w-1/2 items-center justify-center p-6">
+    <!-- LOGIN -->
+    <div class="login-wrapper flex w-full lg:w-1/2 items-center justify-center p-6 md:p-8 lg:p-10">
+        <div class="w-full max-w-md login-card p-8 sm:p-10">
 
-    <div class="w-full max-w-md login-card p-10">
+            <!-- Encabezado sin logo -->
+            <div class="mb-8">
+                <div class="mini-badge mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3zm6 0v2a6 6 0 11-12 0v-2m12 0a6 6 0 10-12 0m12 0V9a6 6 0 10-12 0v2" />
+                    </svg>
+                    Inicio de sesión protegido
+                </div>
 
-        <!-- Logo -->
-        <div class="flex justify-center mb-8">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                 style="height:70px;">
-        </div>
-
-        <h2 class="text-xl font-semibold text-center mb-8 text-gray-800">
-            Acceso al Sistema
-        </h2>
-
-        <form method="POST" class="space-y-6" autocomplete="on">
-
-            <div>
-                <label class="block text-sm mb-2" style="color: var(--text-muted);">
-                    Correo electrónico
-                </label>
-                <input type="email" name="email" required 
-                    class="w-full form-control-custom"
-                    autocomplete="username">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+                    Acceso al sistema
+                </h2>
+                <p class="text-sm sm:text-base text-slate-500 leading-6">
+                    Ingresa tus credenciales para continuar con tu operación.
+                </p>
             </div>
-            <div class="relative">
-                <label class="block text-sm mb-2" style="color: var(--text-muted);">
-                    Contraseña
-                </label>
 
-                <input 
-                    type="password" 
-                    name="password" 
-                    id="password"
-                    required
-                    class="w-full form-control-custom pr-12"
-                    autocomplete="current-password">
+            <div class="divider-line mb-7"></div>
 
-                <!-- Botón ojo -->
-                <button 
-                    type="button"
-                    onclick="togglePassword()"
-                    class="absolute right-3 top-[38px] text-gray-400 hover:text-white transition">
+            <form method="POST" class="space-y-6" autocomplete="on">
 
-                    <!-- Ojo cerrado -->
-                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
-                        class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
-                    </svg>
+                <div>
+                    <label class="form-label-custom">
+                        Correo electrónico
+                    </label>
+                    <input
+                        type="email"
+                        name="email"
+                        required
+                        class="form-control-custom"
+                        autocomplete="username"
+                        placeholder="usuario@correo.com">
+                </div>
 
-                    <!-- Ojo abierto -->
-                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" 
-                        class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.938 0C21.729 14.943 17.74 18 12 18c-5.74 0-9.729-3.057-10.938-6C2.271 9.057 6.26 6 12 6c5.74 0 9.729 3.057 10.938 6z" />
-                    </svg>
+                <div class="relative">
+                    <label class="form-label-custom">
+                        Contraseña
+                    </label>
 
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        required
+                        class="form-control-custom pr-12"
+                        autocomplete="current-password"
+                        placeholder="Ingresa tu contraseña">
+
+                    <button
+                        type="button"
+                        onclick="togglePassword()"
+                        class="field-icon-btn"
+                        aria-label="Mostrar u ocultar contraseña">
+
+                        <!-- Ojo cerrado -->
+                        <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
+                        </svg>
+
+                        <!-- Ojo abierto -->
+                        <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.938 0C21.729 14.943 17.74 18 12 18c-5.74 0-9.729-3.057-10.938-6C2.271 9.057 6.26 6 12 6c5.74 0 9.729 3.057 10.938 6z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 text-sm">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+                        <input type="checkbox" name="recordar" class="rounded border-gray-300">
+                        <span>Guardar sesión</span>
+                    </label>
+
+                    <a href="{{ url_for('forgot_password') }}"
+                       class="text-sm font-medium text-slate-500 hover:text-slate-900 transition">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-primary-custom">
+                    Ingresar
                 </button>
+            </form>
+
+            {% if error %}
+            <div id="errorToast"
+                 class="fixed top-6 right-6 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg
+                        text-sm font-medium opacity-0 translate-y-2 transition-all duration-500 z-50">
+                {{ error }}
             </div>
-            <!-- Guardar sesión -->
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="recordar" class="rounded border-gray-300">
-                    <span class="text-gray-600">Guardar sesión</span>
-                </label>
+            {% endif %}
+
+            <div class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 8c-1.657 0-3 1.343-3 3v1h6v-1c0-1.657-1.343-3-3-3zm-6 4v5a2 2 0 002 2h8a2 2 0 002-2v-5m-12 0a2 2 0 012-2h8a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 mb-1">Conexión protegida</p>
+                        <p class="text-xs sm:text-sm text-slate-500 leading-6">
+                            Tus credenciales se procesan en un entorno seguro diseñado para una experiencia confiable.
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <button type="submit"
-                class="w-full text-white btn-primary-custom">
-                Ingresar
-            </button>
-
-            <div class="text-right">
-                <a href="{{ url_for('forgot_password') }}" 
-                class="text-sm text-gray-500 hover:text-gray-800">
-                    ¿Olvidaste tu contraseña?
-                </a>
+            <div class="mt-8 text-center text-xs text-slate-500">
+                © 2026. Todos los derechos reservados.
             </div>
-
-
-        </form>
-
-        {% if error %}
-        <div id="errorToast" 
-            class="fixed top-6 right-6 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg 
-                    text-sm font-medium opacity-0 translate-y-2 transition-all duration-500">
-            {{ error }}
         </div>
-        {% endif %}
-
-        <div class="mt-10 text-center text-xs" style="color: var(--text-muted);">
-            © 2026 ML. Todos los derechos reservados.
-        </div>
-
     </div>
-
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
     // ==== CARRUSEL ====
-    const slides = document.querySelectorAll(".carousel-slide");
-    const dots = document.querySelectorAll(".dot");
+    const slideGroups = [
+        document.querySelectorAll(".left-panel.hidden.lg\\:flex .carousel-slide"),
+        document.querySelectorAll(".left-panel.lg\\:hidden .carousel-slide")
+    ];
+
+    const dotGroups = [
+        document.querySelectorAll(".left-panel.hidden.lg\\:flex .dot"),
+        document.querySelectorAll(".left-panel.lg\\:hidden .dot")
+    ];
+
     let index = 0;
 
     function showSlide(i) {
-        slides.forEach(slide => slide.classList.remove("active"));
-        dots.forEach(dot => dot.classList.replace("opacity-100","opacity-40"));
-        
-        slides[i].classList.add("active");
-        dots[i].classList.replace("opacity-40","opacity-100");
+        slideGroups.forEach((slides, groupIndex) => {
+            const dots = dotGroups[groupIndex];
+
+            slides.forEach(slide => slide.classList.remove("active"));
+
+            dots.forEach(dot => {
+                dot.classList.remove("opacity-100");
+                dot.classList.add("opacity-40");
+            });
+
+            if (slides[i]) slides[i].classList.add("active");
+            if (dots[i]) {
+                dots[i].classList.remove("opacity-40");
+                dots[i].classList.add("opacity-100");
+            }
+        });
     }
 
     setInterval(() => {
-        index = (index + 1) % slides.length;
+        index = (index + 1) % 3;
         showSlide(index);
     }, 4000);
-
 
     // ==== TOAST ERROR ====
     const toast = document.getElementById("errorToast");
@@ -233,13 +438,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }, 100);
 
         setTimeout(() => {
-            toast.classList.remove("opacity-100");
+            toast.classList.remove("opacity-100", "translate-y-0");
             toast.classList.add("opacity-0", "translate-y-2");
         }, 3000);
     }
 
 });
 </script>
+
 <script>
 function togglePassword() {
     const passwordInput = document.getElementById("password");

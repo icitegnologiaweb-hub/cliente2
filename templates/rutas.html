@@ -1,266 +1,354 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-10 bg-[#f4f7fb] min-h-screen">
+<div class="px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 bg-[#f4f7fb] min-h-screen">
 
-<!-- ================= HEADER ================= -->
-<div class="flex justify-between items-center mb-10">
+    <!-- ================= HEADER ================= -->
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-5 mb-8 sm:mb-10">
 
-    <div>
-        <h1 class="text-3xl font-bold text-[#1e293b]">
-            Gestión de Rutas
-        </h1>
-        <p class="text-sm text-gray-500 mt-2">
-            Configuración de rutas, cupos y asignación de cobradores
-        </p>
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1e293b] leading-tight">
+                Gestión de Rutas
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 mt-2">
+                Configuración de rutas, cupos y asignación de cobradores
+            </p>
+        </div>
+
+        <button onclick="abrirModalRuta()"
+            class="bg-[#424750] hover:bg-[#092f47]
+                   text-white px-6 py-3 rounded-lg shadow-lg transition w-full sm:w-auto">
+            + Nueva Ruta
+        </button>
+
     </div>
 
-    <button onclick="abrirModalRuta()" 
-        class="bg-[#424750] hover:bg-[#092f47]
-               text-white px-6 py-3 rounded-lg shadow-lg transition">
-        + Nueva Ruta
-    </button>
+    <!-- ================= TABLA DESKTOP ================= -->
+    <div class="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+
+                <thead class="bg-[#424750] text-white uppercase text-xs tracking-wider">
+                    <tr>
+                        <th class="px-6 py-5 text-left">Posición</th>
+                        <th class="px-6 py-5 text-left">Código</th>
+                        <th class="px-6 py-5 text-left">Nombre</th>
+                        <th class="px-6 py-5 text-left">Tasa</th>
+                        <th class="px-6 py-5 text-left">Venta Máxima</th>
+                        <th class="px-6 py-5 text-left">Estado</th>
+                        <th class="px-6 py-5 text-left">Cobrador Asignado</th>
+                        <th class="px-6 py-5 text-center">Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for ruta in rutas %}
+                    <tr class="hover:bg-gray-50 transition">
+
+                        <td class="px-6 py-4">{{ ruta.posicion }}</td>
+
+                        <td class="px-6 py-4 font-semibold text-[#0B3C5D]">
+                            {{ ruta.codigo }}
+                        </td>
+
+                        <td class="px-6 py-4 font-medium">
+                            {{ ruta.nombre }}
+                        </td>
+
+                        <td class="px-6 py-4">{{ ruta.tasa }}%</td>
+
+                        <td class="px-6 py-4 font-semibold text-green-600 whitespace-nowrap">
+                            $ {{ "{:,.0f}".format(ruta.venta_maxima) }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if ruta.estado %}
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                    Activa
+                                </span>
+                            {% else %}
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                                    Inactiva
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if ruta.usuarios %}
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    {{ ruta.usuarios.nombres }} {{ ruta.usuarios.apellidos }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-400 text-xs">
+                                    Sin asignar
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <button onclick="abrirModalEditar({{ ruta.id }}, {{ ruta.venta_maxima }})"
+                                    class="bg-yellow-500 hover:bg-yellow-600
+                                           text-white px-3 py-2 rounded-lg text-xs shadow">
+                                    Editar Venta
+                                </button>
+
+                                <button onclick="abrirModalAsignar({{ ruta.id }})"
+                                    class="bg-[#0B3C5D] hover:bg-[#092f47]
+                                           text-white px-3 py-2 rounded-lg text-xs shadow">
+                                    Asignar
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= CARDS MOBILE ================= -->
+    <div class="lg:hidden space-y-4">
+        {% for ruta in rutas %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5">
+
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="min-w-0">
+                    <p class="text-xs uppercase tracking-wider text-gray-400 mb-1">Ruta</p>
+                    <h2 class="text-lg font-bold text-[#1e293b] break-words">
+                        {{ ruta.nombre }}
+                    </h2>
+                    <p class="text-sm text-[#0B3C5D] font-semibold mt-1">
+                        Código: {{ ruta.codigo }}
+                    </p>
+                </div>
+
+                <div class="shrink-0">
+                    {% if ruta.estado %}
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                            Activa
+                        </span>
+                    {% else %}
+                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                            Inactiva
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-sm">
+
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Posición</p>
+                    <p class="font-semibold text-[#1e293b]">{{ ruta.posicion }}</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Tasa</p>
+                    <p class="font-semibold text-[#1e293b]">{{ ruta.tasa }}%</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Venta Máxima</p>
+                    <p class="font-semibold text-green-600">$ {{ "{:,.0f}".format(ruta.venta_maxima) }}</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Cobrador</p>
+                    {% if ruta.usuarios %}
+                        <p class="font-semibold text-[#1e293b] break-words">
+                            {{ ruta.usuarios.nombres }} {{ ruta.usuarios.apellidos }}
+                        </p>
+                    {% else %}
+                        <p class="text-gray-400">Sin asignar</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="abrirModalEditar({{ ruta.id }}, {{ ruta.venta_maxima }})"
+                    class="bg-yellow-500 hover:bg-yellow-600
+                           text-white px-4 py-3 rounded-lg text-sm shadow w-full">
+                    Editar Venta
+                </button>
+
+                <button onclick="abrirModalAsignar({{ ruta.id }})"
+                    class="bg-[#0B3C5D] hover:bg-[#092f47]
+                           text-white px-4 py-3 rounded-lg text-sm shadow w-full">
+                    Asignar
+                </button>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
 
 </div>
 
-<!-- ================= TABLA ================= -->
-<div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-
-<table class="min-w-full text-sm">
-
-<thead class="bg-[#424750] text-white uppercase text-xs tracking-wider">
-<tr>
-    <th class="px-6 py-5">Posición</th>
-    <th class="px-6 py-5">Código</th>
-    <th class="px-6 py-5">Nombre</th>
-    <th class="px-6 py-5">Tasa</th>
-    <th class="px-6 py-5">Venta Máxima</th>
-    <th class="px-6 py-5">Estado</th>
-    <th class="px-6 py-5">Cobrador Asignado</th>
-    <th class="px-6 py-5 text-center">Acción</th>
-</tr>
-</thead>
-
-<tbody class="divide-y divide-gray-200 bg-white">
-
-{% for ruta in rutas %}
-<tr class="hover:bg-gray-50 transition">
-
-<td class="px-6 py-4">{{ ruta.posicion }}</td>
-<td class="px-6 py-4 font-semibold text-[#0B3C5D]">{{ ruta.codigo }}</td>
-<td class="px-6 py-4 font-medium">{{ ruta.nombre }}</td>
-<td class="px-6 py-4">{{ ruta.tasa }}%</td>
-
-<td class="px-6 py-4 font-semibold text-green-600">
-    $ {{ "{:,.0f}".format(ruta.venta_maxima) }}
-</td>
-
-<td class="px-6 py-4">
-    {% if ruta.estado %}
-        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-            Activa
-        </span>
-    {% else %}
-        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
-            Inactiva
-        </span>
-    {% endif %}
-</td>
-
-<td class="px-6 py-4">
-    {% if ruta.usuarios %}
-        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-            {{ ruta.usuarios.nombres }} {{ ruta.usuarios.apellidos }}
-        </span>
-    {% else %}
-        <span class="text-gray-400 text-xs">
-            Sin asignar
-        </span>
-    {% endif %}
-</td>
-
-<td class="px-6 py-4 text-center space-x-2">
-
-    <button onclick="abrirModalEditar({{ ruta.id }}, {{ ruta.venta_maxima }})"
-        class="bg-yellow-500 hover:bg-yellow-600
-               text-white px-3 py-2 rounded-lg text-xs shadow">
-        Editar Venta
-    </button>
-
-    <button onclick="abrirModalAsignar({{ ruta.id }})"
-        class="bg-[#0B3C5D] hover:bg-[#092f47]
-               text-white px-3 py-2 rounded-lg text-xs shadow">
-        Asignar
-    </button>
-
-</td>
-
-</tr>
-{% endfor %}
-
-</tbody>
-</table>
-</div>
-
-</div>
 <!-- ================= MODAL EDITAR VENTA MAXIMA ================= -->
 <div id="modalEditarVenta"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 px-3 sm:px-4 py-3 sm:py-4">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 relative max-h-[90vh] overflow-y-auto">
 
-<button onclick="cerrarModalEditar()"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
-    ✕
-</button>
-
-<h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Editar Venta Máxima
-</h2>
-
-<form method="POST" action="{{ url_for('editar_venta_maxima') }}">
-
-    <input type="hidden" name="ruta_id" id="ruta_id_editar">
-
-    <div class="mb-5">
-        <label class="text-sm text-gray-600">Nueva Venta Máxima</label>
-        <input type="number"
-               name="venta_maxima"
-               id="venta_maxima_editar"
-               required
-               class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500">
-    </div>
-
-    <div class="flex justify-end gap-3">
-        <button type="button"
-                onclick="cerrarModalEditar()"
-                class="px-4 py-2 bg-gray-200 rounded-lg">
-            Cancelar
+        <button onclick="cerrarModalEditar()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+            ✕
         </button>
 
-        <button type="submit"
-                class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-            Guardar
-        </button>
+        <h2 class="text-xl font-bold text-[#1e293b] mb-6">
+            Editar Venta Máxima
+        </h2>
+
+        <form method="POST" action="{{ url_for('editar_venta_maxima') }}">
+
+            <input type="hidden" name="ruta_id" id="ruta_id_editar">
+
+            <div class="mb-5">
+                <label class="text-sm text-gray-600 block mb-2">Nueva Venta Máxima</label>
+                <input type="number"
+                       name="venta_maxima"
+                       id="venta_maxima_editar"
+                       required
+                       class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-500">
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                <button type="button"
+                        onclick="cerrarModalEditar()"
+                        class="px-4 py-3 sm:py-2 bg-gray-200 rounded-lg w-full sm:w-auto">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="px-6 py-3 sm:py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 w-full sm:w-auto">
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+
     </div>
-
-</form>
-
 </div>
-</div>
+
 <!-- ================= MODAL ASIGNAR COBRADOR ================= -->
 <div id="modalAsignar"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 px-3 sm:px-4 py-3 sm:py-4">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 relative max-h-[90vh] overflow-y-auto">
 
-<button onclick="cerrarModalAsignar()"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
-    ✕
-</button>
+        <button onclick="cerrarModalAsignar()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+            ✕
+        </button>
 
-<h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Asignar Cobrador a Ruta
-</h2>
+        <h2 class="text-xl font-bold text-[#1e293b] mb-6">
+            Asignar Cobrador a Ruta
+        </h2>
 
-<form method="POST" action="{{ url_for('asignar_cobrador_ruta') }}">
+        <form method="POST" action="{{ url_for('asignar_cobrador_ruta') }}">
 
-<input type="hidden" name="ruta_id" id="ruta_id_asignar">
+            <input type="hidden" name="ruta_id" id="ruta_id_asignar">
 
-<div class="mb-5">
-<label class="text-sm text-gray-600">Seleccionar Cobrador</label>
+            <div class="mb-5">
+                <label class="text-sm text-gray-600 block mb-2">Seleccionar Cobrador</label>
 
-<select name="usuario_id" required
-class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0B3C5D]">
+                <select name="usuario_id" required
+                    class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#0B3C5D]">
 
-<option value="">Seleccione cobrador</option>
+                    <option value="">Seleccione cobrador</option>
 
-{% for usuario in usuarios %}
-    {% if usuario.rol == "Cobrador" %}
-        <option value="{{ usuario.id }}">
-            {{ usuario.nombres }} {{ usuario.apellidos }}
-        </option>
-    {% endif %}
-{% endfor %}
+                    {% for usuario in usuarios %}
+                        {% if usuario.rol == "Cobrador" %}
+                            <option value="{{ usuario.id }}">
+                                {{ usuario.nombres }} {{ usuario.apellidos }}
+                            </option>
+                        {% endif %}
+                    {% endfor %}
 
-</select>
+                </select>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                <button type="button"
+                        onclick="cerrarModalAsignar()"
+                        class="px-4 py-3 sm:py-2 bg-gray-200 rounded-lg w-full sm:w-auto">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="px-6 py-3 sm:py-2 bg-[#0B3C5D] text-white rounded-lg hover:bg-[#092f47] w-full sm:w-auto">
+                    Asignar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
 </div>
 
-<div class="flex justify-end gap-3">
-<button type="button"
-        onclick="cerrarModalAsignar()"
-        class="px-4 py-2 bg-gray-200 rounded-lg">
-Cancelar
-</button>
-
-<button type="submit"
-        class="px-6 py-2 bg-[#0B3C5D] text-white rounded-lg hover:bg-[#092f47]">
-Asignar
-</button>
-</div>
-
-</form>
-
-</div>
-</div>
 <!-- ================= MODAL NUEVA RUTA ================= -->
 <div id="modalNuevaRuta"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 px-3 sm:px-4 py-3 sm:py-4">
 
-<div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-8 relative">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 relative max-h-[90vh] overflow-y-auto">
 
-<button onclick="cerrarModalRuta()"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
-    ✕
-</button>
-
-<h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Crear Nueva Ruta
-</h2>
-
-<form method="POST" action="{{ url_for('crear_ruta') }}" class="space-y-4">
-    <input type="number" name="posicion" placeholder="Posición"
-       required
-       class="w-full border rounded-lg px-4 py-2">
-
-    <input type="text" name="codigo" placeholder="Código"
-           required
-           class="w-full border rounded-lg px-4 py-2">
-
-    <input type="text" name="nombre" placeholder="Nombre de la Ruta"
-           required
-           class="w-full border rounded-lg px-4 py-2">
-
-    <input type="number" name="tasa" placeholder="Tasa (%)"
-           required
-           class="w-full border rounded-lg px-4 py-2">
-
-    <input type="number" name="venta_maxima" placeholder="Venta Máxima"
-           required
-           class="w-full border rounded-lg px-4 py-2">
-
-    <div class="flex items-center gap-3">
-        <input type="checkbox" name="estado" checked>
-        <label class="text-sm text-gray-600">Ruta Activa</label>
-    </div>
-
-    <div class="flex justify-end gap-3">
-        <button type="button"
-                onclick="cerrarModalRuta()"
-                class="px-4 py-2 bg-gray-200 rounded-lg">
-            Cancelar
+        <button onclick="cerrarModalRuta()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
+            ✕
         </button>
 
-        <button type="submit"
-                class="px-6 py-2 bg-[#0B3C5D] text-white rounded-lg hover:bg-[#092f47]">
-            Crear Ruta
-        </button>
+        <h2 class="text-xl font-bold text-[#1e293b] mb-6">
+            Crear Nueva Ruta
+        </h2>
+
+        <form method="POST" action="{{ url_for('crear_ruta') }}" class="space-y-4">
+            <input type="number" name="posicion" placeholder="Posición"
+               required
+               class="w-full border rounded-lg px-4 py-3">
+
+            <input type="text" name="codigo" placeholder="Código"
+                   required
+                   class="w-full border rounded-lg px-4 py-3">
+
+            <input type="text" name="nombre" placeholder="Nombre de la Ruta"
+                   required
+                   class="w-full border rounded-lg px-4 py-3">
+
+            <input type="number" name="tasa" placeholder="Tasa (%)"
+                   required
+                   class="w-full border rounded-lg px-4 py-3">
+
+            <input type="number" name="venta_maxima" placeholder="Venta Máxima"
+                   required
+                   class="w-full border rounded-lg px-4 py-3">
+
+            <div class="flex items-center gap-3">
+                <input type="checkbox" name="estado" checked>
+                <label class="text-sm text-gray-600">Ruta Activa</label>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                <button type="button"
+                        onclick="cerrarModalRuta()"
+                        class="px-4 py-3 sm:py-2 bg-gray-200 rounded-lg w-full sm:w-auto">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="px-6 py-3 sm:py-2 bg-[#0B3C5D] text-white rounded-lg hover:bg-[#092f47] w-full sm:w-auto">
+                    Crear Ruta
+                </button>
+            </div>
+
+        </form>
+
     </div>
-
-</form>
-
 </div>
-</div>
+
 <script>
 function abrirModalEditar(rutaId, ventaMaxima) {
     document.getElementById("ruta_id_editar").value = rutaId;
@@ -271,8 +359,10 @@ function abrirModalEditar(rutaId, ventaMaxima) {
 
 function cerrarModalEditar() {
     document.getElementById("modalEditarVenta").classList.add("hidden");
+    document.getElementById("modalEditarVenta").classList.remove("flex");
 }
 </script>
+
 <script>
 function abrirModalAsignar(rutaId) {
     document.getElementById("ruta_id_asignar").value = rutaId;
@@ -282,8 +372,10 @@ function abrirModalAsignar(rutaId) {
 
 function cerrarModalAsignar() {
     document.getElementById("modalAsignar").classList.add("hidden");
+    document.getElementById("modalAsignar").classList.remove("flex");
 }
 </script>
+
 <script>
 function abrirModalRuta() {
     document.getElementById("modalNuevaRuta").classList.remove("hidden");
@@ -292,6 +384,7 @@ function abrirModalRuta() {
 
 function cerrarModalRuta() {
     document.getElementById("modalNuevaRuta").classList.add("hidden");
+    document.getElementById("modalNuevaRuta").classList.remove("flex");
 }
 </script>
 

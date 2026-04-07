@@ -1,246 +1,365 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-10 bg-[#f4f7fb] min-h-screen">
+<div class="px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 bg-[#f4f7fb] min-h-screen">
 
-<!-- ================= TOAST ALERTS ================= -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-<div class="fixed top-6 right-6 z-50 space-y-4">
-    {% for category, message in messages %}
-    <div class="toast-alert px-6 py-4 rounded-xl shadow-2xl border text-sm font-medium
-        {% if category == 'danger' %}
-            bg-red-50 text-red-700 border-red-200
-        {% elif category == 'success' %}
-            bg-green-50 text-green-700 border-green-200
-        {% else %}
-            bg-blue-50 text-blue-700 border-blue-200
-        {% endif %}
-        transform transition-all duration-300 opacity-0 translate-x-10">
+    <!-- ================= TOAST ALERTS ================= -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="fixed top-4 left-4 right-4 sm:top-6 sm:right-6 sm:left-auto z-50 space-y-3 sm:space-y-4 max-w-md sm:w-full">
+        {% for category, message in messages %}
+        <div class="toast-alert px-4 sm:px-6 py-4 rounded-xl shadow-2xl border text-sm font-medium
+            {% if category == 'danger' %}
+                bg-red-50 text-red-700 border-red-200
+            {% elif category == 'success' %}
+                bg-green-50 text-green-700 border-green-200
+            {% else %}
+                bg-blue-50 text-blue-700 border-blue-200
+            {% endif %}
+            transform transition-all duration-300 opacity-0 translate-x-10">
 
-        <div class="flex justify-between items-start gap-4">
-            <div>{{ message }}</div>
-            <button onclick="cerrarToast(this)"
-                class="text-gray-400 hover:text-gray-600 text-lg leading-none">
-                ×
-            </button>
+            <div class="flex justify-between items-start gap-4">
+                <div class="leading-6">{{ message }}</div>
+                <button onclick="cerrarToast(this)"
+                    class="text-gray-400 hover:text-gray-600 text-lg leading-none shrink-0">
+                    ×
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ================= HEADER ================= -->
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-5 mb-8 sm:mb-10">
+
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1e293b] leading-tight">
+                Gestión de Usuarios
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 mt-2">
+                Administración y control de accesos del sistema
+            </p>
+        </div>
+
+        <button type="button"
+            onclick="abrirModal()"
+            class="bg-[#424750] hover:bg-[#092f47] text-white px-6 py-3 rounded-lg shadow-lg transition w-full sm:w-auto">
+            + Nuevo Usuario
+        </button>
+
+    </div>
+
+    <!-- ================= TABLA DESKTOP / TABLET ================= -->
+    <div class="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-[#424750] text-white uppercase text-xs tracking-wider">
+                    <tr>
+                        <th class="px-6 py-5 text-left">Documento</th>
+                        <th class="px-6 py-5 text-left">Nombres</th>
+                        <th class="px-6 py-5 text-left">Apellidos</th>
+                        <th class="px-6 py-5 text-left">Email</th>
+                        <th class="px-6 py-5 text-left">Rol</th>
+                        <th class="px-6 py-5 text-left">Estado</th>
+                        <th class="px-6 py-5 text-left">Fecha Registro</th>
+                        <th class="px-6 py-5 text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for usuario in usuarios %}
+                    <tr class="hover:bg-gray-50 transition">
+
+                        <td class="px-6 py-4 font-semibold text-[#1e293b]">
+                            {{ usuario["documento"] }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ usuario["nombres"] }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ usuario["apellidos"] }}
+                        </td>
+
+                        <td class="px-6 py-4 text-gray-600 break-all">
+                            {{ usuario["email"] }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                {% if usuario['rol'] == 'Administrador' %}
+                                    bg-blue-100 text-blue-700
+                                {% elif usuario['rol'] == 'Supervisor' %}
+                                    bg-purple-100 text-purple-700
+                                {% else %}
+                                    bg-gray-100 text-gray-700
+                                {% endif %}
+                            ">
+                                {{ usuario["rol"] }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <form method="POST" action="{{ url_for('toggle_usuario', user_id=usuario['id']) }}">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox"
+                                           onchange="this.form.submit()"
+                                           class="sr-only peer"
+                                           {% if usuario["estado"] %}checked{% endif %}>
+                                    <div class="w-11 h-6 bg-gray-300 rounded-full peer
+                                        peer-checked:bg-[#0B3C5D]
+                                        after:content-['']
+                                        after:absolute after:top-[2px] after:left-[2px]
+                                        after:bg-white after:rounded-full
+                                        after:h-5 after:w-5 after:transition-all
+                                        peer-checked:after:translate-x-full relative">
+                                    </div>
+                                </label>
+                            </form>
+                        </td>
+
+                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">
+                            {% if usuario["fecha_registro"] %}
+                            {{ usuario["fecha_registro"][:10] }} {{ usuario["fecha_registro"][11:16] }}
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-3 flex-wrap">
+
+                                <button type="button"
+                                    onclick="abrirEditarUsuario(this)"
+                                    data-usuario='{{ usuario | tojson }}'
+                                    class="w-9 h-9 flex items-center justify-center rounded-full
+                                           bg-orange-50 text-orange-600
+                                           hover:bg-orange-600 hover:text-white
+                                           hover:scale-110
+                                           transition-all duration-200 shadow-sm"
+                                    title="Editar usuario">
+                                    <i class="bi bi-pencil-fill text-sm"></i>
+                                </button>
+
+                                <button type="button"
+                                        onclick="verDatosUsuario({{ usuario['id'] }})"
+                                        class="w-9 h-9 flex items-center justify-center rounded-full
+                                               bg-blue-50 text-blue-600
+                                               hover:bg-blue-600 hover:text-white
+                                               hover:scale-110
+                                               transition-all duration-200 shadow-sm"
+                                        title="Ver información">
+                                    <i class="bi bi-eye-fill text-sm"></i>
+                                </button>
+
+                                <button type="button"
+                                        onclick="abrirToken({{ usuario['id'] }})"
+                                        class="w-9 h-9 flex items-center justify-center rounded-full
+                                               bg-green-50 text-green-600
+                                               hover:bg-green-600 hover:text-white
+                                               hover:scale-110
+                                               transition-all duration-200 shadow-sm"
+                                        title="Generar token">
+                                    <i class="bi bi-shield-lock-fill text-sm"></i>
+                                </button>
+
+                                {% if usuario['rol'] in ['Supervisor', 'Administrador'] %}
+                                <button
+                                    onclick="abrirAsignarRutas({{ usuario['id'] }})"
+                                    class="w-9 h-9 flex items-center justify-center rounded-full
+                                           bg-purple-50 text-purple-600
+                                           hover:bg-purple-600 hover:text-white
+                                           transition-all shadow-sm"
+                                    title="Asignar rutas">
+                                    <i class="bi bi-diagram-3-fill"></i>
+                                </button>
+                                {% endif %}
+
+                                <button type="button"
+                                        onclick="abrirEliminarUsuario({{ usuario['id'] }}, '{{ usuario['nombres'] }} {{ usuario['apellidos'] }}')"
+                                        class="w-9 h-9 flex items-center justify-center rounded-full
+                                               bg-red-50 text-red-600
+                                               hover:bg-red-600 hover:text-white
+                                               hover:scale-110
+                                               transition-all duration-200 shadow-sm"
+                                        title="Eliminar usuario">
+                                    <i class="bi bi-trash-fill text-sm"></i>
+                                </button>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
 
-<!-- ================= HEADER ================= -->
-<div class="flex justify-between items-center mb-10">
+    <!-- ================= CARDS MOBILE ================= -->
+    <div class="lg:hidden space-y-4">
+        {% for usuario in usuarios %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5">
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="min-w-0">
+                    <h2 class="text-base sm:text-lg font-bold text-[#1e293b] break-words">
+                        {{ usuario["nombres"] }} {{ usuario["apellidos"] }}
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1 break-all">
+                        {{ usuario["email"] }}
+                    </p>
+                </div>
 
-    <div>
-        <h1 class="text-3xl font-bold text-[#1e293b]">
-            Gestión de Usuarios
-        </h1>
-        <p class="text-sm text-gray-500 mt-2">
-            Administración y control de accesos del sistema
-        </p>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                    {% if usuario['rol'] == 'Administrador' %}
+                        bg-blue-100 text-blue-700
+                    {% elif usuario['rol'] == 'Supervisor' %}
+                        bg-purple-100 text-purple-700
+                    {% else %}
+                        bg-gray-100 text-gray-700
+                    {% endif %}
+                ">
+                    {{ usuario["rol"] }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Documento</p>
+                    <p class="font-semibold text-[#1e293b] break-words">{{ usuario["documento"] }}</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-3">
+                    <p class="text-xs text-gray-500 mb-1">Fecha Registro</p>
+                    <p class="font-semibold text-[#1e293b]">
+                        {% if usuario["fecha_registro"] %}
+                        {{ usuario["fecha_registro"][:10] }} {{ usuario["fecha_registro"][11:16] }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <div>
+                    <p class="text-xs text-gray-500 mb-1">Estado</p>
+                    <form method="POST" action="{{ url_for('toggle_usuario', user_id=usuario['id']) }}">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox"
+                                   onchange="this.form.submit()"
+                                   class="sr-only peer"
+                                   {% if usuario["estado"] %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-300 rounded-full peer
+                                peer-checked:bg-[#0B3C5D]
+                                after:content-['']
+                                after:absolute after:top-[2px] after:left-[2px]
+                                after:bg-white after:rounded-full
+                                after:h-5 after:w-5 after:transition-all
+                                peer-checked:after:translate-x-full relative">
+                            </div>
+                        </label>
+                    </form>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                <button type="button"
+                    onclick="abrirEditarUsuario(this)"
+                    data-usuario='{{ usuario | tojson }}'
+                    class="h-10 flex items-center justify-center rounded-xl
+                           bg-orange-50 text-orange-600
+                           hover:bg-orange-600 hover:text-white
+                           transition-all duration-200 shadow-sm"
+                    title="Editar usuario">
+                    <i class="bi bi-pencil-fill text-sm"></i>
+                </button>
+
+                <button type="button"
+                        onclick="verDatosUsuario({{ usuario['id'] }})"
+                        class="h-10 flex items-center justify-center rounded-xl
+                               bg-blue-50 text-blue-600
+                               hover:bg-blue-600 hover:text-white
+                               transition-all duration-200 shadow-sm"
+                        title="Ver información">
+                    <i class="bi bi-eye-fill text-sm"></i>
+                </button>
+
+                <button type="button"
+                        onclick="abrirToken({{ usuario['id'] }})"
+                        class="h-10 flex items-center justify-center rounded-xl
+                               bg-green-50 text-green-600
+                               hover:bg-green-600 hover:text-white
+                               transition-all duration-200 shadow-sm"
+                        title="Generar token">
+                    <i class="bi bi-shield-lock-fill text-sm"></i>
+                </button>
+
+                {% if usuario['rol'] in ['Supervisor', 'Administrador'] %}
+                <button
+                    onclick="abrirAsignarRutas({{ usuario['id'] }})"
+                    class="h-10 flex items-center justify-center rounded-xl
+                           bg-purple-50 text-purple-600
+                           hover:bg-purple-600 hover:text-white
+                           transition-all shadow-sm"
+                    title="Asignar rutas">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </button>
+                {% endif %}
+
+                <button type="button"
+                        onclick="abrirEliminarUsuario({{ usuario['id'] }}, '{{ usuario['nombres'] }} {{ usuario['apellidos'] }}')"
+                        class="h-10 flex items-center justify-center rounded-xl
+                               bg-red-50 text-red-600
+                               hover:bg-red-600 hover:text-white
+                               transition-all duration-200 shadow-sm"
+                        title="Eliminar usuario">
+                    <i class="bi bi-trash-fill text-sm"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 
-    <button type="button"
-        onclick="abrirModal()"
-        class="bg-[#424750] hover:bg-[#092f47]
-               text-white px-6 py-3 rounded-lg shadow-lg transition">
-        + Nuevo Usuario
-    </button>
-
 </div>
 
-<!-- ================= TABLA ================= -->
-<div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-
-<table class="min-w-full text-sm">
-
-<thead class="bg-[#424750] text-white uppercase text-xs tracking-wider">
-<tr>
-    <th class="px-6 py-5">Documento</th>
-    <th class="px-6 py-5">Nombres</th>
-    <th class="px-6 py-5">Apellidos</th>
-    <th class="px-6 py-5">Email</th>
-    <th class="px-6 py-5">Rol</th>
-    <th class="px-6 py-5">Estado</th>
-    <th class="px-6 py-5">Fecha Registro</th>
-    <th class="px-6 py-5 text-center">Acciones</th>
-</tr>
-</thead>
-
-<tbody class="divide-y divide-gray-200 bg-white">
-
-{% for usuario in usuarios %}
-<tr class="hover:bg-gray-50 transition">
-
-<td class="px-6 py-4 font-semibold text-[#1e293b]">
-    {{ usuario["documento"] }}
-</td>
-
-<td class="px-6 py-4">
-    {{ usuario["nombres"] }}
-</td>
-
-<td class="px-6 py-4">
-    {{ usuario["apellidos"] }}
-</td>
-
-<td class="px-6 py-4 text-gray-600">
-    {{ usuario["email"] }}
-</td>
-
-<td class="px-6 py-4">
-    <span class="px-3 py-1 rounded-full text-xs font-semibold
-        {% if usuario['rol'] == 'Administrador' %}
-            bg-blue-100 text-blue-700
-        {% elif usuario['rol'] == 'Supervisor' %}
-            bg-purple-100 text-purple-700
-        {% else %}
-            bg-gray-100 text-gray-700
-        {% endif %}
-    ">
-        {{ usuario["rol"] }}
-    </span>
-</td>
-
-<td class="px-6 py-4">
-<form method="POST" action="{{ url_for('toggle_usuario', user_id=usuario['id']) }}">
-<label class="inline-flex items-center cursor-pointer">
-<input type="checkbox"
-       onchange="this.form.submit()"
-       class="sr-only peer"
-       {% if usuario["estado"] %}checked{% endif %}>
-<div class="w-11 h-6 bg-gray-300 rounded-full peer
-    peer-checked:bg-[#0B3C5D]
-    after:content-['']
-    after:absolute after:top-[2px] after:left-[2px]
-    after:bg-white after:rounded-full
-    after:h-5 after:w-5 after:transition-all
-    peer-checked:after:translate-x-full relative">
-</div>
-</label>
-</form>
-</td>
-
-<td class="px-6 py-4 text-gray-600">
-{% if usuario["fecha_registro"] %}
-{{ usuario["fecha_registro"][:10] }} {{ usuario["fecha_registro"][11:16] }}
-{% endif %}
-</td>
-
-<td class="px-6 py-4 text-center">
-    <div class="flex items-center justify-center gap-3">
-
-        <!-- EDITAR -->
-        <button type="button"
-            onclick="abrirEditarUsuario(this)"
-            data-usuario='{{ usuario | tojson }}'
-            class="w-9 h-9 flex items-center justify-center rounded-full
-                   bg-orange-50 text-orange-600
-                   hover:bg-orange-600 hover:text-white
-                   hover:scale-110
-                   transition-all duration-200 shadow-sm"
-            title="Editar usuario">
-            <i class="bi bi-pencil-fill text-sm"></i>
-        </button>
-
-        <!-- VER -->
-        <button type="button"
-                onclick="verDatosUsuario({{ usuario['id'] }})"
-                class="w-9 h-9 flex items-center justify-center rounded-full
-                       bg-blue-50 text-blue-600
-                       hover:bg-blue-600 hover:text-white
-                       hover:scale-110
-                       transition-all duration-200 shadow-sm"
-                title="Ver información">
-            <i class="bi bi-eye-fill text-sm"></i>
-        </button>
-
-        <!-- TOKEN -->
-        <button type="button"
-                onclick="abrirToken({{ usuario['id'] }})"
-                class="w-9 h-9 flex items-center justify-center rounded-full
-                       bg-green-50 text-green-600
-                       hover:bg-green-600 hover:text-white
-                       hover:scale-110
-                       transition-all duration-200 shadow-sm"
-                title="Generar token">
-            <i class="bi bi-shield-lock-fill text-sm"></i>
-        </button>
-        {% if usuario['rol'] in ['Supervisor', 'Administrador'] %}
-            <button
-                onclick="abrirAsignarRutas({{ usuario['id'] }})"
-                class="w-9 h-9 flex items-center justify-center rounded-full
-                    bg-purple-50 text-purple-600
-                    hover:bg-purple-600 hover:text-white
-                    transition-all shadow-sm">
-
-                <i class="bi bi-diagram-3-fill"></i>
-
-            </button>
-        {% endif %}
-
-        <!-- ELIMINAR -->
-        <button type="button"
-                onclick="abrirEliminarUsuario({{ usuario['id'] }}, '{{ usuario['nombres'] }} {{ usuario['apellidos'] }}')"
-                class="w-9 h-9 flex items-center justify-center rounded-full
-                       bg-red-50 text-red-600
-                       hover:bg-red-600 hover:text-white
-                       hover:scale-110
-                       transition-all duration-200 shadow-sm"
-                title="Eliminar usuario">
-            <i class="bi bi-trash-fill text-sm"></i>
-        </button>
-
-    </div>
-</td>
-
-</tr>
-{% endfor %}
-
-</tbody>
-</table>
-</div>
-
-</div>
-<!-- ================= MODAL ASIGNAR RUTAS  ================= -->
-
+<!-- ================= MODAL ASIGNAR RUTAS ================= -->
 <div id="modalAsignarRutas" class="fixed inset-0 z-50 hidden">
-
-<div class="absolute inset-0 bg-black/60"></div>
-
-<div class="relative flex items-center justify-center min-h-screen">
-
-<div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-
-<h2 class="text-lg font-bold mb-4">Asignar Rutas</h2>
-
-<form method="POST" action="/usuarios/asignar-rutas">
-
-<input type="hidden" name="usuario_id" id="usuario_rutas_id">
-
-<div id="listaRutas" class="space-y-2 max-h-60 overflow-y-auto"></div>
-
-<button class="mt-6 w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
-Guardar rutas
-</button>
-
-</form>
-
-</div>
-</div>
-</div>
-<!-- ================= MODAL ELIMINAR USUARIO ================= -->
-<div id="modalEliminarUsuario"
-     class="fixed inset-0 z-50 hidden">
-
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-lg font-bold">Asignar Rutas</h2>
+                    <p class="text-sm text-gray-500 mt-1">Selecciona las rutas para este usuario.</p>
+                </div>
 
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
+                <button type="button"
+                        onclick="cerrarModalAsignarRutas()"
+                        class="text-gray-400 hover:text-gray-700 text-xl leading-none">
+                    ✕
+                </button>
+            </div>
+
+            <form method="POST" action="/usuarios/asignar-rutas">
+                <input type="hidden" name="usuario_id" id="usuario_rutas_id">
+
+                <div id="listaRutas" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+
+                <button class="mt-6 w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
+                    Guardar rutas
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL ELIMINAR USUARIO ================= -->
+<div id="modalEliminarUsuario" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
 
             <button onclick="cerrarModalEliminar()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -251,7 +370,7 @@ Guardar rutas
                 Eliminar Usuario
             </h2>
 
-            <p class="text-gray-600 mb-6">
+            <p class="text-gray-600 mb-6 leading-6">
                 ¿Estás seguro que deseas eliminar a
                 <span id="nombreUsuarioEliminar" class="font-semibold"></span>?
             </p>
@@ -259,7 +378,7 @@ Guardar rutas
             <form method="POST" action="{{ url_for('eliminar_usuario') }}">
                 <input type="hidden" name="user_id" id="delete_user_id">
 
-                <div class="flex gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button type="button"
                             onclick="cerrarModalEliminar()"
                             class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg">
@@ -274,63 +393,58 @@ Guardar rutas
             </form>
 
         </div>
-
     </div>
 </div>
+
 <!-- ================= MODAL TOKEN ================= -->
 <div id="modalTokenUsuario" class="fixed inset-0 z-50 hidden">
-<div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-<div class="relative flex items-center justify-center min-h-screen px-4">
-<div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 relative">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-<button onclick="cerrarModalToken()"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
-    ✕
-</button>
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 relative max-h-[90vh] overflow-y-auto">
 
-<h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Datos de Acceso
-</h2>
+            <button onclick="cerrarModalToken()"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
+                ✕
+            </button>
 
-<div class="space-y-5">
+            <h2 class="text-xl font-bold text-[#1e293b] mb-6">
+                Datos de Acceso
+            </h2>
 
-<div class="bg-gray-50 rounded-xl p-4">
-    <p class="text-xs text-gray-500 mb-1">Nombre Completo</p>
-    <p id="modalNombre" class="font-semibold text-gray-800"></p>
+            <div class="space-y-4 sm:space-y-5">
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 mb-1">Nombre Completo</p>
+                    <p id="modalNombre" class="font-semibold text-gray-800 break-words"></p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 mb-1">Usuario (Correo)</p>
+                    <p id="modalCorreo" class="font-semibold text-gray-800 break-all"></p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 mb-1">Token de Acceso</p>
+                    <p id="modalToken"
+                       class="text-xl sm:text-2xl font-bold text-green-600 tracking-[0.2em] sm:tracking-widest break-all"></p>
+                </div>
+            </div>
+
+            <button onclick="copiarToken()"
+                    class="mt-6 w-full bg-[#0B3C5D] hover:bg-[#092f47] text-white py-3 rounded-xl font-semibold transition">
+                Copiar Token
+            </button>
+
+        </div>
+    </div>
 </div>
 
-<div class="bg-gray-50 rounded-xl p-4">
-    <p class="text-xs text-gray-500 mb-1">Usuario (Correo)</p>
-    <p id="modalCorreo" class="font-semibold text-gray-800 break-all"></p>
-</div>
+<!-- ================= MODAL NUEVO USUARIO ================= -->
+<div id="modalNuevoUsuario" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-<div class="bg-gray-50 rounded-xl p-4">
-    <p class="text-xs text-gray-500 mb-1">Token de Acceso</p>
-    <p id="modalToken"
-       class="text-2xl font-bold text-green-600 tracking-widest"></p>
-</div>
-
-</div>
-</div>
-
-<button onclick="copiarToken()"
-        class="mt-6 w-full bg-[#0B3C5D] hover:bg-[#092f47]
-               text-white py-3 rounded-xl font-semibold transition">
-    Copiar Token
-</button>
-
-</div>
-</div>
-
-</div>
-
-<div id="modalNuevoUsuario"
-     class="fixed inset-0 z-50 hidden">
-
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
 
             <button onclick="cerrarModal()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -340,28 +454,28 @@ Guardar rutas
             <h2 class="text-xl font-bold mb-6">Nuevo Usuario</h2>
 
             <form method="POST" action="{{ url_for('crear_usuario') }}" class="space-y-4">
-
                 <input type="text" name="documento" placeholder="Documento"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="text" name="nombres" placeholder="Nombres"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="text" name="apellidos" placeholder="Apellidos"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="email" name="email" placeholder="Correo"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
+
                 <input type="password" name="password"
                     placeholder="Contraseña"
                     required
-                    class="w-full border rounded-lg px-4 py-2">
-                
+                    class="w-full border rounded-lg px-4 py-3">
+
                 <div>
                     <label class="text-sm text-gray-600 block mb-1">Rol</label>
                     <select name="rol"
                             required
-                            class="w-full border rounded-lg px-4 py-2 bg-white">
+                            class="w-full border rounded-lg px-4 py-3 bg-white">
                         <option value="">Seleccionar rol</option>
                         <option value="Administrador">Administrador</option>
                         <option value="Supervisor">Supervisor</option>
@@ -373,20 +487,18 @@ Guardar rutas
                         class="w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
                     Crear Usuario
                 </button>
-
             </form>
 
         </div>
     </div>
 </div>
+
 <!-- ================= MODAL EDITAR USUARIO ================= -->
-<div id="modalEditarUsuario"
-     class="fixed inset-0 z-50 hidden">
+<div id="modalEditarUsuario" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
 
             <button onclick="cerrarModalEditar()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -396,33 +508,32 @@ Guardar rutas
             <h2 class="text-xl font-bold mb-6">Editar Usuario</h2>
 
             <form method="POST" action="{{ url_for('actualizar_usuario') }}" class="space-y-4">
-
                 <input type="hidden" name="id" id="edit_id">
 
                 <input type="text" name="documento" id="edit_documento"
                        placeholder="Documento"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="text" name="nombres" id="edit_nombres"
                        placeholder="Nombres"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="text" name="apellidos" id="edit_apellidos"
                        placeholder="Apellidos"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="email" name="email" id="edit_email"
                        placeholder="Correo"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <input type="password" name="password"
                        placeholder="Nueva contraseña (opcional)"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-lg px-4 py-3">
 
                 <div>
                     <label class="text-sm text-gray-600 block mb-1">Rol</label>
                     <select name="rol" id="edit_rol"
-                            class="w-full border rounded-lg px-4 py-2 bg-white">
+                            class="w-full border rounded-lg px-4 py-3 bg-white">
                         <option value="Administrador">Administrador</option>
                         <option value="Supervisor">Supervisor</option>
                         <option value="Cobrador">Cobrador</option>
@@ -433,106 +544,104 @@ Guardar rutas
                         class="w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
                     Guardar Cambios
                 </button>
-
             </form>
 
         </div>
     </div>
 </div>
+
 <!-- ================= MODAL VER USUARIO ================= -->
 <div id="modalVerUsuario" class="fixed inset-0 z-50 hidden">
-<div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-<div class="relative flex items-center justify-center min-h-screen px-4">
-<div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 relative">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen px-3 sm:px-4 py-3 sm:py-4">
+        <div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 relative max-h-[90vh] overflow-y-auto">
 
-<button onclick="cerrarModalVer()"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
-    ✕
-</button>
+            <button onclick="cerrarModalVer()"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
+                ✕
+            </button>
 
-<h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Información del Usuario
-</h2>
+            <h2 class="text-xl font-bold text-[#1e293b] mb-6">
+                Información del Usuario
+            </h2>
 
-<div class="space-y-4">
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs text-gray-500">Nombre Completo</p>
+                    <p id="modalNombreVer" class="font-semibold text-gray-800 break-words"></p>
+                </div>
 
-<div class="bg-gray-50 p-4 rounded-xl">
-    <p class="text-xs text-gray-500">Nombre Completo</p>
-    <p id="modalNombreVer" class="font-semibold text-gray-800"></p>
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs text-gray-500">Correo</p>
+                    <p id="modalCorreoVer" class="font-semibold text-gray-800 break-all"></p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs text-gray-500">Rol</p>
+                    <p id="modalRolVer" class="font-semibold text-gray-800"></p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs text-gray-500">Token de Acceso</p>
+                    <p id="modalTokenVer"
+                       class="text-xl sm:text-2xl font-bold text-green-600 tracking-[0.2em] sm:tracking-widest break-all"></p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs text-gray-500">Estado</p>
+                    <p id="modalEstadoVer" class="font-semibold text-gray-800"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-
-<div class="bg-gray-50 p-4 rounded-xl">
-    <p class="text-xs text-gray-500">Correo</p>
-    <p id="modalCorreoVer" class="font-semibold text-gray-800"></p>
-</div>
-
-<div class="bg-gray-50 p-4 rounded-xl">
-    <p class="text-xs text-gray-500">Rol</p>
-    <p id="modalRolVer" class="font-semibold text-gray-800"></p>
-</div>
-<div class="bg-gray-50 p-4 rounded-xl">
-    <p class="text-xs text-gray-500">Token de Acceso</p>
-    <p id="modalTokenVer"
-       class="text-2xl font-bold text-green-600 tracking-widest"></p>
-</div>
-<div class="bg-gray-50 p-4 rounded-xl">
-    <p class="text-xs text-gray-500">Estado</p>
-    <p id="modalEstadoVer" class="font-semibold text-gray-800"></p>
-</div>
-
-</div>
-
-</div>
-</div>
-</div>
-
 
 <!-- ================= JS ================= -->
 <script>
 function abrirModal(){
     document.getElementById("modalNuevoUsuario").classList.remove("hidden");
-
-
 }
-function abrirAsignarRutas(usuarioId){
 
-fetch(`/usuarios/rutas/${usuarioId}`)
-.then(res=>res.json())
-.then(data=>{
-
-document.getElementById("usuario_rutas_id").value = usuarioId;
-
-let html="";
-
-data.rutas.forEach(r=>{
-
-html += `
-<label class="flex items-center gap-2">
-<input type="checkbox" name="rutas" value="${r.id}" ${r.asignada ? "checked":""}>
-<span>${r.nombre}</span>
-</label>
-`;
-
-});
-
-document.getElementById("listaRutas").innerHTML = html;
-
-document.getElementById("modalAsignarRutas").classList.remove("hidden");
-
-});
-
-}
 function cerrarModal(){
     document.getElementById("modalNuevoUsuario").classList.add("hidden");
 }
+
+function abrirAsignarRutas(usuarioId){
+    fetch(`/usuarios/rutas/${usuarioId}`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("usuario_rutas_id").value = usuarioId;
+
+        let html = "";
+
+        data.rutas.forEach(r => {
+            html += `
+            <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50">
+                <input type="checkbox" name="rutas" value="${r.id}" ${r.asignada ? "checked" : ""}>
+                <span>${r.nombre}</span>
+            </label>
+            `;
+        });
+
+        document.getElementById("listaRutas").innerHTML = html;
+        document.getElementById("modalAsignarRutas").classList.remove("hidden");
+    });
+}
+
+function cerrarModalAsignarRutas(){
+    document.getElementById("modalAsignarRutas").classList.add("hidden");
+}
 </script>
+
 <script>
 function copiarToken(){
     let token = document.getElementById("modalToken").innerText;
     navigator.clipboard.writeText(token);
     alert("Token copiado ✅");
 }
+
 function abrirEliminarUsuario(id, nombre){
     document.getElementById("delete_user_id").value = id;
     document.getElementById("nombreUsuarioEliminar").innerText = nombre;
@@ -542,6 +651,7 @@ function abrirEliminarUsuario(id, nombre){
 function cerrarModalEliminar(){
     document.getElementById("modalEliminarUsuario").classList.add("hidden");
 }
+
 function abrirToken(userId){
     fetch(`/usuarios/generar-token/${userId}`)
     .then(response => response.json())
@@ -604,12 +714,12 @@ function verDatosUsuario(userId){
         console.log(error);
     });
 }
+
 function cerrarModalVer(){
     document.getElementById("modalVerUsuario").classList.add("hidden");
 }
 
 function abrirEditarUsuario(btn){
-
     const usuario = JSON.parse(btn.getAttribute("data-usuario"));
 
     document.getElementById("edit_id").value = usuario.id;
@@ -625,8 +735,6 @@ function abrirEditarUsuario(btn){
 function cerrarModalEditar(){
     document.getElementById("modalEditarUsuario").classList.add("hidden");
 }
-
-
 </script>
 
 {% endblock %}

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seleccionar oficina</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -14,16 +15,23 @@
     --text-soft: #64748b;
     --border: #e2e8f0;
     --primary: #424750;
-    --primary-hover: #424750;;
+    --primary-hover: #424750;
     --dark-soft: #374151;
     --success: #10b981;
     --success-hover: #059669;
 }
 
 /* base */
+html, body{
+    margin: 0;
+    padding: 0;
+}
+
 body{
     background: linear-gradient(180deg, #f3f6fb 0%, #eef2f7 100%);
     color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* cards */
@@ -77,6 +85,7 @@ body{
     transition: .2s ease;
     color: var(--text-main);
     box-shadow: 0 2px 8px rgba(15,23,42,.02);
+    min-height: 48px;
 }
 
 .input-modern::placeholder{
@@ -97,6 +106,8 @@ body{
     color: var(--text-main);
     border-radius: 24px;
     box-shadow: 0 30px 60px rgba(15,23,42,.18);
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
 }
 
 /* alerts */
@@ -125,6 +136,25 @@ body{
     background: linear-gradient(135deg, #424750, #424750);
     color: #fff;
     box-shadow: 0 10px 22px rgba(11,60,93,.18);
+    flex-shrink: 0;
+}
+
+/* responsive */
+@media (max-width: 640px){
+    .card-modern{
+        border-radius: 22px;
+    }
+
+    .modal-panel{
+        border-radius: 22px 22px 18px 18px;
+        max-height: calc(100vh - 0.75rem);
+    }
+
+    .icon-box{
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
 }
 </style>
 
@@ -132,10 +162,10 @@ body{
 
 <body class="min-h-screen">
 
-<div class="max-w-7xl mx-auto py-12 px-6 lg:px-8">
+<div class="max-w-7xl mx-auto py-6 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
 
     <!-- HEADER -->
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-10">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-5 sm:gap-6 mb-8 sm:mb-10">
 
         <div>
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-slate-500 shadow-sm mb-4">
@@ -143,17 +173,17 @@ body{
                 Administración general
             </div>
 
-            <h1 class="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
                 Grupos
             </h1>
 
-            <p class="text-slate-500 mt-2 max-w-2xl">
+            <p class="text-sm sm:text-base text-slate-500 mt-2 max-w-2xl leading-6">
                 Tienes los siguientes grupos configurados. Selecciona uno para cargar su información y continuar con la gestión.
             </p>
         </div>
 
         <button onclick="abrirModal()"
-                class="btn-primary text-white px-7 py-3 shadow-lg">
+                class="btn-primary text-white px-7 py-3 shadow-lg w-full sm:w-auto">
             + Nuevo grupo
         </button>
 
@@ -181,7 +211,7 @@ body{
     {% endwith %}
 
     <!-- FILTROS -->
-    <div class="card-modern p-6 mb-10">
+    <div class="card-modern p-4 sm:p-6 mb-8 sm:mb-10">
         <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
 
             <div class="w-full lg:w-64">
@@ -215,28 +245,28 @@ body{
     </div>
 
     <!-- CARDS -->
-    <div id="contenedorOficinas" class="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div id="contenedorOficinas" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
 
         {% for oficina in oficinas %}
         {% set total = oficina.rutas_activas or 0 %}
 
-        <div class="oficinaCard card-modern p-8"
+        <div class="oficinaCard card-modern p-5 sm:p-6 lg:p-8"
              data-pais="{{ oficina.pais|lower }}"
              data-nombre="{{ oficina.nombre|lower }}">
 
             <!-- TOP -->
             <div class="flex justify-between items-start gap-4">
 
-                <div>
+                <div class="min-w-0 flex-1">
                     <div class="text-[11px] uppercase tracking-[0.15em] text-slate-400 mb-2">
                         Grupo
                     </div>
 
-                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight break-words">
                         {{ oficina.nombre | upper }}
                     </h2>
 
-                    <p class="text-sm text-slate-500 mt-1">
+                    <p class="text-sm text-slate-500 mt-1 break-words">
                         {{ oficina.pais }}
                     </p>
                 </div>
@@ -252,18 +282,18 @@ body{
             </div>
 
             <!-- CONTENIDO -->
-            <div class="mt-8 grid grid-cols-2 gap-4 items-end">
+            <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
 
                 <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                     <p class="text-sm text-slate-500">
                         Rutas activas
                     </p>
-                    <p class="text-4xl font-bold text-slate-900 mt-1">
+                    <p class="text-3xl sm:text-4xl font-bold text-slate-900 mt-1">
                         {{ total }}
                     </p>
                 </div>
 
-                <div class="flex justify-end">
+                <div class="flex justify-start sm:justify-end">
                     {% if total > 0 %}
                         <span class="px-4 py-2 text-xs font-semibold rounded-full bg-emerald-500 text-white shadow-sm">
                             Activa
@@ -277,7 +307,7 @@ body{
 
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-100">
+            <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-slate-100">
                 <a href="{{ url_for('seleccionar_oficina', oficina_id=oficina.id) }}"
                    class="w-full flex justify-center items-center gap-2
                           btn-primary text-white py-3.5
@@ -304,19 +334,19 @@ body{
 </div>
 
 <!-- MODAL CREAR OFICINA -->
-<div id="modalOficina" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden justify-center items-center px-4">
+<div id="modalOficina" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden justify-center sm:items-center items-end px-3 sm:px-4 py-3 sm:py-4 z-50">
 
-    <div class="modal-panel p-8 w-full max-w-md">
+    <div class="modal-panel p-5 sm:p-8 w-full max-w-md">
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-start sm:items-center justify-between mb-6 gap-4">
             <div>
-                <h2 class="text-xl font-bold text-slate-900">Nuevo grupo</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Nuevo grupo</h2>
                 <p class="text-sm text-slate-500 mt-1">Registra un nuevo grupo para comenzar a gestionarlo.</p>
             </div>
 
             <button type="button"
                     onclick="cerrarModal()"
-                    class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-slate-500">
+                    class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-slate-500 shrink-0">
                 ✕
             </button>
         </div>
@@ -341,15 +371,15 @@ body{
                        class="input-modern w-full">
             </div>
 
-            <div class="flex justify-end gap-3">
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
                 <button type="button"
                         onclick="cerrarModal()"
-                        class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition font-medium">
+                        class="px-5 py-3 sm:py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition font-medium w-full sm:w-auto">
                     Cancelar
                 </button>
 
                 <button type="submit"
-                        class="btn-primary text-white px-5 py-2.5">
+                        class="btn-primary text-white px-5 py-3 sm:py-2.5 w-full sm:w-auto">
                     Guardar
                 </button>
             </div>
@@ -391,6 +421,7 @@ function abrirModal(){
 
 function cerrarModal(){
     document.getElementById("modalOficina").classList.add("hidden");
+    document.getElementById("modalOficina").classList.remove("flex");
 }
 </script>
 
