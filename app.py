@@ -1297,53 +1297,58 @@ def recalcular(credito_id):
 # =============================
 # =============================
 # NUEVA VENTA COBRADOR (CONTROL FLUJO)
-# =============================
+from datetime import date
+
 @app.route("/nueva_venta_cobrador")
 def nueva_venta_cobrador():
 
-    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor", "administrador"]:
+    if "user_id" not in session or session.get("rol") not in ["cobrador", "supervisor", "administrador"]:
         return redirect(url_for("login_app"))
 
     user_id = int(session["user_id"])
 
     # 🔹 Traer rutas según rol
     if session.get("rol") == "cobrador":
-
         rutas = supabase.table("rutas") \
             .select("*") \
             .eq("usuario_id", user_id) \
             .eq("estado", "true") \
             .order("posicion") \
             .execute().data or []
-
-    else:  # supervisor / administrador
-
+    else:
         rutas = supabase.table("rutas") \
             .select("*") \
             .eq("estado", "true") \
             .order("posicion") \
             .execute().data or []
 
-    # 🔥 Permitir que la ruta llegue por URL (renovación) o por sesión
     ruta_actual = request.args.get("ruta_id") or session.get("ruta_id")
 
-    # 🔥 Detectar si viene de aumento
-    cedula_aprobada = request.args.get("cedula")
-    monto_aprobado = request.args.get("monto")
+    # =============================
+    # PARÁMETROS
+    # =============================
+    cedula_aprobada = (request.args.get("cedula") or "").strip()
+    cliente_id_aprobado = request.args.get("cliente_id_aprobado")
+    monto_aprobado_raw = request.args.get("monto")
 
-    # 🔥 Detectar si viene de renovación
-    cliente_id_renovacion = request.args.get("cliente_id")
+    cliente_id_renovacion = request.args.get("cliente_id_renovacion")
     es_renovacion = request.args.get("renovar") == "1"
 
     cliente_data = None
     ultimo_credito_data = {}
     form_data = {}
 
+    # Convertir monto
+    monto_aprobado = 0
+    try:
+        monto_aprobado = float(monto_aprobado_raw) if monto_aprobado_raw else 0
+    except Exception:
+        monto_aprobado = 0
+
     # =====================================================
     # PRIORIDAD 1: RENOVACIÓN
     # =====================================================
-    if cliente_id_renovacion:
-
+    if es_renovacion and cliente_id_renovacion:
         cliente_resp = supabase.table("clientes") \
             .select("*") \
             .eq("id", cliente_id_renovacion) \
@@ -1356,25 +1361,65 @@ def nueva_venta_cobrador():
             cliente_data = cliente_resp.data
 
     # =====================================================
-    # PRIORIDAD 2: AUMENTO APROBADO
+    # PRIORIDAD 2: AUMENTO APROBADO POR ID
+    # =====================================================
+    elif cliente_id_aprobado:
+        cliente_resp = supabase.table("clientes") \
+            .select("*") \
+            .eq("id", cliente_id_aprobado) \
+            .single() \
+            .execute()
+
+        print("DEBUG CLIENTE AUMENTO POR ID:", cliente_resp.data)
+
+        if cliente_resp.data:
+            cliente_data = cliente_resp.data
+
+    # =====================================================
+    # PRIORIDAD 3: AUMENTO APROBADO POR CÉDULA
     # =====================================================
     elif cedula_aprobada:
-
-        cedula_busqueda = cedula_aprobada.strip()
+        cedula_normalizada = (
+            cedula_aprobada
+            .replace(".", "")
+            .replace(",", "")
+            .replace(" ", "")
+            .strip()
+        )
 
         cliente_resp = supabase.table("clientes") \
             .select("*") \
-            .ilike("identificacion", cedula_busqueda) \
+            .eq("identificacion", cedula_normalizada) \
             .limit(1) \
             .execute()
 
-        print("DEBUG CLIENTE AUMENTO:", cliente_resp.data)
+        print("DEBUG CEDULA RECIBIDA:", cedula_aprobada)
+        print("DEBUG CEDULA NORMALIZADA:", cedula_normalizada)
+        print("DEBUG CLIENTE AUMENTO POR CEDULA:", cliente_resp.data)
 
         if cliente_resp.data:
             cliente_data = cliente_resp.data[0]
+        else:
+            # intento secundario por si la cédula en bd tiene formato distinto
+            clientes_resp = supabase.table("clientes") \
+                .select("*") \
+                .limit(500) \
+                .execute()
+
+            clientes_lista = clientes_resp.data or []
+
+            for cli in clientes_lista:
+                identificacion_bd = str(cli.get("identificacion") or "")
+                identificacion_bd = identificacion_bd.replace(".", "").replace(",", "").replace(" ", "").strip()
+
+                if identificacion_bd == cedula_normalizada:
+                    cliente_data = cli
+                    break
+
+            print("DEBUG CLIENTE HALLADO MANUAL:", cliente_data)
 
     # =====================================================
-    # BUSCAR ÚLTIMO CRÉDITO DEL CLIENTE PARA TRAER FOTOS/FIRMA
+    # ÚLTIMO CRÉDITO PARA TRAER FOTOS/FIRMA
     # =====================================================
     if cliente_data:
         ultimo_credito_resp = supabase.table("creditos") \
@@ -1384,12 +1429,11 @@ def nueva_venta_cobrador():
             .limit(1) \
             .execute()
 
+        print("DEBUG ULTIMO CREDITO:", ultimo_credito_resp.data)
+
         if ultimo_credito_resp.data:
             ultimo_credito_data = ultimo_credito_resp.data[0]
 
-        # =====================================================
-        # PRECARGAR FORMULARIO SI HAY CLIENTE
-        # =====================================================
         form_data = {
             "cliente_id": cliente_data.get("id", ""),
             "identificacion": cliente_data.get("identificacion", ""),
@@ -1398,22 +1442,27 @@ def nueva_venta_cobrador():
             "direccion_negocio": cliente_data.get("direccion_negocio", ""),
             "codigo_pais": cliente_data.get("codigo_pais", "57"),
             "telefono": cliente_data.get("telefono_principal", ""),
+            "valor_venta": monto_aprobado if monto_aprobado > 0 else "",
 
-            # 🔥 Fotos/firma del último crédito
             "foto_cliente": ultimo_credito_data.get("foto_cliente", ""),
             "foto_cedula": ultimo_credito_data.get("foto_cedula", ""),
             "foto_negocio": ultimo_credito_data.get("foto_negocio", ""),
             "firma_cliente": ultimo_credito_data.get("firma_cliente", ""),
 
-            # 🔥 También las mandamos como _actual para conservarlas si no suben nuevas
             "foto_cliente_actual": ultimo_credito_data.get("foto_cliente", ""),
             "foto_cedula_actual": ultimo_credito_data.get("foto_cedula", ""),
             "foto_negocio_actual": ultimo_credito_data.get("foto_negocio", ""),
             "firma_cliente_actual": ultimo_credito_data.get("firma_cliente", "")
         }
 
-    # 🔥 En aumento puedes dejar bloqueados algunos datos
-    modo_aumento = True if cedula_aprobada else False
+    modo_aumento = True if (cliente_id_aprobado or cedula_aprobada) and not es_renovacion else False
+
+    print("DEBUG ruta_actual:", ruta_actual)
+    print("DEBUG cliente_id_aprobado:", cliente_id_aprobado)
+    print("DEBUG cedula_aprobada:", cedula_aprobada)
+    print("DEBUG monto_aprobado:", monto_aprobado)
+    print("DEBUG cliente_data FINAL:", cliente_data)
+    print("DEBUG form_data FINAL:", form_data)
 
     return render_template(
         "cobrador/nueva_venta_cobrador.html",
@@ -1425,6 +1474,7 @@ def nueva_venta_cobrador():
         es_renovacion=es_renovacion,
         modo_aumento=modo_aumento
     )
+    
 @app.route("/buzon_aumento_cupo")
 def buzon_aumento_cupo():
 

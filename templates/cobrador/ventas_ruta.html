@@ -185,6 +185,8 @@
     box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
     transition: all .2s ease;
     z-index: 50;
+    border: none;
+    cursor: pointer;
 }
 
 .fab-modern:hover {
@@ -220,6 +222,192 @@
     background: #ecfdf5;
     color: #047857;
     border: 1px solid #a7f3d0;
+}
+
+/* MODAL NUEVO */
+.modal-solicitud-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.72);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 100;
+}
+
+.modal-solicitud-backdrop.active {
+    display: flex;
+}
+
+.modal-solicitud-card {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 28px;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.20);
+    overflow: hidden;
+    animation: modalIn .22s ease-out;
+}
+
+.modal-solicitud-top {
+    padding: 22px 22px 14px;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    position: relative;
+}
+
+.modal-solicitud-icon {
+    height: 58px;
+    width: 58px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.10);
+    font-size: 28px;
+    margin-bottom: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.modal-solicitud-title {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.modal-solicitud-subtitle {
+    margin-top: 6px;
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.modal-solicitud-body {
+    padding: 20px 22px 22px;
+}
+
+.modal-solicitud-alert {
+    border-radius: 20px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    padding: 14px 15px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.modal-solicitud-steps {
+    margin-top: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.modal-solicitud-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 12px 13px;
+}
+
+.modal-solicitud-step-number {
+    flex-shrink: 0;
+    height: 28px;
+    width: 28px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0f172a, #334155);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.modal-solicitud-step-text {
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.modal-solicitud-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.btn-solicitud-primary {
+    width: 100%;
+    border: none;
+    border-radius: 18px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.16);
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.btn-solicitud-primary:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #111827, #334155);
+}
+
+.btn-solicitud-secondary {
+    width: 100%;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    padding: 13px 16px;
+    background: white;
+    color: #334155;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.btn-solicitud-secondary:hover {
+    background: #f8fafc;
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    height: 36px;
+    width: 36px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.10);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.modal-close-x:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 </style>
 
@@ -368,19 +556,88 @@
 </div>
 
 <!-- BOTÓN FLOTANTE -->
-<a href="{{ url_for('nueva_venta_cobrador') }}"
-   class="fab-modern">
+<button type="button"
+        class="fab-modern"
+        onclick="abrirModalSolicitud()">
     +
-</a>
+</button>
+
+<!-- MODAL SOLICITUD -->
+<div id="modalSolicitudCredito" class="modal-solicitud-backdrop" onclick="cerrarModalSolicitud(event)">
+    <div class="modal-solicitud-card" onclick="event.stopPropagation()">
+
+        <div class="modal-solicitud-top">
+            <button type="button" class="modal-close-x" onclick="cerrarModalSolicitud()">
+                ✕
+            </button>
+
+            <div class="modal-solicitud-icon">
+                📄
+            </div>
+
+            <div class="modal-solicitud-title">
+                Solicitud requerida
+            </div>
+
+            <div class="modal-solicitud-subtitle">
+                Para registrar un nuevo crédito, primero debes realizar la solicitud al área encargada para su revisión y aprobación.
+            </div>
+        </div>
+
+        <div class="modal-solicitud-body">
+
+            <div class="modal-solicitud-alert">
+                No es posible registrar un crédito de manera directa desde este botón sin la aprobación previa correspondiente.
+            </div>
+
+            <div class="modal-solicitud-steps">
+                <div class="modal-solicitud-step">
+                    <div class="modal-solicitud-step-number">1</div>
+                    <div class="modal-solicitud-step-text">
+                        Ingresa al buzón de solicitudes y registra la solicitud del cliente.
+                    </div>
+                </div>
+
+                <div class="modal-solicitud-step">
+                    <div class="modal-solicitud-step-number">2</div>
+                    <div class="modal-solicitud-step-text">
+                        Espera la validación y aprobación del área encargada.
+                    </div>
+                </div>
+
+                <div class="modal-solicitud-step">
+                    <div class="modal-solicitud-step-number">3</div>
+                    <div class="modal-solicitud-step-text">
+                        Una vez aprobada, podrás continuar con el proceso correspondiente.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-solicitud-actions">
+                <a href="{{ url_for('nueva_solicitud_cupo') }}"
+                   class="btn-solicitud-primary text-center">
+                    Ir al buzón de solicitudes
+                </a>
+
+                <button type="button"
+                        class="btn-solicitud-secondary"
+                        onclick="cerrarModalSolicitud()">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
 <script>
 function filtrarClientes() {
-
     let input = document.getElementById("buscador").value.toLowerCase();
     let items = document.querySelectorAll(".credito-item");
 
     items.forEach(item => {
-        let nombre = item.getAttribute("data-nombre");
+        let nombre = item.getAttribute("data-nombre") || "";
 
         if (nombre.includes(input)) {
             item.style.display = "block";
@@ -389,5 +646,28 @@ function filtrarClientes() {
         }
     });
 }
+
+function abrirModalSolicitud() {
+    const modal = document.getElementById("modalSolicitudCredito");
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function cerrarModalSolicitud(event = null) {
+    if (event && event.target !== event.currentTarget) {
+        return;
+    }
+
+    const modal = document.getElementById("modalSolicitudCredito");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+        cerrarModalSolicitud();
+    }
+});
 </script>
+
 {% endblock %}
