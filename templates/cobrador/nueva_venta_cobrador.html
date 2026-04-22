@@ -339,38 +339,51 @@
 
     {% if monto_aprobado and not es_renovacion %}
     <div class="bank-note bank-note-info">
-        ✅ Aumento de cupo aprobado: se cargó el cliente y el monto aprobado para registrar la venta.
+        ✅ Cupo aprobado: se cargó el cliente y el monto aprobado para registrar la venta.
     </div>
     {% endif %}
 
     <form method="POST"
-          action="{{ url_for('guardar_venta_cobrador') }}"
-          enctype="multipart/form-data"
-          class="space-y-5">
+        action="{{ url_for('guardar_venta_cobrador') }}"
+        enctype="multipart/form-data"
+        class="space-y-5"
+        id="formNuevaVenta">
 
         <input type="hidden"
-               name="cliente_id"
-               value="{{ form_data.get('cliente_id', '') if form_data else '' }}">
+            name="cliente_id"
+            value="{{ form_data.get('cliente_id', '') if form_data else '' }}">
 
         <input type="hidden"
-               name="es_renovacion"
-               value="{{ 1 if es_renovacion else 0 }}">
+            name="solicitud_id"
+            value="{{ solicitud_id or '' }}">
 
         <input type="hidden"
-               name="foto_cliente_actual"
-               value="{{ form_data.get('foto_cliente_actual', form_data.get('foto_cliente', '')) if form_data else '' }}">
+            name="modo_aumento"
+            value="{{ 1 if modo_aumento else 0 }}">
 
         <input type="hidden"
-               name="foto_cedula_actual"
-               value="{{ form_data.get('foto_cedula_actual', form_data.get('foto_cedula', '')) if form_data else '' }}">
+            name="monto_aprobado"
+            value="{{ monto_aprobado or '' }}">
 
         <input type="hidden"
-               name="foto_negocio_actual"
-               value="{{ form_data.get('foto_negocio_actual', form_data.get('foto_negocio', '')) if form_data else '' }}">
+            name="es_renovacion"
+            value="{{ 1 if es_renovacion else 0 }}">
 
         <input type="hidden"
-               name="firma_cliente_actual"
-               value="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente', '')) if form_data else '' }}">
+            name="foto_cliente_actual"
+            value="{{ form_data.get('foto_cliente_actual', form_data.get('foto_cliente', '')) if form_data else '' }}">
+
+        <input type="hidden"
+            name="foto_cedula_actual"
+            value="{{ form_data.get('foto_cedula_actual', form_data.get('foto_cedula', '')) if form_data else '' }}">
+
+        <input type="hidden"
+            name="foto_negocio_actual"
+            value="{{ form_data.get('foto_negocio_actual', form_data.get('foto_negocio', '')) if form_data else '' }}">
+
+        <input type="hidden"
+            name="firma_cliente_actual"
+            value="{{ form_data.get('firma_cliente_actual', form_data.get('firma_cliente', '')) if form_data else '' }}">
 
         <!-- ================= RUTA ================= -->
         <div class="bank-card space-y-3">
@@ -459,12 +472,19 @@
             <div class="bank-card-title">Información del crédito</div>
 
             <input type="number"
-                   name="valor_venta"
-                   id="valorVenta"
-                   value="{{ form_data.get('valor_venta') if form_data and form_data.get('valor_venta') else (monto_aprobado if monto_aprobado else '') }}"
-                   placeholder="Valor préstamo"
-                   required
-                   class="bank-input text-lg font-semibold">
+                name="valor_venta"
+                id="valorVenta"
+                value="{{ form_data.get('valor_venta') if form_data and form_data.get('valor_venta') else (monto_aprobado if monto_aprobado else '') }}"
+                placeholder="Valor préstamo"
+                required
+                {% if modo_aumento and not es_renovacion %}readonly{% endif %}
+                class="bank-input text-lg font-semibold">
+
+            {% if modo_aumento and not es_renovacion %}
+            <div class="bank-helper text-emerald-700">
+                Este valor corresponde al cupo aprobado mediante la solicitud y no se puede modificar.
+            </div>
+            {% endif %}
 
             <div class="bank-summary-soft">
                 <div class="label">

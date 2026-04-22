@@ -1,200 +1,442 @@
 {% extends "base.html" %}
+{% block titulo %}Nueva Venta{% endblock %}
+
 {% block content %}
 
 <style>
-/* ====== ESTILOS ====== */
+.page-wrap{
+    padding: 16px;
+}
+
 .page-header{
-    font-size:18px;
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:20px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
 }
+
 .subtitle{
-    font-size:14px;
-    color:#6b7280;
-    margin-bottom:20px;
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 22px;
 }
+
 .card-venta{
-    background:white;
-    border-radius:14px;
-    box-shadow:0 6px 20px rgba(0,0,0,.05);
-    padding:25px;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+    padding: 22px;
+    border: 1px solid #e5e7eb;
 }
+
 .cliente-card{
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:18px;
-    background:#f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 18px;
+    background: #f8fafc;
+    height: 100%;
 }
+
 .cliente-card .title{
-    font-weight:600;
-    margin-bottom:10px;
-    background:#eef2ff;
-    padding:6px 12px;
-    display:inline-block;
-    border-radius:6px;
-    font-size:13px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: #e0e7ff;
+    color: #1e3a8a;
+    padding: 8px 12px;
+    display: inline-block;
+    border-radius: 10px;
+    font-size: 13px;
 }
+
 .label{
-    font-size:13px;
-    font-weight:600;
-    color:#6b7280;
-    margin-bottom:6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 7px;
 }
+
 .input-modern{
-    width:100%;
-    border:1px solid #d1d5db;
-    border-radius:8px;
-    padding:10px 12px;
-    font-size:14px;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    background: #fff;
+    color: #0f172a;
+    transition: all .2s ease;
 }
+
+.input-modern:focus{
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148,163,184,.15);
+}
+
+.input-modern[readonly]{
+    background: #f8fafc;
+}
+
 .btn-save{
-    background:#3b82f6;
-    color:white;
-    border:none;
-    padding:10px 20px;
-    border-radius:8px;
-    font-weight:600;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all .2s ease;
 }
+
+.btn-save:hover{
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    color: white;
+}
+
+.btn-danger-soft{
+    background: #ef4444;
+}
+
+.btn-danger-soft:hover{
+    background: #dc2626;
+}
+
 .alert-pendiente{
-    background:#fff7ed;
-    border:1px solid #fdba74;
-    padding:15px 20px;
-    border-radius:12px;
-    margin-bottom:20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #9a3412;
+}
+
+.helper-text{
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+.resume-card{
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 16px 30px rgba(15,23,42,.14);
+    height: 100%;
+}
+
+.resume-label{
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .75;
+}
+
+.resume-value{
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 8px;
+    color: #86efac;
+    word-break: break-word;
+}
+
+.resume-value-soft{
+    color: #ffffff;
+}
+
+.section-divider{
+    height: 1px;
+    background: #e5e7eb;
+    margin: 14px 0 4px;
+}
+
+.actions-mobile{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cliente-avatar{
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+
+.form-block{
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.form-block-title{
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 14px;
+}
+
+.toast-wrap{
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+}
+
+@media (max-width: 991.98px){
+    .card-venta{
+        padding: 18px;
+    }
+}
+
+@media (max-width: 767.98px){
+    .page-wrap{
+        padding: 12px;
+    }
+
+    .page-header{
+        font-size: 20px;
+    }
+
+    .subtitle{
+        font-size: 13px;
+    }
+
+    .card-venta{
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .cliente-card{
+        padding: 16px;
+    }
+
+    .btn-save{
+        width: 100%;
+        text-align: center;
+    }
+
+    .actions-mobile{
+        flex-direction: column;
+    }
+
+    .resume-value{
+        font-size: 20px;
+    }
+
+    .input-modern{
+        font-size: 16px;
+    }
 }
 </style>
 
-<div class="container-fluid px-4 pt-3">
+<div class="container-fluid page-wrap">
 
-    <div class="page-header">Nueva venta</div>
+    <div class="page-header">Nuevo credito</div>
     <div class="subtitle">Ingresa los datos para registrar la venta.</div>
 
     <div class="card-venta">
-
         <div class="row g-4">
 
             <!-- ================= CLIENTE ================= -->
-            <div class="col-md-3">
+            <div class="col-12 col-lg-4 col-xl-3">
                 {% if cliente %}
                     <div class="cliente-card">
 
                         {% if cliente.foto %}
                             <img src="{{ cliente.foto }}"
-                                style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:10px;">
+                                 alt="Foto cliente"
+                                 class="cliente-avatar">
                         {% endif %}
 
-                        <div class="title">Cliente</div>
-                        <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
-                        <p><strong>Identificación:</strong> {{ cliente.identificacion }}</p>
+                        <div class="title">Cliente seleccionado</div>
 
-                        <a href="{{ url_for('limpiar_cliente') }}"
-                        class="btn-save mt-3"
-                        style="background:#ef4444; display:inline-block;">
-                            Limpiar cliente
-                        </a>
+                        <p class="mb-2"><strong>Nombre:</strong> {{ cliente.nombre }}</p>
+                        <p class="mb-3"><strong>Identificación:</strong> {{ cliente.identificacion }}</p>
 
+                        {% if valor_anterior %}
+                        <div class="alert-pendiente">
+                            Último valor otorgado:
+                            <strong>$ {{ "{:,.0f}".format(valor_anterior) }}</strong>
+                        </div>
+                        {% endif %}
+
+                        <div class="actions-mobile mt-3">
+                            <a href="{{ url_for('cancelar_venta') }}"
+                               class="btn-save btn-danger-soft">
+                                Limpiar cliente
+                            </a>
+                        </div>
                     </div>
-
                 {% else %}
                     <div class="cliente-card text-center">
-                        <p>No hay cliente seleccionado</p>
+                        <div class="title">Cliente</div>
+                        <p class="mb-3 text-muted">No hay cliente seleccionado</p>
 
-                        <button class="btn-save mb-2"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalCliente">
-                            Registrar cliente
-                        </button>
+                        <div class="actions-mobile">
+                            <button type="button"
+                                    class="btn-save"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalCliente">
+                                Registrar cliente
+                            </button>
 
-                        <button class="btn-save"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalRenovar">
-                            Renovar crédito cliente existente
-                        </button>
+                            <button type="button"
+                                    class="btn-save"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalRenovar">
+                                Renovar crédito cliente existente
+                            </button>
+                        </div>
                     </div>
                 {% endif %}
             </div>
 
             <!-- ================= FORMULARIO ================= -->
-            <div class="col-md-9">
-
+            <div class="col-12 col-lg-8 col-xl-9">
                 <form method="POST" action="{{ url_for('guardar_venta') }}">
 
-                    <div class="row g-3">
+                    <div class="form-block">
+                        <div class="form-block-title">Información del crédito</div>
 
-                        <div class="col-md-6">
-                            <div class="label">Tipo de Préstamo</div>
-                            <select name="tipo_prestamo" class="input-modern">
-                                <option>Semanal</option>
-                                <option>Diario Lunes a Sábado</option>
-                                <option>Diario Lunes a Viernes</option>
-                             
-                            </select>
-                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="label">Tipo de préstamo</div>
+                                <select name="tipo_prestamo"
+                                        id="tipoPrestamo"
+                                        required
+                                        class="input-modern">
+                                    <option value="" disabled {% if not form_data or not form_data.get('tipo_prestamo') %}selected{% endif %} hidden>
+                                        Tipo de préstamo
+                                    </option>
 
-                        <div class="col-md-6">
-                            <div class="label">Fecha Inicio Cobro</div>
-                            <input type="date" name="fecha_inicio" class="input-modern" required>
-                        </div>
+                                    <option value="Semanal"
+                                        {% if form_data and form_data.get('tipo_prestamo') == 'Semanal' %}selected{% endif %}>
+                                        Semanal
+                                    </option>
 
-                        <div class="col-md-3">
-                            <div class="label">Posición</div>
-                            <input type="number" name="posicion" class="input-modern" value="1">
-                        </div>
+                                    <option value="Quincenal"
+                                        {% if form_data and form_data.get('tipo_prestamo') == 'Quincenal' %}selected{% endif %}>
+                                        Quincenal
+                                    </option>
 
-                        <div class="col-md-4">
-                            <div class="label">Valor venta</div>
-                            <input type="number" name="valor_venta" class="input-modern">
-                        </div>
+                                    <option value="Mensual"
+                                        {% if form_data and form_data.get('tipo_prestamo') == 'Mensual' %}selected{% endif %}>
+                                        Mensual
+                                    </option>
 
-                        {% if valor_anterior %}
-                        <div class="col-md-12">
-                            <div class="alert-pendiente">
-                                Último valor otorgado:
-                                <strong>$ {{ "{:,.0f}".format(valor_anterior) }}</strong>
+                                    <option value="Diario Lunes a Sábado"
+                                        {% if form_data and form_data.get('tipo_prestamo') == 'Diario Lunes a Sábado' %}selected{% endif %}>
+                                        Diario Lunes a Sábado
+                                    </option>
+
+                                    <option value="Diario Lunes a Viernes"
+                                        {% if form_data and form_data.get('tipo_prestamo') == 'Diario Lunes a Viernes' %}selected{% endif %}>
+                                        Diario Lunes a Viernes
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="label">Fecha inicio cobro</div>
+                                <input type="date"
+                                       name="fecha_inicio"
+                                       id="fechaInicio"
+                                       class="input-modern"
+                                       value="{{ form_data.get('fecha_inicio') if form_data else '' }}"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="label">Valor credito</div>
+                                <input type="number"
+                                       name="valor_venta"
+                                       class="input-modern"
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="Valor de la venta"
+                                       value="{{ form_data.get('valor_venta') if form_data else (valor_anterior if valor_anterior else '') }}"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="label">Ruta</div>
+                                <select name="ruta_id" class="input-modern" required>
+                                    {% for ruta in rutas %}
+                                        <option value="{{ ruta.id }}"
+                                            {% if form_data and form_data.get('ruta_id') == ruta.id|string %}selected{% endif %}>
+                                            {{ ruta.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="label">Cuotas</div>
+                                <input type="number"
+                                       name="cuotas"
+                                       id="cuotas"
+                                       class="input-modern"
+                                       min="1"
+                                       step="1"
+                                       placeholder="Cantidad de cuotas"
+                                       value="{{ form_data.get('cuotas') if form_data else '' }}"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="label">Interés (%)</div>
+                                <input type="number"
+                                       name="tasa"
+                                       id="tasa"
+                                       class="input-modern"
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="Porcentaje de interés"
+                                       value="{{ form_data.get('tasa') if form_data and form_data.get('tasa') else '20' }}"
+                                       required>
+                                <div class="helper-text">
+                                    Puedes editar manualmente el porcentaje de interés.
+                                </div>
                             </div>
                         </div>
-                        {% endif %}
-
-                        <div class="col-md-5">
-                            <div class="label">Valor Total</div>
-                            <input type="number" name="valor_total" class="input-modern" disabled>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="label">Ruta</div>
-                            <select name="ruta_id" class="input-modern">
-                                {% for ruta in rutas %}
-                                    <option value="{{ ruta.id }}">{{ ruta.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="label">Tasa Interés</div>
-                            <select name="tasa" class="input-modern">
-                                <option value="0">0 %</option>
-                                <option value="20" selected>20 %</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="label">Cuotas</div>
-                            <input type="number" name="cuotas" class="input-modern">
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="label">Valor Cuota</div>
-                            <input type="number" name="valor_cuota" class="input-modern" disabled>
-                        </div>
-
                     </div>
 
-                    <button class="btn-save mt-4">Registrar</button>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <div class="resume-card">
+                                <div class="resume-label">Valor total</div>
+                                <div id="valorTotalTexto" class="resume-value">$0</div>
+                                <input type="text"
+                                       name="valor_total"
+                                       class="input-modern mt-3"
+                                       readonly>
+                            </div>
+                        </div>
 
+                        <div class="col-12 col-md-6">
+                            <div class="resume-card">
+                                <div class="resume-label">Valor por cuota</div>
+                                <div id="valorCuotaTexto" class="resume-value resume-value-soft">$0</div>
+                                <input type="text"
+                                       name="valor_cuota"
+                                       class="input-modern mt-3"
+                                       readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-save" type="submit">Registrar</button>
                 </form>
             </div>
         </div>
@@ -202,46 +444,68 @@
 </div>
 
 <!-- ================= MODAL CLIENTE ================= -->
-<div class="modal fade" id="modalCliente" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="POST" action="{{ url_for('guardar_cliente') }}" enctype="multipart/form-data">
-        <div class="modal-header">
-          <h5 class="modal-title">Registrar Cliente</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('guardar_cliente') }}" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text"
+                           name="identificacion"
+                           class="input-modern mb-2"
+                           placeholder="Identificación"
+                           required>
+
+                    <input type="text"
+                           name="nombre"
+                           class="input-modern mb-2"
+                           placeholder="Nombre"
+                           required>
+
+                    <input type="text"
+                           name="telefono_principal"
+                           class="input-modern mb-2"
+                           placeholder="Teléfono principal">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">Guardar cliente</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <input type="text" name="identificacion" class="input-modern mb-2" placeholder="Identificación" required>
-          <input type="text" name="nombre" class="input-modern mb-2" placeholder="Nombre" required>
-          <input type="text" name="telefono_principal" class="input-modern mb-2" placeholder="Teléfono principal">
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn-save">Guardar cliente</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
 <!-- ================= MODAL RENOVAR ================= -->
-<div class="modal fade" id="modalRenovar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="POST" action="{{ url_for('buscar_cliente_renovacion') }}">
-        <div class="modal-header">
-          <h5 class="modal-title">Renovar Crédito</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalRenovar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('buscar_cliente_renovacion') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Renovar crédito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text"
+                           name="identificacion"
+                           class="input-modern"
+                           placeholder="Cédula"
+                           required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">Buscar cliente</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <input type="text" name="identificacion" class="input-modern" placeholder="Cédula" required>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn-save">Buscar Cliente</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const toasts = document.querySelectorAll(".toast");
@@ -255,39 +519,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
     const valorVenta = document.querySelector("input[name='valor_venta']");
-    const tasa = document.querySelector("select[name='tasa']");
+    const tasa = document.querySelector("input[name='tasa']");
     const cuotas = document.querySelector("input[name='cuotas']");
     const valorTotal = document.querySelector("input[name='valor_total']");
     const valorCuota = document.querySelector("input[name='valor_cuota']");
+    const tipoPrestamo = document.querySelector("select[name='tipo_prestamo']");
+    const valorTotalTexto = document.getElementById("valorTotalTexto");
+    const valorCuotaTexto = document.getElementById("valorCuotaTexto");
+    const fechaInicio = document.getElementById("fechaInicio");
+
+    function setFechaMananaSiVacia() {
+        if (!fechaInicio.value) {
+            const hoy = new Date();
+            hoy.setDate(hoy.getDate() + 1);
+
+            const año = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoy.getDate()).padStart(2, "0");
+
+            fechaInicio.value = `${año}-${mes}-${dia}`;
+        }
+    }
+
+    function formatearMoneda(numero) {
+        return numero.toLocaleString("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
     function calcular() {
         let venta = parseFloat(valorVenta.value) || 0;
         let interes = parseFloat(tasa.value) || 0;
         let numCuotas = parseInt(cuotas.value) || 1;
 
+        if (numCuotas <= 0) numCuotas = 1;
+        if (interes < 0) interes = 0;
+
         let total = venta + (venta * interes / 100);
         let cuota = total / numCuotas;
 
         valorTotal.value = total.toFixed(2);
         valorCuota.value = cuota.toFixed(2);
+
+        valorTotalTexto.innerText = "$" + formatearMoneda(total);
+        valorCuotaTexto.innerText = "$" + formatearMoneda(cuota);
     }
 
-    valorVenta.addEventListener("input", calcular);
-    cuotas.addEventListener("input", calcular);
+    if (valorVenta) valorVenta.addEventListener("input", calcular);
+    if (cuotas) cuotas.addEventListener("input", calcular);
+    if (tasa) tasa.addEventListener("input", calcular);
+    if (tipoPrestamo) tipoPrestamo.addEventListener("change", calcular);
 
-    // 👇 IMPORTANTE para select
-    tasa.addEventListener("change", calcular);
-
+    setFechaMananaSiVacia();
+    calcular();
 });
 </script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
     const modalElement = document.getElementById("modalRenovar");
 
     if (modalElement) {
@@ -299,9 +594,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-
 });
 </script>
-
 
 {% endblock %}

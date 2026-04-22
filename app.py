@@ -1297,9 +1297,7 @@ def recalcular(credito_id):
 # =============================
 # =============================
 # NUEVA VENTA COBRADOR (CONTROL FLUJO)
-from datetime import date
-
-@app.route("/nueva_venta_cobrador")
+@app.route("/nueva_venta_cobrador", methods=["GET", "POST"])
 def nueva_venta_cobrador():
 
     if "user_id" not in session or session.get("rol") not in ["cobrador", "supervisor", "administrador"]:
@@ -1307,7 +1305,6 @@ def nueva_venta_cobrador():
 
     user_id = int(session["user_id"])
 
-    # 🔹 Traer rutas según rol
     if session.get("rol") == "cobrador":
         rutas = supabase.table("rutas") \
             .select("*") \
@@ -1322,28 +1319,71 @@ def nueva_venta_cobrador():
             .order("posicion") \
             .execute().data or []
 
-    ruta_actual = request.args.get("ruta_id") or session.get("ruta_id")
+    params = request.values
+    ruta_actual = params.get("ruta_id") or session.get("ruta_id")
 
-    # =============================
-    # PARÁMETROS
-    # =============================
-    cedula_aprobada = (request.args.get("cedula") or "").strip()
-    cliente_id_aprobado = request.args.get("cliente_id_aprobado")
-    monto_aprobado_raw = request.args.get("monto")
+    cedula_aprobada = (params.get("cedula") or "").strip()
+    cliente_id_aprobado_raw = (params.get("cliente_id_aprobado") or "").strip()
+    monto_aprobado_raw = (params.get("monto") or "").strip()
+    solicitud_id_raw = (params.get("solicitud_id") or "").strip()
 
-    cliente_id_renovacion = request.args.get("cliente_id_renovacion")
-    es_renovacion = request.args.get("renovar") == "1"
+    cliente_id_renovacion = params.get("cliente_id_renovacion")
+    es_renovacion = params.get("renovar") == "1"
 
     cliente_data = None
     ultimo_credito_data = {}
     form_data = {}
 
-    # Convertir monto
+    def safe_int(value):
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return None
+
+    def normalizar_cedula(valor):
+        return (
+            str(valor or "")
+            .replace(".", "")
+            .replace(",", "")
+            .replace(" ", "")
+            .strip()
+        )
+
+    def armar_form_data_desde_solicitud(solicitud, monto):
+        return {
+            "cliente_id": "",
+            "identificacion": solicitud.get("cedula", ""),
+            "nombre": solicitud.get("cliente_nombre", ""),
+            "direccion": solicitud.get("direccion", ""),
+            "direccion_negocio": solicitud.get("direccion", ""),
+            "codigo_pais": "57",
+            "telefono": solicitud.get("telefono") or solicitud.get("telefono_principal") or "",
+            "valor_venta": monto if monto > 0 else "",
+            "descripcion_credito": solicitud.get("descripcion_actividad", ""),
+
+            "foto_cliente": "",
+            "foto_cedula": "",
+            "foto_negocio": "",
+            "firma_cliente": "",
+
+            "foto_cliente_actual": "",
+            "foto_cedula_actual": "",
+            "foto_negocio_actual": "",
+            "firma_cliente_actual": ""
+        }
+
+    cliente_id_aprobado = safe_int(cliente_id_aprobado_raw)
+    solicitud_id = safe_int(solicitud_id_raw)
+
     monto_aprobado = 0
     try:
-        monto_aprobado = float(monto_aprobado_raw) if monto_aprobado_raw else 0
+        monto_aprobado = float(str(monto_aprobado_raw).replace(".", "").replace(",", ".")) if monto_aprobado_raw else 0
     except Exception:
         monto_aprobado = 0
+
+    print("DEBUG PARAMS NUEVA VENTA:", params.to_dict())
+    print("DEBUG solicitud_id:", solicitud_id)
+    print("DEBUG cedula_aprobada:", cedula_aprobada)
 
     # =====================================================
     # PRIORIDAD 1: RENOVACIÓN
@@ -1355,13 +1395,49 @@ def nueva_venta_cobrador():
             .single() \
             .execute()
 
-        print("DEBUG CLIENTE RENOVACION:", cliente_resp.data)
-
         if cliente_resp.data:
             cliente_data = cliente_resp.data
 
     # =====================================================
-    # PRIORIDAD 2: AUMENTO APROBADO POR ID
+    # PRIORIDAD 2: SOLICITUD APROBADA POR ID
+    # =====================================================
+    elif solicitud_id:
+        solicitud_resp = supabase.table("solicitudes_aumento_cupo") \
+            .select("*") \
+            .eq("id", solicitud_id) \
+            .single() \
+            .execute()
+
+        solicitud = solicitud_resp.data
+        print("DEBUG SOLICITUD POR ID:", solicitud)
+
+        if solicitud:
+            if not monto_aprobado:
+                try:
+                    monto_aprobado = float(solicitud.get("monto_solicitado") or 0)
+                except Exception:
+                    monto_aprobado = 0
+
+            # CLIENTE EXISTENTE
+            if solicitud.get("cliente_id"):
+                cliente_resp = supabase.table("clientes") \
+                    .select("*") \
+                    .eq("id", solicitud["cliente_id"]) \
+                    .single() \
+                    .execute()
+
+                print("DEBUG CLIENTE DESDE SOLICITUD:", cliente_resp.data)
+
+                if cliente_resp.data:
+                    cliente_data = cliente_resp.data
+
+            # CLIENTE NUEVO
+            else:
+                form_data = armar_form_data_desde_solicitud(solicitud, monto_aprobado)
+                print("DEBUG FORM DATA CLIENTE NUEVO DESDE SOLICITUD_ID:", form_data)
+
+    # =====================================================
+    # PRIORIDAD 3: AUMENTO APROBADO POR ID DE CLIENTE
     # =====================================================
     elif cliente_id_aprobado:
         cliente_resp = supabase.table("clientes") \
@@ -1370,56 +1446,62 @@ def nueva_venta_cobrador():
             .single() \
             .execute()
 
-        print("DEBUG CLIENTE AUMENTO POR ID:", cliente_resp.data)
-
         if cliente_resp.data:
             cliente_data = cliente_resp.data
 
     # =====================================================
-    # PRIORIDAD 3: AUMENTO APROBADO POR CÉDULA
+    # PRIORIDAD 4: AUMENTO APROBADO POR CÉDULA
     # =====================================================
     elif cedula_aprobada:
-        cedula_normalizada = (
-            cedula_aprobada
-            .replace(".", "")
-            .replace(",", "")
-            .replace(" ", "")
-            .strip()
-        )
+        cedula_normalizada = normalizar_cedula(cedula_aprobada)
 
+        # 1) Primero intentar como cliente existente
         cliente_resp = supabase.table("clientes") \
             .select("*") \
             .eq("identificacion", cedula_normalizada) \
             .limit(1) \
             .execute()
 
-        print("DEBUG CEDULA RECIBIDA:", cedula_aprobada)
-        print("DEBUG CEDULA NORMALIZADA:", cedula_normalizada)
-        print("DEBUG CLIENTE AUMENTO POR CEDULA:", cliente_resp.data)
-
         if cliente_resp.data:
             cliente_data = cliente_resp.data[0]
+            print("DEBUG CLIENTE ENCONTRADO POR CÉDULA:", cliente_data)
+
         else:
-            # intento secundario por si la cédula en bd tiene formato distinto
-            clientes_resp = supabase.table("clientes") \
+            # 2) Si no existe como cliente, intentar cargar desde la solicitud
+            solicitud_resp = supabase.table("solicitudes_aumento_cupo") \
                 .select("*") \
-                .limit(500) \
+                .eq("cedula", cedula_normalizada) \
+                .order("id", desc=True) \
+                .limit(1) \
                 .execute()
 
-            clientes_lista = clientes_resp.data or []
+            solicitud = solicitud_resp.data[0] if solicitud_resp.data else None
+            print("DEBUG SOLICITUD ENCONTRADA POR CÉDULA:", solicitud)
 
-            for cli in clientes_lista:
-                identificacion_bd = str(cli.get("identificacion") or "")
-                identificacion_bd = identificacion_bd.replace(".", "").replace(",", "").replace(" ", "").strip()
+            if solicitud:
+                if not monto_aprobado:
+                    try:
+                        monto_aprobado = float(solicitud.get("monto_solicitado") or 0)
+                    except Exception:
+                        monto_aprobado = 0
 
-                if identificacion_bd == cedula_normalizada:
-                    cliente_data = cli
-                    break
+                # Si esa solicitud sí tiene cliente_id, cargar cliente
+                if solicitud.get("cliente_id"):
+                    cliente_resp = supabase.table("clientes") \
+                        .select("*") \
+                        .eq("id", solicitud["cliente_id"]) \
+                        .single() \
+                        .execute()
 
-            print("DEBUG CLIENTE HALLADO MANUAL:", cliente_data)
+                    if cliente_resp.data:
+                        cliente_data = cliente_resp.data
+                else:
+                    # Cliente nuevo: llenar desde la solicitud
+                    form_data = armar_form_data_desde_solicitud(solicitud, monto_aprobado)
+                    print("DEBUG FORM DATA CLIENTE NUEVO DESDE CÉDULA:", form_data)
 
     # =====================================================
-    # ÚLTIMO CRÉDITO PARA TRAER FOTOS/FIRMA
+    # SI ENCONTRÓ CLIENTE EN BD
     # =====================================================
     if cliente_data:
         ultimo_credito_resp = supabase.table("creditos") \
@@ -1428,8 +1510,6 @@ def nueva_venta_cobrador():
             .order("id", desc=True) \
             .limit(1) \
             .execute()
-
-        print("DEBUG ULTIMO CREDITO:", ultimo_credito_resp.data)
 
         if ultimo_credito_resp.data:
             ultimo_credito_data = ultimo_credito_resp.data[0]
@@ -1443,6 +1523,7 @@ def nueva_venta_cobrador():
             "codigo_pais": cliente_data.get("codigo_pais", "57"),
             "telefono": cliente_data.get("telefono_principal", ""),
             "valor_venta": monto_aprobado if monto_aprobado > 0 else "",
+            "descripcion_credito": "",
 
             "foto_cliente": ultimo_credito_data.get("foto_cliente", ""),
             "foto_cedula": ultimo_credito_data.get("foto_cedula", ""),
@@ -1455,12 +1536,8 @@ def nueva_venta_cobrador():
             "firma_cliente_actual": ultimo_credito_data.get("firma_cliente", "")
         }
 
-    modo_aumento = True if (cliente_id_aprobado or cedula_aprobada) and not es_renovacion else False
+    modo_aumento = True if (solicitud_id or cliente_id_aprobado or cedula_aprobada) and not es_renovacion else False
 
-    print("DEBUG ruta_actual:", ruta_actual)
-    print("DEBUG cliente_id_aprobado:", cliente_id_aprobado)
-    print("DEBUG cedula_aprobada:", cedula_aprobada)
-    print("DEBUG monto_aprobado:", monto_aprobado)
     print("DEBUG cliente_data FINAL:", cliente_data)
     print("DEBUG form_data FINAL:", form_data)
 
@@ -1472,9 +1549,10 @@ def nueva_venta_cobrador():
         monto_aprobado=monto_aprobado,
         form_data=form_data,
         es_renovacion=es_renovacion,
-        modo_aumento=modo_aumento
+        modo_aumento=modo_aumento,
+        solicitud_id=solicitud_id
     )
-    
+
 @app.route("/buzon_aumento_cupo")
 def buzon_aumento_cupo():
 
@@ -1866,14 +1944,12 @@ def obtener_url_publica(bucket, file_path):
 
     return url
 
-
 @app.route("/guardar_venta_cobrador", methods=["POST"])
 def guardar_venta_cobrador():
 
     if "user_id" not in session:
         return redirect(url_for("login_app"))
 
-    # 🔹 Traer rutas
     rutas_resp = supabase.table("rutas") \
         .select("*") \
         .eq("usuario_id", session["user_id"]) \
@@ -1890,12 +1966,28 @@ def guardar_venta_cobrador():
         flash("No hay ruta activa seleccionada", "danger")
         return redirect(url_for("dashboard_cobrador"))
 
-    # 🔥 Para conservar datos y fotos si hay error y se vuelve a renderizar
     form_data_error = request.form.to_dict()
     form_data_error["foto_cliente"] = request.form.get("foto_cliente_actual", "")
     form_data_error["foto_cedula"] = request.form.get("foto_cedula_actual", "")
     form_data_error["foto_negocio"] = request.form.get("foto_negocio_actual", "")
     form_data_error["firma_cliente"] = request.form.get("firma_cliente_actual", "")
+
+    def safe_int(value):
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return None
+
+    def safe_float(value, default=0):
+        try:
+            return float(str(value).replace(".", "").replace(",", ".").strip())
+        except Exception:
+            return default
+
+    solicitud_id = safe_int(request.form.get("solicitud_id"))
+    modo_aumento = str(request.form.get("modo_aumento") or "0").strip() == "1"
+    es_renovacion = request.form.get("es_renovacion") == "1"
+    monto_aprobado_form = safe_float(request.form.get("monto_aprobado"), 0)
 
     def render_form_error():
         return render_template(
@@ -1903,10 +1995,11 @@ def guardar_venta_cobrador():
             rutas=rutas,
             ruta_actual=ruta_id,
             form_data=form_data_error,
-            es_renovacion=request.form.get("es_renovacion") == "1",
-            monto_aprobado=None,
+            es_renovacion=es_renovacion,
+            monto_aprobado=monto_aprobado_form if monto_aprobado_form > 0 else None,
             cliente_aprobado=None,
-            modo_aumento=False
+            modo_aumento=modo_aumento,
+            solicitud_id=solicitud_id
         )
 
     # ==========================
@@ -1958,14 +2051,13 @@ def guardar_venta_cobrador():
         fiador_telefono = None
         fiador_cedula = None
 
-    # 🔥 Fotos/firma actuales para renovación
     foto_cliente_actual = request.form.get("foto_cliente_actual") or None
     foto_cedula_actual = request.form.get("foto_cedula_actual") or None
     foto_negocio_actual = request.form.get("foto_negocio_actual") or None
     firma_cliente_actual = request.form.get("firma_cliente_actual") or None
 
     # ==========================
-    # VALIDAR CUPO MÁXIMO RUTA COBRADOR
+    # VALIDAR TOPE PERMITIDO
     # ==========================
     ruta_data = supabase.table("rutas") \
         .select("venta_maxima") \
@@ -1977,13 +2069,47 @@ def guardar_venta_cobrador():
         flash("Ruta no válida", "danger")
         return redirect(url_for("dashboard_cobrador"))
 
-    venta_maxima_permitida = float(ruta_data.data["venta_maxima"])
+    venta_maxima_ruta = float(ruta_data.data["venta_maxima"] or 0)
 
-    if valor_venta > venta_maxima_permitida:
-        flash(
-            f"El monto supera la venta máxima permitida para esta ruta (${venta_maxima_permitida:,.0f})",
-            "danger"
-        )
+    monto_tope_permitido = venta_maxima_ruta
+    origen_tope = "ruta"
+
+    # Si viene de aumento, intentar usar el monto aprobado real
+    if modo_aumento and not es_renovacion:
+        monto_aprobado_real = monto_aprobado_form
+
+        if solicitud_id:
+            solicitud_resp = supabase.table("solicitudes_aumento_cupo") \
+                .select("id, monto_solicitado, estado") \
+                .eq("id", solicitud_id) \
+                .single() \
+                .execute()
+
+            solicitud_data = solicitud_resp.data or {}
+
+            if solicitud_data:
+                # opcional: validar estado aprobado si tienes ese flujo
+                # if solicitud_data.get("estado") != "aprobado":
+                #     flash("La solicitud no está aprobada", "danger")
+                #     return render_form_error()
+
+                monto_aprobado_real = float(solicitud_data.get("monto_solicitado") or 0)
+
+        if monto_aprobado_real > 0:
+            monto_tope_permitido = monto_aprobado_real
+            origen_tope = "solicitud_aprobada"
+
+    if valor_venta > monto_tope_permitido:
+        if origen_tope == "solicitud_aprobada":
+            flash(
+                f"El monto supera el cupo aprobado para esta solicitud (${monto_tope_permitido:,.0f})",
+                "danger"
+            )
+        else:
+            flash(
+                f"El monto supera la venta máxima permitida para esta ruta (${monto_tope_permitido:,.0f})",
+                "danger"
+            )
         return render_form_error()
 
     # ==========================
@@ -2040,20 +2166,11 @@ def guardar_venta_cobrador():
 
             pagos_dup = pagos_dup_resp.data or []
 
-            total_pagado_dup = sum(
-                float(p.get("monto") or 0)
-                for p in pagos_dup
-            )
+            total_pagado_dup = sum(float(p.get("monto") or 0) for p in pagos_dup)
 
-            saldo_dup = round(
-                float(credito_existente.get("valor_total") or 0) - total_pagado_dup,
-                2
-            )
+            saldo_dup = round(float(credito_existente.get("valor_total") or 0) - total_pagado_dup, 2)
 
-            todas_pagadas_dup = len(cuotas_dup) > 0 and all(
-                c.get("estado") == "pagado"
-                for c in cuotas_dup
-            )
+            todas_pagadas_dup = len(cuotas_dup) > 0 and all(c.get("estado") == "pagado" for c in cuotas_dup)
 
             if todas_pagadas_dup and saldo_dup <= 0:
                 supabase.table("creditos") \
@@ -2235,15 +2352,24 @@ def guardar_venta_cobrador():
     credito_id = credito_resp.data[0]["id"]
 
     # ==========================
+    # MARCAR SOLICITUD COMO USADA / ATENDIDA
+    # ==========================
+    if solicitud_id:
+        try:
+            supabase.table("solicitudes_aumento_cupo").update({
+                "estado": "usada"
+            }).eq("id", solicitud_id).execute()
+        except Exception as e:
+            print("Error actualizando solicitud usada:", e)
+
+    # ==========================
     # CREAR CUOTAS SEGÚN TIPO
     # ==========================
     fecha_base = datetime.strptime(fecha_inicio, "%Y-%m-%d")
 
-    # 🔵 SEMANAL
     if tipo_prestamo == "Semanal":
         for i in range(cuotas):
             fecha_pago = fecha_base + timedelta(days=(i + 1) * 7)
-
             supabase.table("cuotas").insert({
                 "credito_id": credito_id,
                 "numero": i + 1,
@@ -2252,11 +2378,9 @@ def guardar_venta_cobrador():
                 "fecha_pago": fecha_pago.date().isoformat()
             }).execute()
 
-    # 🟣 QUINCENAL
     elif tipo_prestamo == "Quincenal":
         for i in range(cuotas):
             fecha_pago = fecha_base + timedelta(days=(i + 1) * 15)
-
             supabase.table("cuotas").insert({
                 "credito_id": credito_id,
                 "numero": i + 1,
@@ -2265,11 +2389,9 @@ def guardar_venta_cobrador():
                 "fecha_pago": fecha_pago.date().isoformat()
             }).execute()
 
-    # 🟠 MENSUAL
     elif tipo_prestamo == "Mensual":
         for i in range(cuotas):
             fecha_pago = sumar_meses(fecha_base, i + 1)
-
             supabase.table("cuotas").insert({
                 "credito_id": credito_id,
                 "numero": i + 1,
@@ -2278,13 +2400,11 @@ def guardar_venta_cobrador():
                 "fecha_pago": fecha_pago.date().isoformat()
             }).execute()
 
-    # 🟢 DIARIOS / DEFAULT
     else:
         fecha_actual = fecha_base
         cuotas_creadas = 0
 
         while cuotas_creadas < cuotas:
-
             crear_cuota = False
 
             if tipo_prestamo == "Diario Lunes a Viernes":
@@ -4937,23 +5057,18 @@ def listar_ventas():
 # =============================
 # NUEVA VENTA (CONTROL FLUJO)
 # =============================
-# =============================
-# NUEVA VENTA (CONTROL FLUJO)
-# =============================
 @app.route("/nueva_venta")
 def nueva_venta():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    # 🔥 Tomar oficina desde sesión (como en usuarios)
     oficina_id = session.get("oficina_id")
 
     if not oficina_id:
         flash("Debe seleccionar una oficina", "warning")
         return redirect(url_for("cambiar_oficina"))
 
-    # 🔹 Traer solo rutas de esa oficina
     rutas_resp = supabase.table("rutas") \
         .select("*") \
         .eq("oficina_id", oficina_id) \
@@ -4964,8 +5079,8 @@ def nueva_venta():
 
     cliente = None
     valor_anterior = None
+    form_data = {}
 
-    # 🔹 Si viene cliente en sesión (normal o renovación)
     cliente_id = session.get("cliente_id")
 
     if cliente_id:
@@ -4977,16 +5092,15 @@ def nueva_venta():
         if cliente_resp.data:
             cliente = cliente_resp.data[0]
 
-    # 🔹 Si es renovación, traer valor anterior
     valor_anterior = session.get("valor_anterior")
 
     return render_template(
         "nueva_venta.html",
         rutas=rutas,
         cliente=cliente,
-        valor_anterior=valor_anterior
+        valor_anterior=valor_anterior,
+        form_data=form_data
     )
-
 
 @app.route("/cancelar_venta")
 def cancelar_venta():
@@ -5150,10 +5264,9 @@ def guardar_venta():
     creditos_cliente = supabase.table("creditos") \
         .select("id") \
         .eq("cliente_id", cliente_id) \
-        .execute().data
+        .execute().data or []
 
     for credito in creditos_cliente:
-
         cuotas_pendientes = supabase.table("cuotas") \
             .select("id") \
             .eq("credito_id", credito["id"]) \
@@ -5164,16 +5277,27 @@ def guardar_venta():
             flash("El cliente tiene un crédito con saldo pendiente", "error")
             return redirect(url_for("nueva_venta"))
 
+    try:
+        valor_venta = float((request.form.get("valor_venta") or "0").replace(",", "."))
+        tasa = float((request.form.get("tasa") or "0").replace(",", "."))
+        cuotas = int(request.form.get("cuotas") or 0)
+        tipo_prestamo = (request.form.get("tipo_prestamo") or "").strip()
+        fecha_inicio_str = (request.form.get("fecha_inicio") or "").strip()
+        ruta_id = request.form.get("ruta_id")
 
-    # 🔹 Datos del formulario
-    valor_venta = float(request.form["valor_venta"])
-    tasa = float(request.form["tasa"])
-    cuotas = int(request.form["cuotas"])
+        if valor_venta <= 0 or cuotas <= 0 or tasa < 0 or not tipo_prestamo or not fecha_inicio_str or not ruta_id:
+            raise ValueError("Datos incompletos o inválidos")
 
-    valor_total = valor_venta + (valor_venta * tasa / 100)
-    valor_cuota = valor_total / cuotas
+        fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d")
 
-    ruta_id = request.form["ruta_id"]
+    except Exception as e:
+        print("ERROR DATOS VENTA:", e)
+        flash("Datos inválidos para registrar la venta", "error")
+        return redirect(url_for("nueva_venta"))
+
+    valor_total = round(valor_venta + (valor_venta * tasa / 100), 2)
+    valor_cuota = round(valor_total / cuotas, 2)
+
     # 🔹 Obtener última posición en esa ruta
     ultimo = supabase.table("creditos") \
         .select("posicion") \
@@ -5183,21 +5307,21 @@ def guardar_venta():
         .execute().data
 
     if ultimo:
-        nueva_posicion = ultimo[0]["posicion"] + 1
+        nueva_posicion = int(ultimo[0]["posicion"]) + 1
     else:
         nueva_posicion = 1
-    # 🔹 Insertar nuevo crédito
+
     credito_data = {
         "cliente_id": cliente_id,
-        "ruta_id": request.form["ruta_id"],
-        "tipo_prestamo": request.form["tipo_prestamo"],
+        "ruta_id": ruta_id,
+        "tipo_prestamo": tipo_prestamo,
         "posicion": nueva_posicion,
         "valor_venta": valor_venta,
         "tasa": tasa,
         "valor_total": valor_total,
         "cantidad_cuotas": cuotas,
         "valor_cuota": valor_cuota,
-        "fecha_inicio": request.form["fecha_inicio"],
+        "fecha_inicio": fecha_inicio_str,
         "estado": "activo"
     }
 
@@ -5209,20 +5333,90 @@ def guardar_venta():
 
     credito_id = credito_resp.data[0]["id"]
 
-    # 🔹 Crear cuotas automáticamente
-    fecha_inicio = datetime.strptime(request.form["fecha_inicio"], "%Y-%m-%d")
+    def sumar_meses(base_date, meses):
+        year = base_date.year + ((base_date.month - 1 + meses) // 12)
+        month = ((base_date.month - 1 + meses) % 12) + 1
+        day = base_date.day
 
-    for i in range(cuotas):
+        # último día del mes destino
+        if month == 12:
+            siguiente_mes = datetime(year + 1, 1, 1)
+        else:
+            siguiente_mes = datetime(year, month + 1, 1)
 
-        cuota_data = {
-            "credito_id": credito_id,
-            "numero": i + 1,
-            "valor": valor_cuota,
-            "estado": "pendiente",
-            "fecha_pago": (fecha_inicio + timedelta(days=i)).date().isoformat()
-        }
+        ultimo_dia = (siguiente_mes - timedelta(days=1)).day
+        day = min(day, ultimo_dia)
 
-        supabase.table("cuotas").insert(cuota_data).execute()
+        return datetime(year, month, day)
+
+    # 🔹 Crear cuotas según tipo de préstamo
+    if tipo_prestamo == "Semanal":
+        for i in range(cuotas):
+            fecha_pago = fecha_inicio + timedelta(days=(i + 1) * 7)
+
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": i + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+    elif tipo_prestamo == "Quincenal":
+        for i in range(cuotas):
+            fecha_pago = fecha_inicio + timedelta(days=(i + 1) * 15)
+
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": i + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+    elif tipo_prestamo == "Mensual":
+        for i in range(cuotas):
+            fecha_pago = sumar_meses(fecha_inicio, i + 1)
+
+            supabase.table("cuotas").insert({
+                "credito_id": credito_id,
+                "numero": i + 1,
+                "valor": valor_cuota,
+                "estado": "pendiente",
+                "fecha_pago": fecha_pago.date().isoformat()
+            }).execute()
+
+    else:
+        fecha_actual = fecha_inicio
+        cuotas_creadas = 0
+
+        while cuotas_creadas < cuotas:
+            crear_cuota = False
+            fecha_pago = fecha_actual
+
+            if tipo_prestamo == "Diario Lunes a Viernes":
+                if fecha_actual.weekday() < 5:
+                    crear_cuota = True
+
+            elif tipo_prestamo == "Diario Lunes a Sábado":
+                if fecha_actual.weekday() < 6:
+                    crear_cuota = True
+
+            else:
+                crear_cuota = True
+
+            if crear_cuota:
+                supabase.table("cuotas").insert({
+                    "credito_id": credito_id,
+                    "numero": cuotas_creadas + 1,
+                    "valor": valor_cuota,
+                    "estado": "pendiente",
+                    "fecha_pago": fecha_pago.date().isoformat()
+                }).execute()
+
+                cuotas_creadas += 1
+
+            fecha_actual += timedelta(days=1)
 
     # 🔹 Si era renovación, marcar crédito anterior como renovado
     valor_anterior = session.get("valor_anterior")
@@ -5241,14 +5435,11 @@ def guardar_venta():
                 "estado": "renovado"
             }).eq("id", ultimo_credito.data[0]["id"]).execute()
 
-    # 🔹 Limpiar sesión
     session.pop("cliente_id", None)
     session.pop("valor_anterior", None)
 
     flash("Venta registrada correctamente", "success")
-
     return redirect(url_for("nueva_venta"))
-
 # LISTAR PAGOS
 @app.route("/pagos")
 def vista_pagos():
