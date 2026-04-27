@@ -1,237 +1,622 @@
 {% extends "cobrador/layout.html" %}
-{% block titulo %}Todos los creditos{% endblock %}
+{% block titulo %}Buzón de créditos{% endblock %}
 
 {% block content %}
 
 <style>
-.creditos-shell{
-    max-width: 460px;
+:root{
+    --bank-main:#123b63;
+    --bank-dark:#0b2847;
+    --bank-soft:#eef6ff;
+    --slate:#0f172a;
+}
+
+.buzon-page{
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(18,59,99,.12), transparent 34%),
+        linear-gradient(180deg, #f4f7fb 0%, #eef2f7 100%);
+    margin: -16px;
+    padding: 16px 16px 120px;
+}
+
+.buzon-shell{
+    max-width: 560px;
     margin: 0 auto;
-    padding: 16px 16px 112px;
 }
 
-.creditos-search-wrap{
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: linear-gradient(180deg, rgba(248,250,252,.96) 0%, rgba(248,250,252,.92) 100%);
-    backdrop-filter: blur(12px);
-    padding: 8px 0 14px;
-    margin-bottom: 8px;
-}
-
-.creditos-search-card{
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 22px;
-    padding: 14px;
-    box-shadow: 0 12px 28px rgba(15,23,42,.05);
-}
-
-.creditos-search-input{
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #dbe2ea;
-    border-radius: 16px;
-    padding: 13px 14px;
-    color: #0f172a;
-    font-size: 14px;
-    box-shadow: 0 4px 14px rgba(15,23,42,.03);
-    transition: all .2s ease;
-}
-
-.creditos-search-input::placeholder{
-    color: #94a3b8;
-}
-
-.creditos-search-input:focus{
-    outline: none;
-    border-color: #94a3b8;
-    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
-}
-
-.credito-modern{
-    display: block;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 16px;
-    box-shadow: 0 10px 24px rgba(15,23,42,.05);
-    color: inherit;
-    position: relative;
+.buzon-hero{
+    background:
+        linear-gradient(135deg, rgba(18,59,99,.98), rgba(11,40,71,.98)),
+        radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 32%);
+    color: white;
+    border-radius: 30px;
+    padding: 20px;
+    box-shadow: 0 22px 44px rgba(15,23,42,.20);
     overflow: hidden;
-    transition: all .22s ease;
+    position: relative;
 }
 
-.credito-modern:hover{
+.buzon-hero::after{
+    content:"";
+    position:absolute;
+    width:170px;
+    height:170px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    right:-70px;
+    top:-70px;
+}
+
+.hero-top{
+    position: relative;
+    z-index: 2;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.hero-title{
+    font-size: 24px;
+    line-height: 1.05;
+    font-weight: 950;
+    letter-spacing: -.04em;
+}
+
+.hero-subtitle{
+    font-size: 13px;
+    color: rgba(255,255,255,.76);
+    margin-top: 6px;
+    max-width: 360px;
+}
+
+.hero-pill{
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    padding: 8px 11px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.hero-kpis{
+    position: relative;
+    z-index: 2;
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap:8px;
+    margin-top:16px;
+}
+
+.hero-kpi{
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 10px 8px;
+    text-align:center;
+}
+
+.hero-kpi-value{
+    font-size: 20px;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.hero-kpi-label{
+    font-size: 10px;
+    color: rgba(255,255,255,.72);
+    margin-top: 5px;
+}
+
+.modulos-title{
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+    margin: 18px 2px 10px;
+}
+
+.modulos-title h2{
+    font-size: 18px;
+    color:#0f172a;
+    font-weight:950;
+    letter-spacing:-.03em;
+}
+
+.modulos-title span{
+    font-size: 12px;
+    color:#64748b;
+    font-weight:700;
+}
+
+.modulos-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px;
+}
+
+.modulo-card{
+    border:1px solid #e2e8f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 24px;
+    padding: 15px;
+    text-align:left;
+    box-shadow: 0 12px 24px rgba(15,23,42,.055);
+    transition: all .22s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+.modulo-card::after{
+    content:"";
+    position:absolute;
+    width:78px;
+    height:78px;
+    border-radius:999px;
+    right:-32px;
+    top:-32px;
+    background:rgba(18,59,99,.06);
+}
+
+.modulo-card:hover{
     transform: translateY(-2px);
     box-shadow: 0 18px 32px rgba(15,23,42,.08);
-    border-color: #cbd5e1;
+    border-color:#cbd5e1;
 }
 
-.badge-modern{
-    position: absolute;
-    top: 14px;
-    right: 14px;
+.modulo-card.active{
+    background: linear-gradient(135deg, #123b63, #0b2847);
+    border-color:#123b63;
+    color:white;
+    box-shadow: 0 20px 36px rgba(18,59,99,.22);
+}
+
+.modulo-card.active::after{
+    background:rgba(255,255,255,.10);
+}
+
+.modulo-icon{
+    height: 42px;
+    width: 42px;
+    border-radius: 17px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    background:#f1f5f9;
+    margin-bottom:10px;
+    position:relative;
+    z-index:2;
+}
+
+.modulo-card.active .modulo-icon{
+    background:rgba(255,255,255,.16);
+}
+
+.modulo-name{
+    position:relative;
+    z-index:2;
+    font-size: 13px;
+    font-weight: 950;
+    color:#0f172a;
+}
+
+.modulo-card.active .modulo-name{
+    color:white;
+}
+
+.modulo-count{
+    position:relative;
+    z-index:2;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 950;
+    margin-top: 6px;
+    color:#0f172a;
+}
+
+.modulo-card.active .modulo-count{
+    color:white;
+}
+
+.modulo-help{
+    position:relative;
+    z-index:2;
     font-size: 11px;
-    font-weight: 700;
-    padding: 7px 12px;
-    border-radius: 999px;
-    box-shadow: 0 6px 16px rgba(15,23,42,.08);
-    z-index: 2;
+    color:#64748b;
+    margin-top:6px;
+    min-height: 28px;
+}
+
+.modulo-card.active .modulo-help{
+    color:rgba(255,255,255,.76);
+}
+
+.toolbar-sticky{
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 12px 0;
+    background: linear-gradient(180deg, rgba(244,247,251,.98), rgba(244,247,251,.90));
+    backdrop-filter: blur(14px);
+}
+
+.toolbar-card{
+    background:rgba(255,255,255,.94);
+    border:1px solid #e2e8f0;
+    border-radius: 26px;
+    padding:12px;
+    box-shadow: 0 14px 28px rgba(15,23,42,.06);
+}
+
+.search-wrap{
+    position:relative;
+}
+
+.search-icon{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#64748b;
+    font-size:14px;
+}
+
+.search-input{
+    width:100%;
+    border:1px solid #dbe2ea;
+    background:#f8fafc;
+    border-radius:18px;
+    padding:13px 14px 13px 38px;
+    font-size:14px;
+    color:#0f172a;
+    transition:all .2s ease;
+}
+
+.search-input:focus{
+    outline:none;
+    background:white;
+    border-color:#123b63;
+    box-shadow:0 0 0 4px rgba(18,59,99,.10);
+}
+
+.active-buzon{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:11px 3px 0;
+}
+
+.active-title{
+    font-size:13px;
+    color:#0f172a;
+    font-weight:950;
+}
+
+.active-desc{
+    font-size:11px;
+    color:#64748b;
+    margin-top:2px;
+}
+
+.active-count{
+    background:#eef6ff;
+    color:#123b63;
+    border:1px solid #cfe6ff;
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:950;
+    white-space:nowrap;
+}
+
+.quick-filters{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:10px 2px 2px;
+    scrollbar-width:none;
+}
+
+.quick-filters::-webkit-scrollbar{
+    display:none;
+}
+
+.quick-chip{
+    flex:0 0 auto;
+    background:white;
+    border:1px solid #e2e8f0;
+    color:#334155;
+    border-radius:999px;
+    padding:8px 11px;
+    font-size:12px;
+    font-weight:850;
+    transition:all .2s ease;
+}
+
+.quick-chip.active{
+    background:#123b63;
+    color:white;
+    border-color:#123b63;
+}
+
+.lista-creditos{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.credito-card{
+    display:block;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border:1px solid #e2e8f0;
+    border-radius:28px;
+    padding:16px;
+    color:inherit;
+    box-shadow: 0 12px 26px rgba(15,23,42,.055);
+    position:relative;
+    overflow:hidden;
+    transition:all .22s ease;
+}
+
+.credito-card:hover{
+    transform:translateY(-2px);
+    border-color:#cbd5e1;
+    box-shadow:0 18px 34px rgba(15,23,42,.08);
+}
+
+.credito-card.hidden-card{
+    display:none;
+}
+
+.credito-badge{
+    position:absolute;
+    right:14px;
+    top:14px;
+    border-radius:999px;
+    padding:7px 11px;
+    font-size:11px;
+    font-weight:950;
+    z-index:2;
 }
 
 .badge-red{
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
+    background:#fef2f2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
 }
 
 .badge-orange{
-    background: #fff7ed;
-    color: #c2410c;
-    border: 1px solid #fed7aa;
+    background:#fff7ed;
+    color:#c2410c;
+    border:1px solid #fed7aa;
+}
+
+.badge-yellow{
+    background:#fefce8;
+    color:#a16207;
+    border:1px solid #fde68a;
 }
 
 .badge-green{
-    background: #ecfdf5;
-    color: #047857;
-    border: 1px solid #a7f3d0;
+    background:#ecfdf5;
+    color:#047857;
+    border:1px solid #a7f3d0;
 }
 
-.credito-posicion{
-    position: relative;
+.badge-blue{
+    background:#eff6ff;
+    color:#1d4ed8;
+    border:1px solid #bfdbfe;
 }
 
-.credito-posicion-circle{
-    height: 52px;
-    width: 52px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #0f172a, #334155);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(15,23,42,.12);
+.badge-gray{
+    background:#f1f5f9;
+    color:#475569;
+    border:1px solid #e2e8f0;
 }
 
-.credito-edit-btn{
-    position: absolute;
-    bottom: -4px;
-    right: -4px;
-    height: 22px;
-    width: 22px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: white;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 16px rgba(37,99,235,.22);
+.credito-main{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
 }
 
-.credito-nombre{
-    font-size: 15px;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1.2;
+.credito-left{
+    display:flex;
+    gap:12px;
+    min-width:0;
 }
 
-.credito-tel{
-    font-size: 12px;
-    color: #1d4ed8;
-    margin-top: 4px;
+.pos-wrap{
+    position:relative;
+    flex:0 0 auto;
 }
 
-.credito-fecha{
-    font-size: 12px;
-    color: #1d4ed8;
-    margin-top: 6px;
+.pos-circle{
+    height:54px;
+    width:54px;
+    border-radius:19px;
+    background:linear-gradient(135deg, #0f172a, #334155);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:950;
+    font-size:14px;
+    box-shadow:0 10px 20px rgba(15,23,42,.14);
 }
 
-.credito-arrow{
-    height: 34px;
-    width: 34px;
-    border-radius: 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #475569;
-    font-size: 18px;
-    flex-shrink: 0;
+.pos-edit{
+    position:absolute;
+    right:-4px;
+    bottom:-4px;
+    height:23px;
+    width:23px;
+    border-radius:999px;
+    background:linear-gradient(135deg, #2563eb, #1d4ed8);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    box-shadow:0 8px 16px rgba(37,99,235,.25);
 }
 
-.credito-finance-grid{
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+.cliente-info{
+    min-width:0;
+    padding-right:86px;
 }
 
-.credito-finance-box{
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 14px;
-    text-align: center;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+.cliente-nombre{
+    color:#0f172a;
+    font-size:15px;
+    line-height:1.2;
+    font-weight:950;
 }
 
-.credito-finance-label{
-    font-size: 11px;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: .06em;
+.cliente-meta{
+    color:#64748b;
+    font-size:12px;
+    margin-top:4px;
 }
 
-.credito-finance-value{
-    font-weight: 800;
-    font-size: 18px;
-    margin-top: 6px;
-    color: #0f172a;
+.tipo-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-top:8px;
+    background:#eef2ff;
+    color:#3730a3;
+    border:1px solid #c7d2fe;
+    border-radius:999px;
+    padding:5px 9px;
+    font-size:11px;
+    font-weight:950;
 }
 
-.credito-finance-green{
-    color: #059669;
+.arrow-box{
+    height:34px;
+    width:34px;
+    border-radius:13px;
+    border:1px solid #e2e8f0;
+    background:#f8fafc;
+    color:#475569;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    flex:0 0 auto;
 }
 
-.credito-empty{
-    background: rgba(255,255,255,0.9);
-    border: 1px dashed #cbd5e1;
-    border-radius: 24px;
-    padding: 28px 20px;
-    text-align: center;
-    box-shadow: 0 10px 24px rgba(15,23,42,.04);
-    color: #64748b;
-    font-size: 14px;
-    margin-top: 40px;
+.finance-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:9px;
+    margin-top:14px;
+}
+
+.finance-box{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:19px;
+    padding:11px 7px;
+    text-align:center;
+}
+
+.finance-label{
+    color:#64748b;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.055em;
+}
+
+.finance-value{
+    color:#0f172a;
+    font-weight:950;
+    font-size:14px;
+    margin-top:6px;
+}
+
+.text-green{
+    color:#059669;
+}
+
+.text-red{
+    color:#dc2626;
+}
+
+.text-blue{
+    color:#2563eb;
+}
+
+.mini-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+.mini-pill{
+    background:white;
+    border:1px solid #e2e8f0;
+    color:#475569;
+    border-radius:999px;
+    padding:6px 9px;
+    font-size:11px;
+    font-weight:800;
+}
+
+.empty-state{
+    background:rgba(255,255,255,.9);
+    border:1px dashed #cbd5e1;
+    border-radius:28px;
+    padding:30px 20px;
+    text-align:center;
+    color:#64748b;
+    box-shadow:0 12px 26px rgba(15,23,42,.04);
+}
+
+.empty-icon{
+    font-size:34px;
+    margin-bottom:8px;
+}
+
+.empty-title{
+    font-size:16px;
+    font-weight:950;
+    color:#0f172a;
+}
+
+.empty-text{
+    font-size:13px;
+    margin-top:5px;
 }
 
 .modal-banking-overlay{
     position: fixed;
     inset: 0;
-    background: rgba(15,23,42,.45);
+    background: rgba(15,23,42,.48);
     backdrop-filter: blur(10px);
 }
 
 .modal-banking-card{
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     width: 100%;
-    max-width: 380px;
-    border-radius: 28px;
+    max-width: 390px;
+    border-radius: 30px;
     padding: 22px;
     color: #0f172a;
-    box-shadow: 0 26px 60px rgba(15,23,42,.2);
+    box-shadow: 0 26px 60px rgba(15,23,42,.24);
     border: 1px solid #e2e8f0;
 }
 
 .modal-handle{
-    width: 42px;
+    width: 44px;
     height: 6px;
     background: #cbd5e1;
     border-radius: 999px;
@@ -240,16 +625,15 @@
 
 .modal-title{
     font-size: 22px;
-    font-weight: 800;
+    font-weight: 950;
     text-align: center;
     margin-bottom: 18px;
-    color: #0f172a;
 }
 
 .modal-summary{
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 14px;
     margin-bottom: 16px;
     text-align: center;
@@ -263,8 +647,8 @@
 }
 
 .modal-summary-value{
-    font-size: 28px;
-    font-weight: 800;
+    font-size: 30px;
+    font-weight: 950;
     color: #059669;
     margin-top: 4px;
 }
@@ -274,38 +658,32 @@
     margin-top: 8px;
     background: #ffffff;
     border: 1px solid #dbe2ea;
-    border-radius: 16px;
+    border-radius: 17px;
     padding: 13px 14px;
     text-align: center;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 850;
     color: #0f172a;
-    box-shadow: 0 4px 14px rgba(15,23,42,.03);
 }
 
 .modal-input:focus{
-    outline: none;
-    border-color: #94a3b8;
-    box-shadow: 0 0 0 4px rgba(148,163,184,.12);
+    outline:none;
+    border-color:#123b63;
+    box-shadow:0 0 0 4px rgba(18,59,99,.10);
 }
 
 .modal-btn{
     width: 100%;
-    border-radius: 16px;
+    border-radius: 17px;
     padding: 13px 14px;
-    font-weight: 800;
-    transition: all .2s ease;
+    font-weight: 950;
+    transition:all .2s ease;
 }
 
 .modal-btn-primary{
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    background: linear-gradient(135deg, #123b63, #0b2847);
     color: white;
-    box-shadow: 0 14px 30px rgba(15,23,42,.16);
-}
-
-.modal-btn-primary:hover{
-    background: linear-gradient(135deg, #1e293b, #334155);
-    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(18,59,99,.18);
 }
 
 .modal-btn-secondary{
@@ -313,121 +691,384 @@
     color: #334155;
 }
 
-.modal-btn-secondary:hover{
-    background: #cbd5e1;
+@media(max-width:420px){
+    .hero-kpis{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .modulos-grid{
+        grid-template-columns:1fr;
+    }
+
+    .finance-grid{
+        grid-template-columns:1fr;
+    }
+
+    .cliente-info{
+        padding-right:74px;
+    }
 }
 </style>
 
-<div class="creditos-shell">
+<div class="buzon-page">
+    <div class="buzon-shell">
 
-    <div class="creditos-search-wrap">
-        <div class="creditos-search-card">
-            <input type="text"
-                   id="buscador"
-                   placeholder="Buscar por nombre o cédula..."
-                   class="creditos-search-input">
-        </div>
-    </div>
-
-    <div class="space-y-4">
-    {% for c in creditos %}
-
-    <a href="{{ url_for('detalle_credito', credito_id=c.id) }}"
-       class="credito-item credito-modern"
-       data-nombre="{{ c.cliente|lower }}"
-       data-cedula="{{ c.identificacion|default('')|lower }}">
-
-        {% if c.color_estado == "rojo" %}
-            <div class="badge-modern badge-red">
-                🔴 Mora
-            </div>
-        {% elif c.color_estado == "naranja" %}
-            <div class="badge-modern badge-orange">
-                🟠 Mora
-            </div>
-        {% else %}
-            <div class="badge-modern badge-green">
-                🟢 Al día
-            </div>
-        {% endif %}
-
-        <div class="flex justify-between items-start gap-3">
-
-            <!-- IZQUIERDA -->
-            <div class="flex gap-3 min-w-0">
-
-                <!-- POSICIÓN -->
-                <div class="credito-posicion">
-                    <div class="credito-posicion-circle">
-                        {{ c.posicion }}
+        <div class="buzon-hero">
+            <div class="hero-top">
+                <div>
+                    <div class="hero-title">
+                        Buzón de créditos
                     </div>
-
-                    <button type="button"
-                            onclick="editarPosicion(event, '{{ c.id }}','{{ c.posicion }}')"
-                            class="credito-edit-btn">
-                        ✏
-                    </button>
+                    <div class="hero-subtitle">
+                        Gestiona cobros, mora, finalizados y tipos de préstamo desde un solo lugar.
+                    </div>
                 </div>
 
-                <!-- INFO -->
-                <div class="min-w-0">
+                <div class="hero-pill">
+                    Ruta actual
+                </div>
+            </div>
 
-                    <div class="credito-nombre truncate pr-2">
-                        {{ c.cliente }}
+            <div class="hero-kpis">
+                <div class="hero-kpi">
+                    <div class="hero-kpi-value">{{ stats.total }}</div>
+                    <div class="hero-kpi-label">Total</div>
+                </div>
+
+                <div class="hero-kpi">
+                    <div class="hero-kpi-value">{{ stats.cobrar_hoy }}</div>
+                    <div class="hero-kpi-label">Hoy</div>
+                </div>
+
+                <div class="hero-kpi">
+                    <div class="hero-kpi-value">{{ stats.mora }}</div>
+                    <div class="hero-kpi-label">Mora</div>
+                </div>
+
+                <div class="hero-kpi">
+                    <div class="hero-kpi-value">{{ stats.finalizados }}</div>
+                    <div class="hero-kpi-label">Finalizados</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulos-title">
+            <div>
+                <h2>Módulos del buzón</h2>
+                <span>Toca un módulo para abrirlo</span>
+            </div>
+        </div>
+
+        <div class="modulos-grid" id="modulosGrid">
+
+            <button type="button"
+                    class="modulo-card active"
+                    data-buzon="todos"
+                    data-title="Todos los créditos"
+                    data-desc="Vista general de todos los créditos de la ruta.">
+                <div class="modulo-icon">📚</div>
+                <div class="modulo-name">Todos los créditos</div>
+                <div class="modulo-count">{{ stats.total }}</div>
+                <div class="modulo-help">Listado completo de la ruta.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="cobrar_hoy"
+                    data-title="Créditos por cobrar hoy"
+                    data-desc="Créditos con cuota programada para hoy y pendiente de pago.">
+                <div class="modulo-icon">📆</div>
+                <div class="modulo-name">Cobrar hoy</div>
+                <div class="modulo-count">{{ stats.cobrar_hoy }}</div>
+                <div class="modulo-help">Cuotas con fecha de hoy.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="mora"
+                    data-title="Créditos en mora"
+                    data-desc="Créditos con cuotas pendientes vencidas.">
+                <div class="modulo-icon">🔴</div>
+                <div class="modulo-name">En mora</div>
+                <div class="modulo-count">{{ stats.mora }}</div>
+                <div class="modulo-help">Prioridad alta de gestión.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="pagados_hoy"
+                    data-title="Créditos pagados hoy"
+                    data-desc="Créditos que registraron algún pago durante el día.">
+                <div class="modulo-icon">✅</div>
+                <div class="modulo-name">Pagados hoy</div>
+                <div class="modulo-count">{{ stats.pagados_hoy }}</div>
+                <div class="modulo-help">Pagos registrados hoy.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="finalizados"
+                    data-title="Créditos finalizados"
+                    data-desc="Créditos pagados o marcados como finalizados.">
+                <div class="modulo-icon">🏁</div>
+                <div class="modulo-name">Finalizados</div>
+                <div class="modulo-count">{{ stats.finalizados }}</div>
+                <div class="modulo-help">Histórico terminado.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="semanal"
+                    data-title="Créditos semanales"
+                    data-desc="Créditos cuyo tipo de préstamo es semanal.">
+                <div class="modulo-icon">🗓️</div>
+                <div class="modulo-name">Semanal</div>
+                <div class="modulo-count">{{ stats.semanal }}</div>
+                <div class="modulo-help">Cobro cada semana.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="quincenal"
+                    data-title="Créditos quincenales"
+                    data-desc="Créditos cuyo tipo de préstamo es quincenal.">
+                <div class="modulo-icon">📅</div>
+                <div class="modulo-name">Quincenal</div>
+                <div class="modulo-count">{{ stats.quincenal }}</div>
+                <div class="modulo-help">Cobro cada 15 días.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="mensual"
+                    data-title="Créditos mensuales"
+                    data-desc="Créditos cuyo tipo de préstamo es mensual.">
+                <div class="modulo-icon">🧾</div>
+                <div class="modulo-name">Mensual</div>
+                <div class="modulo-count">{{ stats.mensual }}</div>
+                <div class="modulo-help">Cobro mes a mes.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="diario"
+                    data-title="Créditos diarios"
+                    data-desc="Todos los créditos con tipo de préstamo diario.">
+                <div class="modulo-icon">⚡</div>
+                <div class="modulo-name">Diario total</div>
+                <div class="modulo-count">{{ stats.diario }}</div>
+                <div class="modulo-help">Todos los diarios.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="diario_lv"
+                    data-title="Diario lunes a viernes"
+                    data-desc="Créditos diarios que cobran de lunes a viernes.">
+                <div class="modulo-icon">🏦</div>
+                <div class="modulo-name">Diario L-V</div>
+                <div class="modulo-count">{{ stats.diario_lv }}</div>
+                <div class="modulo-help">Lunes a viernes.</div>
+            </button>
+
+            <button type="button"
+                    class="modulo-card"
+                    data-buzon="diario_ls"
+                    data-title="Diario lunes a sábado"
+                    data-desc="Créditos diarios que cobran de lunes a sábado.">
+                <div class="modulo-icon">🚀</div>
+                <div class="modulo-name">Diario L-S</div>
+                <div class="modulo-count">{{ stats.diario_ls }}</div>
+                <div class="modulo-help">Lunes a sábado.</div>
+            </button>
+
+        </div>
+
+        <div class="toolbar-sticky">
+            <div class="toolbar-card">
+
+                <div class="search-wrap">
+                    <span class="search-icon">🔎</span>
+                    <input type="text"
+                           id="buscador"
+                           class="search-input"
+                           placeholder="Buscar por nombre, cédula o teléfono...">
+                </div>
+
+                <div class="quick-filters">
+                    <button type="button" class="quick-chip active" data-buzon="todos">Todos</button>
+                    <button type="button" class="quick-chip" data-buzon="cobrar_hoy">Cobrar hoy</button>
+                    <button type="button" class="quick-chip" data-buzon="mora">Mora</button>
+                    <button type="button" class="quick-chip" data-buzon="finalizados">Finalizados</button>
+                    <button type="button" class="quick-chip" data-buzon="semanal">Semanal</button>
+                    <button type="button" class="quick-chip" data-buzon="quincenal">Quincenal</button>
+                    <button type="button" class="quick-chip" data-buzon="mensual">Mensual</button>
+                    <button type="button" class="quick-chip" data-buzon="diario">Diario</button>
+                </div>
+
+                <div class="active-buzon">
+                    <div>
+                        <div class="active-title" id="tituloBuzon">
+                            Todos los créditos
+                        </div>
+                        <div class="active-desc" id="descripcionBuzon">
+                            Vista general de todos los créditos de la ruta.
+                        </div>
                     </div>
 
-                    <div class="credito-tel">
-                        📱 {{ c.telefono }}
+                    <div class="active-count" id="contadorVisible">
+                        0 créditos
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="lista-creditos" id="listaCreditos">
+
+            {% for c in creditos %}
+
+            <a href="{{ url_for('detalle_credito', credito_id=c.id) }}"
+               class="credito-card credito-item"
+               data-search="{{ (c.cliente ~ ' ' ~ c.identificacion ~ ' ' ~ c.telefono ~ ' ' ~ c.tipo_prestamo)|lower }}"
+               data-tipo="{{ c.tipo_grupo }}"
+               data-diario-total="{{ 1 if c.diario_total else 0 }}"
+               data-mora="{{ 1 if c.en_mora else 0 }}"
+               data-cobrar-hoy="{{ 1 if c.cobrar_hoy else 0 }}"
+               data-pagado-hoy="{{ 1 if c.ya_pago_hoy else 0 }}"
+               data-finalizado="{{ 1 if c.finalizado else 0 }}"
+               data-activo="{{ 1 if c.activo else 0 }}">
+
+                {% if c.color_estado == "rojo" %}
+                    <div class="credito-badge badge-red">🔴 {{ c.texto_estado }}</div>
+                {% elif c.color_estado == "naranja" %}
+                    <div class="credito-badge badge-orange">🟠 {{ c.texto_estado }}</div>
+                {% elif c.color_estado == "amarillo" %}
+                    <div class="credito-badge badge-yellow">🟡 {{ c.texto_estado }}</div>
+                {% elif c.color_estado == "verde" %}
+                    <div class="credito-badge badge-green">🟢 {{ c.texto_estado }}</div>
+                {% elif c.color_estado == "azul" %}
+                    <div class="credito-badge badge-blue">🏁 {{ c.texto_estado }}</div>
+                {% else %}
+                    <div class="credito-badge badge-gray">⚪ {{ c.texto_estado }}</div>
+                {% endif %}
+
+                <div class="credito-main">
+
+                    <div class="credito-left">
+
+                        <div class="pos-wrap">
+                            <div class="pos-circle">
+                                {{ c.posicion }}
+                            </div>
+
+                            <button type="button"
+                                    onclick="editarPosicion(event, '{{ c.id }}', '{{ c.posicion }}')"
+                                    class="pos-edit">
+                                ✏
+                            </button>
+                        </div>
+
+                        <div class="cliente-info">
+                            <div class="cliente-nombre truncate">
+                                {{ c.cliente }}
+                            </div>
+
+                            <div class="cliente-meta">
+                                🪪 {{ c.identificacion or 'Sin cédula' }}
+                            </div>
+
+                            <div class="cliente-meta">
+                                📱 {{ c.telefono or 'Sin teléfono' }}
+                            </div>
+
+                            {% if c.proxima_cuota %}
+                            <div class="cliente-meta">
+                                📆 Próx: {{ c.proxima_cuota_fmt }}
+                            </div>
+                            {% endif %}
+
+                            <div class="tipo-pill">
+                                🏷 {{ c.tipo_prestamo }}
+                            </div>
+                        </div>
+
                     </div>
 
-                    {% if c.proxima_cuota %}
-                    <div class="credito-fecha">
-                        📆 Próx: {{ c.proxima_cuota }}
+                    <div class="arrow-box">
+                        ›
+                    </div>
+
+                </div>
+
+                <div class="finance-grid">
+
+                    <div class="finance-box">
+                        <div class="finance-label">Cuota hoy</div>
+                        <div class="finance-value text-green">
+                            ${{ c.valor_hoy_fmt }}
+                        </div>
+                    </div>
+
+                    <div class="finance-box">
+                        <div class="finance-label">Saldo</div>
+                        <div class="finance-value {% if c.en_mora %}text-red{% endif %}">
+                            ${{ c.saldo_pendiente_fmt }}
+                        </div>
+                    </div>
+
+                    <div class="finance-box">
+                        <div class="finance-label">Total</div>
+                        <div class="finance-value text-blue">
+                            ${{ c.valor_total_fmt }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mini-row">
+                    {% if c.dias_mora > 0 %}
+                    <div class="mini-pill">
+                        Mora: {{ c.dias_mora }} días
                     </div>
                     {% endif %}
 
+                    {% if c.total_pagado_hoy > 0 %}
+                    <div class="mini-pill">
+                        Pagó hoy: ${{ c.total_pagado_hoy_fmt }}
+                    </div>
+                    {% endif %}
+
+                    {% if c.created_at_fmt %}
+                    <div class="mini-pill">
+                        Registro: {{ c.created_at_fmt }}
+                    </div>
+                    {% endif %}
                 </div>
 
+            </a>
+
+            {% else %}
+
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div class="empty-title">No hay créditos registrados</div>
+                <div class="empty-text">Esta ruta todavía no tiene créditos.</div>
             </div>
 
-            <div class="credito-arrow">
-                ›
-            </div>
+            {% endfor %}
 
         </div>
 
-        <!-- BLOQUE FINANCIERO -->
-        <div class="credito-finance-grid">
-
-            <div class="credito-finance-box">
-                <div class="credito-finance-label">
-                    Cuota hoy
-                </div>
-                <div class="credito-finance-value credito-finance-green">
-                    $ {{ c.valor_hoy }}
-                </div>
+        <div id="emptyFiltro" class="empty-state hidden mt-4">
+            <div class="empty-icon">🔎</div>
+            <div class="empty-title">Sin resultados</div>
+            <div class="empty-text">
+                No hay créditos para este buzón o búsqueda.
             </div>
-
-            <div class="credito-finance-box">
-                <div class="credito-finance-label">
-                    Total crédito
-                </div>
-                <div class="credito-finance-value">
-                    $ {{ c.valor_total }}
-                </div>
-            </div>
-
         </div>
 
-    </a>
-
-    {% else %}
-        <div class="credito-empty">
-            No hay créditos registrados
-        </div>
-    {% endfor %}
     </div>
-
 </div>
 
 <div id="modalPosicion"
@@ -435,7 +1076,7 @@
 
     <div class="modal-banking-overlay absolute inset-0"></div>
 
-    <div class="modal-banking-card relative mx-4 sm:mx-0 animate-fadeInUp">
+    <div class="modal-banking-card relative mx-4 sm:mx-0">
 
         <div class="modal-handle sm:hidden"></div>
 
@@ -447,13 +1088,11 @@
 
             <input type="hidden" name="credito_id" id="modal_credito_id">
 
-            <!-- POSICIÓN ACTUAL -->
             <div class="modal-summary">
                 <div class="modal-summary-label">Posición actual</div>
                 <div id="posicionActualTexto" class="modal-summary-value"></div>
             </div>
 
-            <!-- NUEVA POSICIÓN -->
             <div class="mb-6">
                 <label class="text-sm font-medium text-slate-600">
                     Nueva posición
@@ -489,29 +1128,181 @@
 </div>
 
 <script>
-document.getElementById("buscador").addEventListener("input", function() {
+let buzonActivo = "todos";
 
-    const texto = this.value.toLowerCase();
+const buzonInfo = {
+    todos: {
+        title: "Todos los créditos",
+        desc: "Vista general de todos los créditos de la ruta."
+    },
+    cobrar_hoy: {
+        title: "Créditos por cobrar hoy",
+        desc: "Créditos con cuota programada para hoy y pendiente de pago."
+    },
+    mora: {
+        title: "Créditos en mora",
+        desc: "Créditos con cuotas pendientes vencidas."
+    },
+    pagados_hoy: {
+        title: "Créditos pagados hoy",
+        desc: "Créditos que registraron algún pago durante el día."
+    },
+    finalizados: {
+        title: "Créditos finalizados",
+        desc: "Créditos pagados o marcados como finalizados."
+    },
+    semanal: {
+        title: "Créditos semanales",
+        desc: "Créditos cuyo tipo de préstamo es semanal."
+    },
+    quincenal: {
+        title: "Créditos quincenales",
+        desc: "Créditos cuyo tipo de préstamo es quincenal."
+    },
+    mensual: {
+        title: "Créditos mensuales",
+        desc: "Créditos cuyo tipo de préstamo es mensual."
+    },
+    diario: {
+        title: "Créditos diarios",
+        desc: "Todos los créditos con tipo de préstamo diario."
+    },
+    diario_lv: {
+        title: "Diario lunes a viernes",
+        desc: "Créditos diarios que cobran de lunes a viernes."
+    },
+    diario_ls: {
+        title: "Diario lunes a sábado",
+        desc: "Créditos diarios que cobran de lunes a sábado."
+    }
+};
+
+function perteneceAlBuzon(item) {
+    const tipo = item.dataset.tipo || "";
+    const esDiarioTotal = item.dataset.diarioTotal === "1";
+    const esMora = item.dataset.mora === "1";
+    const esCobrarHoy = item.dataset.cobrarHoy === "1";
+    const esPagadoHoy = item.dataset.pagadoHoy === "1";
+    const esFinalizado = item.dataset.finalizado === "1";
+
+    if (buzonActivo === "todos") {
+        return true;
+    }
+
+    if (buzonActivo === "cobrar_hoy") {
+        return esCobrarHoy;
+    }
+
+    if (buzonActivo === "mora") {
+        return esMora;
+    }
+
+    if (buzonActivo === "pagados_hoy") {
+        return esPagadoHoy;
+    }
+
+    if (buzonActivo === "finalizados") {
+        return esFinalizado;
+    }
+
+    if (buzonActivo === "diario") {
+        return esDiarioTotal;
+    }
+
+    return tipo === buzonActivo;
+}
+
+function aplicarFiltros() {
+    const input = document.getElementById("buscador");
+    const texto = (input ? input.value : "").toLowerCase().trim();
+
     const items = document.querySelectorAll(".credito-item");
+    const emptyFiltro = document.getElementById("emptyFiltro");
+
+    let visibles = 0;
 
     items.forEach(item => {
+        const search = item.dataset.search || "";
 
-        const nombre = item.dataset.nombre || "";
-        const cedula = item.dataset.cedula || "";
+        const pasaBuzon = perteneceAlBuzon(item);
+        const pasaBusqueda = !texto || search.includes(texto);
 
-        if (nombre.includes(texto) || cedula.includes(texto)) {
-            item.style.display = "block";
+        if (pasaBuzon && pasaBusqueda) {
+            item.classList.remove("hidden-card");
+            visibles++;
         } else {
-            item.style.display = "none";
+            item.classList.add("hidden-card");
         }
-
     });
 
-});
-</script>
+    const contador = document.getElementById("contadorVisible");
 
-<script>
-function editarPosicion(e, id, posicion){
+    if (contador) {
+        contador.innerText = visibles + " crédito" + (visibles === 1 ? "" : "s");
+    }
+
+    if (emptyFiltro) {
+        if (visibles === 0 && items.length > 0) {
+            emptyFiltro.classList.remove("hidden");
+        } else {
+            emptyFiltro.classList.add("hidden");
+        }
+    }
+}
+
+function activarBuzon(nombreBuzon, hacerScroll = true) {
+    buzonActivo = nombreBuzon;
+
+    document.querySelectorAll(".modulo-card").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.buzon === nombreBuzon);
+    });
+
+    document.querySelectorAll(".quick-chip").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.buzon === nombreBuzon);
+    });
+
+    const info = buzonInfo[nombreBuzon] || buzonInfo.todos;
+
+    document.getElementById("tituloBuzon").innerText = info.title;
+    document.getElementById("descripcionBuzon").innerText = info.desc;
+
+    aplicarFiltros();
+
+    if (hacerScroll) {
+        const toolbar = document.querySelector(".toolbar-sticky");
+        if (toolbar) {
+            toolbar.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const buscador = document.getElementById("buscador");
+
+    if (buscador) {
+        buscador.addEventListener("input", aplicarFiltros);
+    }
+
+    document.querySelectorAll(".modulo-card").forEach(btn => {
+        btn.addEventListener("click", function() {
+            activarBuzon(this.dataset.buzon, true);
+        });
+    });
+
+    document.querySelectorAll(".quick-chip").forEach(btn => {
+        btn.addEventListener("click", function() {
+            activarBuzon(this.dataset.buzon, false);
+        });
+    });
+
+    activarBuzon("todos", false);
+});
+
+function editarPosicion(e, id, posicion) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -523,8 +1314,10 @@ function editarPosicion(e, id, posicion){
     document.getElementById("modalPosicion").classList.add("flex");
 }
 
-function cerrarModal(){
+function cerrarModal() {
     document.getElementById("modalPosicion").classList.add("hidden");
+    document.getElementById("modalPosicion").classList.remove("flex");
 }
 </script>
+
 {% endblock %}

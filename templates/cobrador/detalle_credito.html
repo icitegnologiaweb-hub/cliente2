@@ -87,6 +87,13 @@
                             {{ credito.created_at[11:16] }}
                         </span>
                     </div>
+
+                    <div class="flex justify-between gap-3">
+                        <span class="text-slate-500">Finalizacion del Crédito</span>
+                        <span class="text-slate-700 font-medium text-right">
+                            {{ fecha_finalizacion_credito or "Sin cuotas" }}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
@@ -263,14 +270,16 @@
             {% endfor %}
         </div>
     </div>
-
 </div>
 
-<!-- =========================
-     MODAL PAGO COMPENSATORIO
-========================= -->
+<!--
+=========================
+    MODAL PAGO COMPENSATORIO
+=========================
+-->
+
 <div id="modalCompensatorio"
-     class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition p-4">
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition p-4">
 
     <div class="bg-white w-full sm:w-[400px] rounded-[28px] p-6 text-slate-800 shadow-2xl border border-slate-200">
 

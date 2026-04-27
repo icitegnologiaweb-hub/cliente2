@@ -374,15 +374,6 @@ body {
 
     <div class="space-y-3">
 
-        <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
-           class="menu-item">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
-            </svg>
-            <span>Créditos por cobrar Hoy</span>
-        </a>
 
         <a href="{{ url_for('todas_las_ventas', ruta_id=session.get('ruta_id')) }}"
            class="menu-item">
