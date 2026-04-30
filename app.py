@@ -4073,61 +4073,115 @@ def cerrar_dia():
 
 
 # Traer todos los clientes de la eruta para el modulo CLIENTES
-
 @app.route("/clientes_ruta/<ruta_id>")
 def clientes_ruta(ruta_id):
 
-    if "user_id" not in session or session.get("rol") not in ["cobrador","supervisor", "administrador"]:
+    if "user_id" not in session or session.get("rol") not in ["cobrador", "supervisor", "administrador"]:
         return redirect(url_for("login_app"))
 
-    # Traer todos los créditos de la ruta (activos o no)
-    creditos_resp = supabase.table("creditos") \
-        .select("""
-            cliente_id,
-            estado,
-            clientes(
+    try:
+        # Si ruta_id es numérico, lo convertimos para evitar problemas
+        try:
+            ruta_id_filtro = int(ruta_id)
+        except:
+            ruta_id_filtro = ruta_id
+
+        # Traer todos los créditos de la ruta, activos, pagados o finalizados
+        creditos_resp = supabase.table("creditos") \
+            .select("""
                 id,
-                nombre,
-                identificacion,
-                telefono_principal,
-                direccion
-            )
-        """) \
-        .eq("ruta_id", ruta_id) \
-        .execute()
+                cliente_id,
+                estado,
+                saldo,
+                valor_total,
+                created_at,
+                ruta_id,
+                clientes(
+                    id,
+                    nombre,
+                    identificacion,
+                    telefono_principal,
+                    direccion
+                )
+            """) \
+            .eq("ruta_id", ruta_id_filtro) \
+            .order("created_at", desc=True) \
+            .execute()
 
-    creditos = creditos_resp.data or []
+        creditos = creditos_resp.data or []
 
-    clientes_dict = {}
+        clientes_dict = {}
 
-    for c in creditos:
-        cliente = c["clientes"]
-        cliente_id = cliente["id"]
+        for c in creditos:
+            cliente = c.get("clientes")
 
-        # Si no existe lo agregamos
-        if cliente_id not in clientes_dict:
-            clientes_dict[cliente_id] = {
-                "id": cliente_id,
-                "nombre": cliente["nombre"],
-                "identificacion": cliente["identificacion"],
-                "telefono": cliente["telefono_principal"],
-                "direccion": cliente["direccion"],
-                "credito_activo": False
-            }
+            if not cliente:
+                continue
 
-        # Si alguno está activo → marcar
-        if c["estado"] == "activo":
-            clientes_dict[cliente_id]["credito_activo"] = True
+            cliente_id = cliente.get("id")
+            estado = str(c.get("estado") or "").lower().strip()
 
-    clientes_lista = list(clientes_dict.values())
+            saldo = c.get("saldo") or 0
+            try:
+                saldo = float(saldo)
+            except:
+                saldo = 0
 
-    return render_template(
-        "cobrador/clientes_ruta.html",
-        clientes=clientes_lista,
-        ruta_id=ruta_id
+            if cliente_id not in clientes_dict:
+                clientes_dict[cliente_id] = {
+                    "id": cliente_id,
+                    "nombre": cliente.get("nombre"),
+                    "identificacion": cliente.get("identificacion"),
+                    "telefono": cliente.get("telefono_principal"),
+                    "direccion": cliente.get("direccion"),
 
-    )
+                    "credito_activo": False,
+                    "puede_registrar_credito": True,
 
+                    "total_creditos": 0,
+                    "creditos_pagados": 0,
+                    "creditos_finalizados": 0,
+                    "creditos_activos": 0,
+
+                    "ultimo_credito_id": c.get("id"),
+                    "ultimo_estado": c.get("estado"),
+                    "ultimo_saldo": saldo,
+                    "fecha_ultimo_credito": c.get("created_at")
+                }
+
+            clientes_dict[cliente_id]["total_creditos"] += 1
+
+            if estado == "activo" and saldo > 0:
+                clientes_dict[cliente_id]["credito_activo"] = True
+                clientes_dict[cliente_id]["puede_registrar_credito"] = False
+                clientes_dict[cliente_id]["creditos_activos"] += 1
+
+            elif estado == "pagado":
+                clientes_dict[cliente_id]["creditos_pagados"] += 1
+
+            elif estado == "finalizado":
+                clientes_dict[cliente_id]["creditos_finalizados"] += 1
+
+        clientes_lista = list(clientes_dict.values())
+
+        clientes_lista.sort(key=lambda x: (x.get("nombre") or "").lower())
+
+        # Debug temporal para verificar si Wendy sí está llegando al HTML
+        print("CLIENTES RUTA:", ruta_id_filtro, "TOTAL:", len(clientes_lista))
+        for cliente in clientes_lista:
+            if str(cliente.get("identificacion")) == "0919088302":
+                print("CLIENTE ENCONTRADO:", cliente)
+
+        return render_template(
+            "cobrador/clientes_ruta.html",
+            clientes=clientes_lista,
+            ruta_id=ruta_id
+        )
+
+    except Exception as e:
+        print("Error cargando clientes de ruta:", e)
+        flash("Ocurrió un error cargando los clientes de la ruta.", "danger")
+        return redirect(url_for("dashboard_cobrador"))
 @app.route("/detalle_cliente/<cliente_id>/<ruta_id>")
 def detalle_cliente(cliente_id, ruta_id):
 
