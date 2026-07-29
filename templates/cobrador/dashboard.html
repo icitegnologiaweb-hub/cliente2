@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#102033">
+<meta name="theme-color" content="#18181b">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_cobros.svg') }}">
-<title>Mis Rutas</title>
+<title>Rutas disponibles</title>
 
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
@@ -16,22 +16,24 @@
 <style>
 body {
     background:
-        radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);
+        radial-gradient(circle at 18% -10%, rgba(249,115,22,.2), transparent 30%),
+        linear-gradient(180deg, #18181b 0%, #0f172a 58%, #f4f4f5 58%, #f4f4f5 100%);
     min-height: 100vh;
 }
 
 .header-card {
-    background: linear-gradient(180deg, #173c63, #0c2440);
+    background: rgba(255,255,255,.94);
     border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+    box-shadow: 0 18px 38px rgba(24,24,27,.12);
+    color: #18181b;
 }
 
 .card-ruta {
-    background: linear-gradient(135deg, #123b63, #0b2847);
+    background: rgba(255,255,255,.96);
     border-radius: 18px;
-    box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.05),
-        0 10px 22px rgba(0,0,0,.35);
+    box-shadow: 0 18px 38px rgba(24,24,27,.12);
+    border: 1px solid rgba(24,24,27,.08);
+    color: #18181b;
     transition: all .25s ease;
 }
 
@@ -43,8 +45,8 @@ body {
 }
 
 .card-icon {
-    background: linear-gradient(135deg, #d8d9db, #1b4f9c);
-    box-shadow: 0 6px 14px rgba(31,111,212,.45);
+    background: linear-gradient(135deg, #f97316, #06b6d4);
+    box-shadow: 0 10px 22px rgba(249,115,22,.24);
 }
 
 .logo-glow {
@@ -60,7 +62,7 @@ body {
     <!-- Header -->
     <div class="header-card px-5 py-4 mb-6 flex justify-between items-center">
         <h2 class="text-lg font-semibold tracking-wide">
-            Mis Rutas
+            Rutas disponibles
         </h2>
 
         <a href="{{ url_for('login_app') }}" class="opacity-80 hover:opacity-100 transition text-lg">
@@ -69,10 +71,10 @@ body {
     </div>
 
     <!-- Logo -->
-    <div class="flex justify-center mb-10">
+    <div class="logo-card flex justify-center mb-10">
         <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
              alt="Gestion de Cobros"
-             class="h-20 logo-glow">
+             class="h-16 logo-glow">
     </div>
 
     <!-- Lista -->

@@ -1,144 +1,157 @@
 {% extends "cobrador/layout.html" %}
 
+{% block titulo %}Comprobante{% endblock %}
+
 {% block content %}
 
-<div class="flex justify-center mt-4">
+{% set ruta_recibo_id = pago.cuotas.creditos.rutas.id if pago.cuotas.creditos.rutas.id is defined else session.get('ruta_id') %}
 
-    <!-- TICKET REAL -->
-    <div id="ticket"
-        class="bg-white w-[250px] p-4 
-                text-black font-mono text-[11px] leading-tight rounded-xl">
+<style>
+.receipt-screen { color: #111; padding: 10px 0 34px; }
+.receipt-document { width: 100%; max-width: 335px; min-height: 520px; margin: 0 auto; background: #fff; box-shadow: 0 28px 60px rgba(24,24,27,.16); position: relative; overflow: hidden; }
+.receipt-top-band { height: 54px; margin-top: 18px; background: #d9d9d9; display: grid; grid-template-columns: 86px minmax(0,1fr); align-items: center; }
+.receipt-brand-block { width: 58px; height: 78px; margin-left: 14px; margin-top: -18px; border-radius: 0 0 8px 8px; background: #18181b; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 22px rgba(0,0,0,.22); }
+.receipt-brand-block img { width: 42px; max-height: 48px; filter: brightness(0) invert(1); }
+.receipt-heading { padding-right: 16px; text-align: right; font-size: 20px; line-height: 1; font-weight: 950; letter-spacing: .02em; color: #050505; text-transform: uppercase; }
+.receipt-meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; justify-content: end; margin: 10px 30px 0 auto; width: fit-content; font-size: 7px; color: #111; }
+.receipt-meta span:nth-child(odd) { color: #555; font-weight: 800; }
+.receipt-meta span:nth-child(even) { font-weight: 950; }
+.receipt-section { padding: 34px 30px 0; }
+.receipt-section-title { font-size: 12px; line-height: 1; font-weight: 950; letter-spacing: .02em; text-transform: uppercase; margin-bottom: 14px; }
+.receipt-client-lines { display: grid; gap: 2px; font-size: 8px; line-height: 1.25; }
+.receipt-client-lines b { display: inline-block; min-width: 54px; font-weight: 950; }
+.receipt-table { margin: 34px 30px 0; font-size: 7px; }
+.receipt-table-head { display: grid; grid-template-columns: 1fr 54px 62px; align-items: center; min-height: 18px; padding: 0 8px; background: #050505; color: #fff; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.receipt-table-row { display: grid; grid-template-columns: 1fr 54px 62px; align-items: center; padding: 9px 8px; border-bottom: 1px solid #d7d7d7; color: #333; }
+.receipt-table-row span:nth-child(2), .receipt-table-row span:nth-child(3), .receipt-table-head span:nth-child(2), .receipt-table-head span:nth-child(3) { text-align: right; }
+.receipt-summary { margin: 8px 30px 0 auto; width: 132px; font-size: 8px; }
+.receipt-summary-line { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; color: #333; }
+.receipt-summary-total { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; padding: 7px 8px; background: #e8e8e8; color: #050505; font-size: 11px; font-weight: 950; text-transform: uppercase; }
+.receipt-observations { position: absolute; left: 30px; right: 30px; bottom: 70px; border-top: 1px solid #707070; padding-top: 9px; display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; font-size: 7px; }
+.receipt-observation-icon { width: 24px; height: 24px; border-radius: 999px; background: #e5e5e5; display: flex; align-items: center; justify-content: center; color: #111; font-size: 12px; }
+.receipt-observations b { font-weight: 950; }
+.receipt-footer { position: absolute; left: 30px; right: 30px; bottom: 34px; border-top: 1px solid #ececec; padding-top: 11px; text-align: center; font-size: 7px; color: #555; }
+.receipt-footer b { display: block; color: #111; font-weight: 950; }
+.receipt-actions { max-width: 335px; margin: 18px auto 0; display: grid; grid-template-columns: .85fr 1.35fr; gap: 10px; }
+.receipt-btn { min-height: 48px; border-radius: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; font-size: 13px; font-weight: 950; transition: transform .18s ease, box-shadow .18s ease; }
+.receipt-btn:active { transform: scale(.98); }
+.receipt-btn.secondary { background: #f4f4f5; color: #18181b; border: 1px solid rgba(24,24,27,.08); }
+.receipt-btn.primary { background: linear-gradient(135deg,#18181b,#f97316); color: #fff; box-shadow: 0 16px 30px rgba(249,115,22,.24); border: 0; }
+@media (max-width: 360px) {
+    .receipt-actions { grid-template-columns: 1fr; }
+    .receipt-section { padding-left: 24px; padding-right: 24px; }
+    .receipt-table { margin-left: 24px; margin-right: 24px; }
+    .receipt-observations, .receipt-footer { left: 24px; right: 24px; }
+}
+</style>
 
-        <!-- LOGO PEQUEÑO -->
-        <div class="text-center mb-2 text-[10px] leading-tight">
-
-            <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
-                alt="Gestion de Cobros"
-                class="h-10 mx-auto mb-1">
-
-            <div>
-                <strong>Factura:</strong> {{ pago.id[:8] }}
+<div class="receipt-screen">
+    <div id="ticket" class="receipt-document">
+        <div class="receipt-top-band">
+            <div class="receipt-brand-block">
+                <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
+                     alt="Gestion de Cobros">
             </div>
+            <div class="receipt-heading">Recibo de pago</div>
+        </div>
 
-            <div>
-                <strong>Fecha Impresion:</strong> {{ pago.fecha_formateada }}
-                
+        <div class="receipt-meta">
+            <span>Fecha:</span>
+            <span>{{ pago.fecha_formateada }}</span>
+            <span>Numero:</span>
+            <span>{{ pago.id[:8] }}</span>
+        </div>
+
+        <section class="receipt-section">
+            <div class="receipt-section-title">Informacion del cliente</div>
+            <div class="receipt-client-lines">
+                <div><b>Nombre:</b> {{ pago.cuotas.creditos.clientes.nombre }}</div>
+                <div><b>Credito:</b> {{ pago.cuotas.creditos.id[:8] }}</div>
+                <div><b>Ruta:</b> {{ pago.cuotas.creditos.rutas.codigo }}</div>
             </div>
+        </section>
 
-        </div>
-
-        <div>------------------------------------</div>
-
-        <!-- DATOS -->
-
-        <div class="mt-1">
-            <div><strong>Datos del cliente:</strong></div>
-            <div>Cliente: {{ pago.cuotas.creditos.clientes.nombre }}</div>
-            <div>Crédito #: {{ pago.cuotas.creditos.id }}</div>
-            <div>Ruta: {{ pago.cuotas.creditos.rutas.codigo }}</div>
-        </div>
-
-        <div>------------------------------------</div>
-
-        <div class="flex justify-between">
-            <span>Cuota</span>
-            <span>#{{ pago.cuotas.numero }}</span>
-        </div>
-
-        <div class="flex justify-between">
-            <span>Abono realizado</span>
-            <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
-        </div>
-
-        <div class="flex justify-between">
-            <span>Saldo restante</span>
-            <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
-        </div>
-
-        <div>------------------------------------</div>
-
-        <!-- TABLA -->
-        <div class="mt-1">
-            <div class="flex justify-between">
-                <span><strong>Descripción</strong></span>
-                <span><strong>Monto</strong></span>
+        <div class="receipt-table">
+            <div class="receipt-table-head">
+                <span>Descripcion</span>
+                <span>Cuota</span>
+                <span>Total</span>
             </div>
-
-            <div class="flex justify-between">
-                <span>Abono</span>
+            <div class="receipt-table-row">
+                <span>Abono realizado</span>
+                <span>#{{ pago.cuotas.numero }}</span>
                 <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
             </div>
-
-            <div>{{ pago.fecha_formateada }}</div>
-        </div>
-        <div>------------------------------------</div>
-
-
-        <!-- TOTAL -->
-        <div class="flex justify-between font-bold">
-            <span>Total abonado:</span>
-            <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
         </div>
 
-        <div class="flex justify-between">
-            <span>Saldo Restante:</span>
-            <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
+        <div class="receipt-summary">
+            <div class="receipt-summary-line">
+                <span>Sub-total</span>
+                <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
+            </div>
+            <div class="receipt-summary-line">
+                <span>Saldo</span>
+                <span>${{ "{:,.2f}".format(saldo_restante or 0) }}</span>
+            </div>
+            <div class="receipt-summary-total">
+                <span>Total</span>
+                <span>${{ "{:,.2f}".format(pago.monto or 0) }}</span>
+            </div>
         </div>
-        <div>------------------------------------</div>
 
-
-        <div class="text-center mt-2">
-            🗸 ¡Gracias por su pago!
+        <div class="receipt-observations">
+            <div class="receipt-observation-icon">OK</div>
+            <div>
+                <b>Observaciones:</b><br>
+                Pago recibido correctamente. Documento no valido como factura.
+            </div>
         </div>
 
+        <div class="receipt-footer">
+            <b>Gracias por su pago.</b>
+            Gestion de Cobros
+        </div>
     </div>
 
-</div>
+    <div class="receipt-actions">
+        <a href="{{ url_for('todas_las_ventas', ruta_id=ruta_recibo_id) }}"
+           class="receipt-btn secondary">
+            Aceptar
+        </a>
 
-<!-- BOTONES -->
-<div class="flex justify-center mt-6 gap-3">
-
-    <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
-       class="bg-green-800 text-white px-4 py-2 text-sm rounded-lg">
-        Aceptar
-    </a>
-
-    <button onclick="capturarYEnviar()"
-            class="bg-green-600 text-white px-4 py-2 text-sm rounded-lg shadow">
-        Preparar comprobante y enviar
-    </button>
-
+        <button onclick="capturarYEnviar()"
+                class="receipt-btn primary">
+            Enviar comprobante
+        </button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
 async function capturarYEnviar() {
-
     const ticket = document.getElementById("ticket");
-
-    const canvas = await html2canvas(ticket, { scale: 3 });
+    const canvas = await html2canvas(ticket, {
+        scale: 3,
+        backgroundColor: "#ffffff"
+    });
 
     canvas.toBlob(async function(blob) {
-
-        const file = new File([blob], "comprobante.png", { type: "image/png" });
+        const file = new File([blob], "comprobante-pago.png", { type: "image/png" });
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-
             try {
                 await navigator.share({
                     title: "Comprobante de pago",
-                    text: "Aquí está su comprobante de pago",
+                    text: "Aqui esta su comprobante de pago",
                     files: [file]
                 });
             } catch (error) {
-                console.log("Cancelado o error:", error);
+                console.log("Envio cancelado:", error);
             }
-
         } else {
             alert("Tu navegador no soporta compartir archivos directamente.");
         }
-
     }, "image/png");
 }
 </script>

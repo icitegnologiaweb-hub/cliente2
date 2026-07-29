@@ -3,10 +3,10 @@
 
 {% block content %}
 
-<div class="space-y-4">
+<div class="cobrador-view clients-view space-y-4">
 
     <!-- ================= BUSCADOR ================= -->
-    <div class="bg-[#123b63] rounded-2xl p-3 shadow-md">
+    <div class="modern-panel search-panel bg-[#123b63] rounded-2xl p-3 shadow-md">
         <input type="text"
                id="buscarCliente"
                placeholder="Buscar por nombre o cédula..."
@@ -31,11 +31,11 @@
                 </div>
 
                 {% if c.credito_activo %}
-                    <div class="text-red-400 text-xs font-semibold">
+                    <div class="status-active text-red-400 text-xs font-semibold">
                         Crédito Activo
                     </div>
                 {% else %}
-                    <div class="text-green-400 text-xs font-semibold">
+                    <div class="status-clear text-green-400 text-xs font-semibold">
                         Sin Crédito Activo
                     </div>
                 {% endif %}

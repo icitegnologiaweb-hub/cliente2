@@ -3,8 +3,8 @@
 
 {% block content %}
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-32 space-y-6 text-white">
-<div class="bg-gradient-to-br from-blue-600 to-blue-500 rounded-3xl p-6 text-center shadow-xl">
+<div class="cobrador-view cash-view max-w-md mx-auto pt-4 pb-32 space-y-6 text-white">
+<div class="cash-total-card bg-gradient-to-br from-blue-600 to-blue-500 rounded-3xl p-6 text-center shadow-xl text-white">
 
     <div class="mt-3 text-xs opacity-70">
         Saldo Total Disponible:
@@ -19,28 +19,28 @@
     <!-- ================= RESUMEN DEL DÍA ================= -->
     <div class="grid grid-cols-2 gap-4">
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
+        <div class="cash-stat bg-[#0b2847] rounded-2xl p-4 text-center">
             <div class="text-xs opacity-60">Saldo Anterior</div>
             <div class="font-semibold mt-1">
                 $ {{ "{:,.2f}".format(saldo_anterior or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
+        <div class="cash-stat bg-[#0b2847] rounded-2xl p-4 text-center">
             <div class="text-xs opacity-60">Cobros Hoy</div>
             <div class="font-semibold text-green-400 mt-1">
                 $ {{ "{:,.0f}".format(total_cobros or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
+        <div class="cash-stat bg-[#0b2847] rounded-2xl p-4 text-center">
             <div class="text-xs opacity-60">Préstamos Hoy</div>
             <div class="font-semibold text-red-400 mt-1">
                 $ {{ "{:,.0f}".format(total_prestamos or 0) }}
             </div>
         </div>
 
-        <div class="bg-[#0b2847] rounded-2xl p-4 text-center">
+        <div class="cash-stat bg-[#0b2847] rounded-2xl p-4 text-center">
             <div class="text-xs opacity-60">Gastos Hoy</div>
             <div class="font-semibold text-yellow-400 mt-1">
                 $ {{ "{:,.0f}".format(total_gastos or 0) }}
@@ -50,7 +50,7 @@
     </div>
 
     <!-- ================= PRÉSTAMOS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="cash-section bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('prestamos')"
             class="w-full flex justify-between items-center p-5">
@@ -91,7 +91,7 @@
 
 
     <!-- ================= COBROS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="cash-section bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('cobros')"
             class="w-full flex justify-between items-center p-5">
@@ -137,7 +137,7 @@
     </div>
     <!-- ================= GASTOS ================= -->
     <!-- ================= GASTOS ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="cash-section bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('gastos')"
             class="w-full flex justify-between items-center p-5">
@@ -164,7 +164,7 @@
     </div>
 
     <!-- ================= INGRESO DE CAPITAL ================= -->
-    <div class="bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
+    <div class="cash-section bg-[#123b63] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('capital')"
             class="w-full flex justify-between items-center p-5">
@@ -227,7 +227,7 @@
     </div>
     <!-- ================= TOTAL RECIBIDO (TRANSFERENCIA) ================= -->
     <!-- ================= TRANSFERENCIAS RECIBIDAS ================= -->
-    <div class="bg-[#0b2847] rounded-3xl shadow-lg overflow-hidden">
+    <div class="cash-section bg-[#0b2847] rounded-3xl shadow-lg overflow-hidden">
 
         <button onclick="toggleSection('transferencias')"
             class="w-full flex justify-between items-center p-5">
@@ -273,7 +273,7 @@
     <!-- ================= BOTÓN CERRAR DÍA ================= -->
     <form method="POST" action="{{ url_for('cerrar_dia') }}">
         <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700
+                class="cash-close w-full bg-blue-600 hover:bg-blue-700
                        py-4 rounded-3xl font-semibold shadow-lg
                        transition active:scale-95">
             Cerrar Caja Hoy

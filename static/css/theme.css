@@ -275,3 +275,785 @@ textarea:focus,
         padding: 16px !important;
     }
 }
+
+/* ===== Cobrador mobile refresh ===== */
+.mobile-page {
+    background:
+        radial-gradient(circle at 14% -8%, rgba(249, 115, 22, 0.22), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(6, 182, 212, 0.14), transparent 24%),
+        linear-gradient(180deg, #18181b 0%, #0f172a 42%, #f4f4f5 42%, #f4f4f5 100%) !important;
+}
+
+.topbar {
+    max-width: 430px !important;
+    padding: 18px 18px 14px !important;
+}
+
+.topbar .text-lg {
+    font-weight: 900 !important;
+}
+
+.menu-btn {
+    height: 42px !important;
+    width: 42px !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+#panelNotificaciones {
+    border-radius: 18px !important;
+    border: 1px solid rgba(15, 35, 51, 0.08);
+}
+
+.sidebar {
+    width: 306px !important;
+    left: -326px !important;
+    padding: 26px 22px !important;
+    background:
+        radial-gradient(circle at 18% -8%, rgba(249, 115, 22, 0.22), transparent 34%),
+        linear-gradient(180deg, #18181b 0%, #0f172a 100%) !important;
+}
+
+.sidebar.active {
+    left: 0 !important;
+}
+
+.profile-card {
+    padding: 18px !important;
+    border-radius: 22px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.ruta-badge {
+    background: linear-gradient(135deg, #f97316, #06b6d4) !important;
+    border-radius: 14px !important;
+    font-weight: 800 !important;
+}
+
+.menu-item {
+    min-height: 52px;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+.menu-item:hover {
+    transform: translateX(2px);
+}
+
+.menu-route {
+    background: linear-gradient(135deg, #f97316, #06b6d4) !important;
+}
+
+.cobrador-view {
+    color: #102033;
+    padding-top: 4px;
+}
+
+.cobrador-view input,
+.cobrador-view select,
+.cobrador-view textarea {
+    background: #f8fafc !important;
+    color: #102033 !important;
+    border: 1px solid rgba(15, 35, 51, 0.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.cobrador-view input::placeholder,
+.cobrador-view textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+.modern-panel {
+    border-radius: 22px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 22px 48px rgba(16, 32, 51, 0.12) !important;
+}
+
+.soft-back {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-weight: 800;
+}
+
+.sales-view .sticky,
+.sales-view .sales-filter-panel {
+    position: relative !important;
+    top: auto !important;
+    z-index: 20 !important;
+    border-radius: 24px !important;
+    background:
+        linear-gradient(135deg, rgba(249, 115, 22, 0.1), transparent 34%),
+        linear-gradient(180deg, #ffffff, #fafafa) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 22px 48px rgba(16, 32, 51, 0.13) !important;
+    isolation: isolate;
+    backdrop-filter: none !important;
+}
+
+.sales-view .sticky .text-white,
+.sales-view .sticky .text-blue-200,
+.sales-view .sales-filter-panel .text-white,
+.sales-view .sales-filter-panel .text-blue-200 {
+    color: #18181b !important;
+}
+
+.sales-view .sticky .text-blue-200,
+.sales-view .sales-filter-panel .text-blue-200 {
+    color: #64748b !important;
+}
+
+.sales-view .sticky > div:first-child,
+.sales-view .sales-filter-panel > div:first-child {
+    background: transparent !important;
+}
+
+.sales-view #tabPendientes,
+.sales-view #tabPagados {
+    border-radius: 13px !important;
+    color: #18181b !important;
+}
+
+.sales-view .modern-tab {
+    background: #f4f4f5 !important;
+    color: #64748b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: none !important;
+}
+
+.sales-view .modern-tab.is-active {
+    background: linear-gradient(135deg, #18181b, #f97316) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 26px rgba(249, 115, 22, 0.24) !important;
+}
+
+.sales-view .credito-item,
+.clients-view .cliente-item {
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 18px 38px rgba(16, 32, 51, 0.11) !important;
+}
+
+.sales-view .credito-item .text-white,
+.sales-view .credito-item .text-blue-200,
+.sales-view .credito-item .text-blue-300,
+.sales-view .credito-pagado .text-green-200,
+.clients-view .cliente-item {
+    color: #18181b !important;
+}
+
+.sales-view .credito-item .text-green-400,
+.sales-view .credito-pagado .text-green-300 {
+    color: #f97316 !important;
+}
+
+.sales-view .credito-item .bg-\[\#0b2847\] {
+    background: #fafafa !important;
+    border-color: rgba(24, 24, 27, 0.08) !important;
+}
+
+.sales-view .credito-pagado .paid-total-box,
+.sales-view .credito-pagado .bg-\[\#0d2e1d\] {
+    background: #ffffff !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.1) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 10px 22px rgba(24,24,27,.06) !important;
+}
+
+.sales-view .credito-pagado .paid-total-box .text-xs,
+.sales-view .credito-pagado .bg-\[\#0d2e1d\] .text-xs {
+    color: #71717a !important;
+    opacity: 1 !important;
+}
+
+.sales-view .credito-pagado .paid-total-box .font-bold,
+.sales-view .credito-pagado .bg-\[\#0d2e1d\] .font-bold {
+    color: #18181b !important;
+}
+
+.sales-view .credito-pagado .paid-total-box:first-child .font-bold {
+    color: #f97316 !important;
+}
+
+.sales-view .credito-item > .absolute {
+    color: #ffffff !important;
+}
+
+.modern-fab {
+    background: linear-gradient(135deg, #f97316, #06b6d4) !important;
+    box-shadow: 0 20px 36px rgba(249, 115, 22, 0.26) !important;
+}
+
+.clients-view .search-panel {
+    padding: 12px !important;
+}
+
+.clients-view .cliente-item {
+    min-height: 76px;
+}
+
+.status-active {
+    color: #dc2626 !important;
+    background: #fee2e2;
+    padding: 6px 9px;
+    border-radius: 999px;
+}
+
+.status-clear {
+    color: #0e7490 !important;
+    background: #ecfeff;
+    padding: 6px 9px;
+    border-radius: 999px;
+}
+
+.cash-view {
+    color: #18181b !important;
+}
+
+.cash-total-card {
+    border-radius: 24px !important;
+    background:
+        linear-gradient(135deg, #18181b, #27272a 56%, #f97316) !important;
+    box-shadow: 0 24px 46px rgba(16, 32, 51, 0.18) !important;
+}
+
+.cash-stat,
+.cash-section {
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 16px 32px rgba(16, 32, 51, 0.1) !important;
+}
+
+.cash-section button {
+    color: #18181b !important;
+}
+
+.cash-close {
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, #18181b, #f97316) !important;
+}
+
+.sale-form-view {
+    color: #18181b !important;
+}
+
+.sale-page-title {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.sale-form-view form > div {
+    border-radius: 22px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 18px 38px rgba(16, 32, 51, 0.12) !important;
+}
+
+.sale-form-view form > div > .text-sm:first-child {
+    color: #f97316 !important;
+    font-weight: 900 !important;
+}
+
+.sale-form-view .bg-\[\#0b2847\] {
+    background: #fafafa !important;
+    color: #18181b !important;
+    border-color: rgba(24, 24, 27, 0.08) !important;
+}
+
+.sale-form-view label,
+.sale-form-view .text-gray-300,
+.sale-form-view .opacity-60,
+.sale-form-view .opacity-70 {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* ===== Cobrador app polish ===== */
+.cobrador-shell {
+    --collector-ink: #18181b;
+    --collector-muted: #71717a;
+    --collector-line: rgba(24, 24, 27, 0.1);
+    --collector-panel: rgba(255, 255, 255, 0.96);
+    --collector-soft: #fafafa;
+    --collector-primary: #f97316;
+    --collector-accent: #06b6d4;
+    --collector-warning: #b45309;
+    --collector-danger: #dc2626;
+    --collector-success: #15803d;
+    color: var(--collector-ink) !important;
+    background:
+        radial-gradient(circle at 16% -10%, rgba(249, 115, 22, 0.22), transparent 30%),
+        radial-gradient(circle at 88% 0%, rgba(6, 182, 212, 0.12), transparent 28%),
+        linear-gradient(180deg, #18181b 0 172px, #f4f4f5 172px 100%) !important;
+}
+
+.cobrador-shell .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    max-width: 430px !important;
+    min-height: 70px;
+    color: #fff !important;
+}
+
+.cobrador-shell .topbar .text-lg {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 17px !important;
+    font-weight: 900 !important;
+}
+
+.cobrador-shell .menu-btn {
+    position: relative;
+    color: transparent !important;
+    overflow: hidden;
+}
+
+.cobrador-shell .menu-btn::before,
+.cobrador-shell .menu-btn::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 6px 0 #fff;
+}
+
+.cobrador-shell .menu-btn::before {
+    top: 13px;
+}
+
+.cobrador-shell .menu-btn::after {
+    top: 25px;
+    box-shadow: none;
+}
+
+.cobrador-shell .topbar button[onclick="toggleNotificaciones()"] {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: transparent !important;
+    overflow: hidden;
+}
+
+.cobrador-shell .topbar button[onclick="toggleNotificaciones()"]::before {
+    content: "";
+    width: 17px;
+    height: 17px;
+    border: 2px solid #fff;
+    border-bottom: 0;
+    border-radius: 10px 10px 3px 3px;
+    display: block;
+    margin: 8px auto 0;
+}
+
+.cobrador-shell .topbar button[onclick="toggleNotificaciones()"]::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    display: block;
+    margin: -1px auto 0;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.cobrador-shell .cobrador-content {
+    color: var(--collector-ink) !important;
+    padding-top: 8px;
+}
+
+.cobrador-shell .cobrador-content .text-white {
+    color: var(--collector-ink) !important;
+}
+
+.cobrador-shell .cobrador-content .text-blue-200,
+.cobrador-shell .cobrador-content .text-blue-300,
+.cobrador-shell .cobrador-content .text-gray-300,
+.cobrador-shell .cobrador-content .text-gray-400,
+.cobrador-shell .cobrador-content .opacity-60,
+.cobrador-shell .cobrador-content .opacity-70,
+.cobrador-shell .cobrador-content .opacity-80 {
+    color: var(--collector-muted) !important;
+    opacity: 1 !important;
+}
+
+.cobrador-shell .cobrador-content .bg-\[\#123b63\],
+.cobrador-shell .cobrador-content .bg-\[\#0b2847\],
+.cobrador-shell .cobrador-content [class*="from-[#123b63]"],
+.cobrador-shell .cobrador-content [class*="to-[#0b2847]"],
+.cobrador-shell .cobrador-content form.bg-\[\#123b63\],
+.cobrador-shell .cobrador-content .modern-panel,
+.cobrador-shell .cobrador-content .cliente-item,
+.cobrador-shell .cobrador-content .credito-item,
+.cobrador-shell .cobrador-content .cash-section,
+.cobrador-shell .cobrador-content .cash-stat {
+    background: var(--collector-panel) !important;
+    color: var(--collector-ink) !important;
+    border: 1px solid var(--collector-line) !important;
+    box-shadow: 0 18px 38px rgba(16, 32, 51, 0.1) !important;
+}
+
+.cobrador-shell .cobrador-content .bg-gradient-to-br.from-blue-600,
+.cobrador-shell .cobrador-content .bg-gradient-to-br.from-blue-700,
+.cobrador-shell .cobrador-content .cash-total-card {
+    background:
+        linear-gradient(135deg, #18181b 0%, #27272a 54%, #f97316 100%) !important;
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content .bg-gradient-to-br.from-blue-600 *,
+.cobrador-shell .cobrador-content .bg-gradient-to-br.from-blue-700 *,
+.cobrador-shell .cobrador-content .cash-total-card * {
+    color: inherit !important;
+}
+
+.cobrador-shell .cobrador-content .bg-green-600,
+.cobrador-shell .cobrador-content .hover\:bg-green-700:hover,
+.cobrador-shell .cobrador-content button.bg-\[\#123b63\],
+.cobrador-shell .cobrador-content button.hover\:bg-\[\#184a78\]:hover {
+    background: linear-gradient(135deg, #f97316, #fb7185) !important;
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content .bg-blue-600,
+.cobrador-shell .cobrador-content .hover\:bg-blue-700:hover,
+.cobrador-shell .cobrador-content a.bg-blue-600,
+.cobrador-shell .cobrador-content button.bg-blue-600 {
+    background: linear-gradient(135deg, #18181b, #f97316) !important;
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content input,
+.cobrador-shell .cobrador-content select,
+.cobrador-shell .cobrador-content textarea {
+    min-height: 44px;
+    background: #fafafa !important;
+    color: var(--collector-ink) !important;
+    border: 1px solid rgba(15, 35, 51, 0.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.cobrador-shell .cobrador-content input::placeholder,
+.cobrador-shell .cobrador-content textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+.cobrador-shell .cobrador-content label,
+.cobrador-shell .cobrador-content h2,
+.cobrador-shell .cobrador-content h3,
+.cobrador-shell .cobrador-content .font-semibold,
+.cobrador-shell .cobrador-content .font-bold {
+    letter-spacing: 0 !important;
+}
+
+.cobrador-shell .cobrador-content .text-green-400,
+.cobrador-shell .cobrador-content .text-green-300,
+.cobrador-shell .cobrador-content .text-green-200 {
+    color: var(--collector-success) !important;
+}
+
+.cobrador-shell .cobrador-content .text-red-400,
+.cobrador-shell .cobrador-content .text-red-300,
+.cobrador-shell .cobrador-content .text-red-200 {
+    color: var(--collector-danger) !important;
+}
+
+.cobrador-shell .cobrador-content .text-yellow-400,
+.cobrador-shell .cobrador-content .text-yellow-300,
+.cobrador-shell .cobrador-content .text-yellow-100 {
+    color: var(--collector-warning) !important;
+}
+
+.cobrador-shell .cobrador-content .bg-red-600,
+.cobrador-shell .cobrador-content .bg-red-500,
+.cobrador-shell .cobrador-content .bg-orange-500,
+.cobrador-shell .cobrador-content .bg-green-500,
+.cobrador-shell .cobrador-content .bg-blue-500,
+.cobrador-shell .cobrador-content .bg-gray-500 {
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content .bg-yellow-500 {
+    color: #18181b !important;
+}
+
+.cobrador-shell .cobrador-content .border-white\/10,
+.cobrador-shell .cobrador-content .border-blue-900\/30,
+.cobrador-shell .cobrador-content .border-blue-900\/40 {
+    border-color: var(--collector-line) !important;
+}
+
+.cobrador-shell .cobrador-content .w-full.h-2,
+.cobrador-shell .cobrador-content .progress-track,
+.cobrador-shell .cobrador-content .small-progress {
+    background: #e2e8f0 !important;
+}
+
+.cobrador-shell .cobrador-content .modern-fab,
+.cobrador-shell .cobrador-content a.fixed.rounded-full {
+    background: linear-gradient(135deg, #f97316, #06b6d4) !important;
+    color: #fff !important;
+    box-shadow: 0 22px 38px rgba(249, 115, 22, 0.28) !important;
+}
+
+.cobrador-shell .cobrador-content .fixed.inset-0,
+.cobrador-shell .cobrador-content #modalCambiarPosicion,
+.cobrador-shell .cobrador-content #modalGasto {
+    color: var(--collector-ink) !important;
+}
+
+.cobrador-shell .cobrador-content .bg-white {
+    background: #fff !important;
+    color: var(--collector-ink) !important;
+}
+
+.cobrador-shell .sidebar .menu-item {
+    min-height: 52px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.cobrador-shell .sidebar .menu-item svg {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.cobrador-shell .sidebar a[href*="logout"] {
+    border-radius: 14px !important;
+    background: rgba(220, 38, 38, .1) !important;
+}
+
+.cobrador-shell .sidebar,
+.cobrador-shell .sidebar .profile-card,
+.cobrador-shell .sidebar .profile-card .text-sm,
+.cobrador-shell .sidebar .profile-card .text-xs,
+.cobrador-shell .sidebar .profile-card .font-semibold {
+    color: #fff !important;
+}
+
+.cobrador-shell .sidebar .profile-card .text-xs {
+    color: rgba(255, 255, 255, 0.64) !important;
+}
+
+.cobrador-shell .sidebar .ruta-badge {
+    color: #fff !important;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.24);
+}
+
+.cobrador-shell .sidebar .gc-logo {
+    width: 150px;
+    max-width: 100%;
+    height: auto !important;
+    opacity: 1;
+    filter: brightness(0) invert(1) drop-shadow(0 10px 18px rgba(0,0,0,.2)) !important;
+}
+
+.cobrador-shell .sidebar .avatar {
+    color: #fff !important;
+}
+
+.cobrador-shell #sidebar.sidebar {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(249, 115, 22, 0.24), transparent 32%),
+        radial-gradient(circle at 88% 8%, rgba(120, 53, 15, 0.28), transparent 30%),
+        linear-gradient(180deg, #211816 0%, #171313 48%, #111111 100%) !important;
+    border-right: 1px solid rgba(251, 146, 60, 0.14) !important;
+    box-shadow: 24px 0 58px rgba(24, 24, 27, 0.36) !important;
+}
+
+.cobrador-shell #sidebar > .mb-5 {
+    width: fit-content;
+    max-width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 22px !important;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+}
+
+.cobrador-shell #sidebar .gc-logo {
+    width: 172px;
+    height: auto !important;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+.cobrador-shell #sidebar .profile-card {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.07)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18) !important;
+}
+
+.cobrador-shell #sidebar .menu-item {
+    background: rgba(255, 255, 255, 0.075) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.cobrador-shell #sidebar .menu-item:hover {
+    background: rgba(249, 115, 22, 0.16) !important;
+    border-color: rgba(251, 146, 60, 0.28) !important;
+}
+
+.cobrador-shell #sidebar .menu-route,
+.cobrador-shell #sidebar .ruta-badge {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 44%, #06b6d4 100%) !important;
+}
+
+.cobrador-shell .topbar {
+    background:
+        radial-gradient(circle at 14% -18%, rgba(249, 115, 22, 0.28), transparent 36%),
+        linear-gradient(135deg, #211816 0%, #171313 48%, #111111 100%) !important;
+    border: 1px solid rgba(251, 146, 60, 0.14);
+    border-top: 0;
+    border-radius: 0 0 22px 22px;
+    box-shadow: 0 18px 36px rgba(24, 24, 27, 0.24);
+    backdrop-filter: none !important;
+    isolation: isolate;
+}
+
+.cobrador-shell .topbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: inherit;
+}
+
+.cobrador-shell .topbar .text-lg {
+    color: #fff !important;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
+}
+
+.cobrador-shell .cobrador-content .modern-tab.is-active,
+.cobrador-shell .cobrador-content #tabPendientes.is-active,
+.cobrador-shell .cobrador-content #tabPagados.is-active {
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content .modern-tab.is-active *,
+.cobrador-shell .cobrador-content #tabPendientes.is-active *,
+.cobrador-shell .cobrador-content #tabPagados.is-active * {
+    color: #fff !important;
+}
+
+.cobrador-shell .cobrador-content .modern-tab:not(.is-active),
+.cobrador-shell .cobrador-content #tabPendientes:not(.is-active),
+.cobrador-shell .cobrador-content #tabPagados:not(.is-active) {
+    color: #18181b !important;
+}
+
+@media (max-width: 380px) {
+    .cobrador-shell .topbar .text-lg {
+        max-width: 190px;
+        font-size: 15px !important;
+    }
+
+    .cobrador-shell .cobrador-content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+/* Standalone cobrador route screens */
+.mobile-page .welcome-wrap,
+.mobile-page .action-card {
+    border-radius: 22px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 22px 48px rgba(16, 32, 51, 0.12) !important;
+}
+
+.mobile-page .welcome-title,
+.mobile-page .welcome-text,
+.mobile-page .action-card .text-xl,
+.mobile-page .action-card .text-sm {
+    color: #102033 !important;
+}
+
+.mobile-page .welcome-title .accent,
+.mobile-page .action-card .text-blue-200,
+.mobile-page .welcome-badge {
+    color: #f97316 !important;
+}
+
+.mobile-page .welcome-badge {
+    background: #fff7ed !important;
+    border: 1px solid #fed7aa !important;
+}
+
+.mobile-page .welcome-icon,
+.mobile-page .card-icon {
+    background: linear-gradient(135deg, #f97316, #06b6d4) !important;
+    color: #fff !important;
+    border-radius: 16px !important;
+}
+
+.mobile-page .welcome-dot {
+    background: #cbd5e1 !important;
+}
+
+.mobile-page .welcome-dot.active {
+    background: #f97316 !important;
+}
+
+.mobile-page .action-card a.bg-blue-600,
+.mobile-page .card-ruta {
+    border-radius: 18px !important;
+}
+
+.mobile-page .action-card a.bg-blue-600 {
+    background: linear-gradient(135deg, #18181b, #f97316) !important;
+    color: #fff !important;
+}
+
+.mobile-page .header-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: #18181b !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+}
+
+.mobile-page .card-ruta {
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #102033 !important;
+    border: 1px solid rgba(15, 35, 51, 0.08) !important;
+    box-shadow: 0 18px 38px rgba(16, 32, 51, 0.1) !important;
+}
+
+.mobile-page .logo-glow {
+    filter: drop-shadow(0 14px 22px rgba(24, 24, 27, .12)) !important;
+}
+
+.mobile-page .logo-card {
+    width: fit-content;
+    max-width: calc(100% - 48px);
+    margin-left: auto;
+    margin-right: auto;
+    padding: 14px 22px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(24, 24, 27, 0.08);
+    box-shadow: 0 22px 46px rgba(24, 24, 27, 0.13);
+}

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#102033">
+<meta name="theme-color" content="#18181b">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_cobros.svg') }}">
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
@@ -25,8 +25,10 @@ body {
     left: -320px;
     width: 300px;
     height: 100%;
-    background: linear-gradient(180deg, #0e2a47 0%, #071a2d 100%);
-    box-shadow: 0 0 50px rgba(0,0,0,.6);
+    background:
+        radial-gradient(circle at 22% -6%, rgba(249, 115, 22, .22), transparent 34%),
+        linear-gradient(180deg, #18181b 0%, #0f172a 100%);
+    box-shadow: 18px 0 46px rgba(15, 23, 42, .26);
     transition: .35s cubic-bezier(.4,0,.2,1);
     z-index: 1000;
     padding: 28px 22px;
@@ -43,8 +45,8 @@ body {
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.55);
-    backdrop-filter: blur(3px);
+    background: rgba(15, 23, 42, .34);
+    backdrop-filter: blur(2px);
     opacity: 0;
     visibility: hidden;
     transition: .3s;
@@ -58,8 +60,8 @@ body {
 
 /* ===== PERFIL ===== */
 .profile-card {
-    background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.12);
     border-radius: 20px;
     padding: 20px;
 }
@@ -69,7 +71,7 @@ body {
     height: 50px;
     width: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    background: linear-gradient(135deg, #f97316, #06b6d4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,7 +84,7 @@ body {
     margin-top: 16px;
     padding: 8px 12px;
     border-radius: 14px;
-    background: linear-gradient(90deg, #1e40af, #2563eb);
+    background: linear-gradient(135deg, #f97316, #06b6d4);
     font-size: 12px;
     font-weight: 500;
 }
@@ -90,12 +92,13 @@ body {
 /* ===== MENU ===== */
 .menu-item {
     padding: 14px 16px;
-    border-radius: 18px;
+    border-radius: 14px;
     transition: .2s;
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(255,255,255,.04);
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.07);
     font-size: 14px;
 }
 
@@ -105,16 +108,16 @@ body {
 }
 
 .menu-item.active {
-    background: linear-gradient(90deg,#2563eb,#1d4ed8);
+    background: linear-gradient(135deg,#f97316,#06b6d4);
 }
 
 /* Cambio ruta especial */
 .menu-route {
-    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    background: linear-gradient(135deg,#f97316,#06b6d4);
 }
 
 .menu-route:hover {
-    background: linear-gradient(90deg,#0284c7,#1d4ed8);
+    background: linear-gradient(135deg,#ea580c,#0891b2);
 }
 
 /* ===== TOPBAR ===== */
@@ -130,8 +133,9 @@ body {
 .menu-btn {
     height: 42px;
     width: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
+    border-radius: 14px;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.12);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -145,7 +149,7 @@ body {
 
 </head>
 
-<body class="text-white mobile-page">
+<body class="text-white mobile-page cobrador-shell">
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 <div id="toast-container"
@@ -175,8 +179,7 @@ body {
 <div class="mb-5">
     <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
          alt="Gestion de Cobros"
-         class="gc-logo"
-         style="filter: brightness(0) invert(1);">
+         class="gc-logo">
 </div>
 <div class="profile-card mb-8">
 
@@ -203,7 +206,7 @@ body {
 
     {% if session.get("ruta_nombre") %}
     <div class="ruta-badge">
-        Ruta activa: {{ session.get("ruta_nombre") }}
+        Ruta en turno: {{ session.get("ruta_nombre") }}
     </div>
     {% endif %}
 
@@ -233,7 +236,7 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
         </svg>
-        <span>Todas las ventas</span>
+        <span>Cartera completa</span>
     </a>
 
     <a href="{{ url_for('caja_cobrador') }}"
@@ -245,7 +248,7 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M3 7h18M5 7v10h14V7M9 11h6"/>
         </svg>
-        <span>Caja</span>
+        <span>Caja diaria</span>
     </a>
     
     <a href="{{ url_for('clientes_ruta', ruta_id=session.get('ruta_id')) }}" class="flex items-center gap-3 menu-item">
@@ -255,7 +258,7 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M17 20h5V4H2v16h5m10 0a4 4 0 00-8 0m8 0H9"/>
         </svg>
-        <span>Clientes</span>
+        <span>Clientes ruta</span>
     </a>
 
     <a href="{{ url_for('metas_dia') }}" class="flex items-center gap-3 menu-item">
@@ -265,7 +268,7 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M12 6v6l4 2"/>
         </svg>
-        <span>Metas del día</span>
+        <span>Objetivo diario</span>
     </a>
     <a href="{{ url_for('buzon_aumento_cupo') }}" class="flex items-center gap-3 menu-item">
         <!-- Metas -->
@@ -274,14 +277,14 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M12 6v6l4 2"/>
         </svg>
-        <span>Solicitudes</span>
+        <span>Cupos solicitados</span>
     </a>
 
 
         <a href="{{ url_for('dashboard_cobrador') }}"
     class="menu-item menu-route justify-between">
 
-        <span>🏍 Cambio de Ruta</span>
+        <span>Cambiar ruta</span>
 
         <svg xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 opacity-80"
@@ -327,7 +330,7 @@ body {
 
 <!-- Top Bar -->
 <div class="topbar text-white flex items-center justify-between px-4 py-3 relative">
-    <button onclick="toggleMenu()" class="menu-btn">
+    <button onclick="toggleMenu()" class="menu-btn" aria-label="Abrir menu">
         ☰
     </button>
 
@@ -392,7 +395,7 @@ body {
 </div>
 
 <!-- Page Content -->
-<div class="max-w-md mx-auto px-4 pb-20">
+<div class="cobrador-content max-w-md mx-auto px-4 pb-20">
     {% block content %}{% endblock %}
 </div>
 

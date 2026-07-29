@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#102033">
-<title>Bienvenido</title>
+<meta name="theme-color" content="#18181b">
+<title>Ruta lista</title>
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
 <style>
 body {
     background:
-        radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);
+        radial-gradient(circle at 18% -10%, rgba(249,115,22,.2), transparent 30%),
+        linear-gradient(180deg, #18181b 0%, #0f172a 58%, #f4f4f5 58%, #f4f4f5 100%);
     min-height: 100vh;
 }
 
@@ -20,11 +21,9 @@ body {
     overflow: hidden;
     border-radius: 24px;
     background:
-        linear-gradient(135deg, rgba(18,59,99,.96), rgba(11,40,71,.97));
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow:
-        0 18px 45px rgba(0,0,0,.38),
-        inset 0 1px 0 rgba(255,255,255,.05);
+        linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,250,250,.98));
+    border: 1px solid rgba(24,24,27,.08);
+    box-shadow: 0 22px 48px rgba(24,24,27,.13);
 }
 
 .welcome-track {
@@ -42,17 +41,17 @@ body {
     font-size: 30px;
     line-height: 1.05;
     font-weight: 800;
-    color: white;
+    color: #18181b;
     margin-bottom: 12px;
 }
 
 .welcome-title .accent {
-    color: #7bc2ff;
+    color: #f97316;
 }
 
 .welcome-text {
     font-size: 14px;
-    color: #d4e4f5;
+    color: #3f3f46;
     line-height: 1.6;
     max-width: 88%;
 }
@@ -64,9 +63,9 @@ body {
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
-    color: #d6ecff;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.08);
+    color: #f97316;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
     padding: 7px 12px;
     border-radius: 999px;
 }
@@ -82,8 +81,8 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 32px;
-    background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(37,99,235,.22));
-    border: 1px solid rgba(255,255,255,.10);
+    background: linear-gradient(135deg, #f97316, #06b6d4);
+    border: 1px solid rgba(255,255,255,.22);
 }
 
 .welcome-dots {
@@ -97,20 +96,20 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: rgba(255,255,255,.22);
+    background: #d4d4d8;
     transition: all .25s ease;
 }
 
 .welcome-dot.active {
     width: 24px;
-    background: #4ea1ff;
+    background: #f97316;
 }
 
 .action-card {
-    background: linear-gradient(135deg, #123b63, #0b2847);
+    background: rgba(255,255,255,.96);
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.06);
-    box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    border: 1px solid rgba(24,24,27,.08);
+    box-shadow: 0 22px 48px rgba(24,24,27,.12);
 }
 
 .fade-in-up {
@@ -136,7 +135,7 @@ body {
 
     <div class="flex items-center justify-between mb-5">
         <a href="javascript:history.back()" class="text-white/80 text-lg">‹</a>
-        <div class="text-sm font-semibold tracking-wide text-white/90">Bienvenida</div>
+        <div class="text-sm font-semibold tracking-wide text-white/90">Ruta lista</div>
         <div></div>
     </div>
 
@@ -144,13 +143,13 @@ body {
         <div class="welcome-track" id="welcomeTrack">
 
             <div class="welcome-slide">
-                <div class="welcome-badge">Ruta seleccionada</div>
+                <div class="welcome-badge">Ruta confirmada</div>
                 <div class="welcome-title">
-                    Bienvenido a <span class="accent">ML</span>
+                    Jornada lista
                 </div>
                 <div class="welcome-text">
                     Has ingresado correctamente a la ruta <strong>{{ ruta.codigo }}</strong>.
-                    Prepárate para iniciar tu jornada con una experiencia más rápida, clara y moderna.
+                    Ya puedes iniciar tu recorrido con una vista mas clara, rapida y organizada.
                 </div>
                 <div class="welcome-icon">👋</div>
             </div>
@@ -158,11 +157,11 @@ body {
             <div class="welcome-slide">
                 <div class="welcome-badge">Control diario</div>
                 <div class="welcome-title">
-                    Todo listo para <span class="accent">{{ ruta.nombre }}</span>
+                    Enfoque en <span class="accent">{{ ruta.nombre }}</span>
                 </div>
                 <div class="welcome-text">
-                    Desde aquí podrás continuar con tu gestión diaria, revisar metas,
-                    visualizar tu avance y empezar tus recorridos con mejor organización.
+                    Desde aqui podras revisar objetivos, cartera pendiente,
+                    recaudos y clientes sin perderte entre pantallas.
                 </div>
                 <div class="welcome-icon">🛵</div>
             </div>
@@ -170,11 +169,11 @@ body {
             <div class="welcome-slide">
                 <div class="welcome-badge">Comienza ahora</div>
                 <div class="welcome-title">
-                    Inicia con <span class="accent">confianza</span>
+                    Sal a cobrar <span class="accent">con control</span>
                 </div>
                 <div class="welcome-text">
-                    Tu ruta ya está cargada. Continúa al panel principal para comenzar
-                    con tus actividades del día.
+                    Tu ruta ya esta cargada. Continua al panel principal para comenzar
+                    con las actividades del dia.
                 </div>
                 <div class="welcome-icon">📍</div>
             </div>
@@ -190,7 +189,7 @@ body {
 
     <div class="action-card p-5 fade-in-up">
         <div class="text-xs uppercase tracking-[0.25em] text-blue-200 mb-2">
-            Ruta activa
+            Ruta en turno
         </div>
 
         <div class="text-xl font-bold">
@@ -203,7 +202,7 @@ body {
 
         <a href="{{ url_for('metas_dia') }}"
            class="mt-5 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 transition py-3.5 rounded-2xl font-semibold shadow-lg">
-            Continuar al panel
+            Entrar al panel
         </a>
     </div>
 

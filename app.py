@@ -1237,6 +1237,7 @@ def recibo_pago(pago_id):
                     id,
                     valor_total,
                     rutas(
+                        id,
                         codigo,
                         nombre
                     ),

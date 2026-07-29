@@ -1,12 +1,12 @@
 {% extends "cobrador/layout.html" %}
-{% block titulo %}Todas las Ventas{% endblock %}
+{% block titulo %}Cartera completa{% endblock %}
 
 {% block content %}
 
-<div class="max-w-md mx-auto px-4 pt-4 pb-28 space-y-4">
+<div class="cobrador-view sales-view max-w-md mx-auto pt-4 pb-28 space-y-4">
 
     <!-- HEADER SUPERIOR -->
-    <div class="sticky top-0 z-30 bg-[#0b2847] rounded-2xl shadow-lg mb-4 overflow-hidden border border-blue-900/40">
+    <div class="sales-filter-panel bg-[#0b2847] rounded-2xl shadow-lg mb-4 overflow-hidden border border-blue-900/40">
 
         <!-- RESUMEN -->
         <div class="p-4 bg-gradient-to-br from-[#123b63] to-[#0b2847]">
@@ -40,14 +40,14 @@
                 <button type="button"
                         id="tabPendientes"
                         onclick="cambiarTab('pendientes')"
-                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
+                        class="modern-tab is-active flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
                     Por cobrar
                 </button>
 
                 <button type="button"
                         id="tabPagados"
                         onclick="cambiarTab('pagados')"
-                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
+                        class="modern-tab flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
                     Pagados hoy
                 </button>
             </div>
@@ -247,20 +247,20 @@
                 </div>
 
                 <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-                    <div class="bg-[#0d2e1d] rounded-xl p-3 text-center border border-green-900/30">
-                        <div class="text-xs opacity-70">
+                    <div class="paid-total-box rounded-xl p-3 text-center">
+                        <div class="text-xs">
                             Total pagado
                         </div>
-                        <div class="font-bold text-green-300 mt-1">
+                        <div class="font-bold mt-1">
                             $ {{ c.total_pagado_cuotas }}
                         </div>
                     </div>
 
-                    <div class="bg-[#0d2e1d] rounded-xl p-3 text-center border border-green-900/30">
-                        <div class="text-xs opacity-70">
+                    <div class="paid-total-box rounded-xl p-3 text-center">
+                        <div class="text-xs">
                             Saldo pendiente
                         </div>
-                        <div class="font-bold text-white mt-1">
+                        <div class="font-bold mt-1">
                             $ {{ c.saldo_pendiente }}
                         </div>
                     </div>
@@ -397,7 +397,7 @@
 
 <!-- BOTÓN FLOTANTE -->
 <a href="{{ url_for('nueva_venta_cobrador') }}"
-   class="fixed bottom-6 right-6
+   class="modern-fab fixed bottom-6 right-6
           bg-blue-600 hover:bg-blue-700
           text-white text-3xl
           h-16 w-16
@@ -424,8 +424,8 @@ function cambiarTab(tab) {
     const tabPendientes = document.getElementById("tabPendientes");
     const tabPagados = document.getElementById("tabPagados");
 
-    const activeClasses = ["bg-[#1d4f7a]", "text-white", "shadow-md", "border", "border-blue-400/30"];
-    const inactiveClasses = ["text-white/80"];
+    const activeClasses = ["is-active"];
+    const inactiveClasses = ["is-muted"];
 
     if (tab === "pendientes") {
         contPendientes.classList.remove("hidden");

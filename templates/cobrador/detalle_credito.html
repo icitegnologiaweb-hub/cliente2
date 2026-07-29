@@ -6,466 +6,464 @@
 
 {% block content %}
 
-<!-- =========================
-     INFORMACIÓN GENERAL
-========================= -->
-<div class="bg-gradient-to-br from-[#123b63] to-[#0b2847]
-            rounded-2xl p-5 shadow-lg mb-6 text-white">
+{% set total_cuotas = cuotas|length %}
+{% set avance_credito = ((cuotas_pagadas / total_cuotas) * 100) if total_cuotas else 0 %}
 
-    <div class="space-y-3 text-sm">
-        <button onclick="history.back()"
-                class="flex items-center gap-2
-                    bg-white/10 backdrop-blur
-                    px-4 py-2 rounded-xl
-                    text-white text-sm
-                    hover:bg-white/20
-                    transition shadow">
+<style>
+.credit-screen { color: #102033; padding-top: 4px; }
+.credit-hero, .payment-card, .modal-panel { border: 1px solid rgba(15,35,51,.08); box-shadow: 0 22px 48px rgba(16,32,51,.14); }
+.credit-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    background:
+        linear-gradient(135deg, rgba(15,118,110,.10) 0 34%, transparent 34% 100%),
+        linear-gradient(180deg, #fff 0%, #f8fbfb 100%);
+}
+.credit-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 44%;
+    height: 112px;
+    background: linear-gradient(135deg, rgba(37,99,235,.14), rgba(245,158,11,.16));
+    transform: skewX(-16deg) translateX(24px);
+    transform-origin: top right;
+    pointer-events: none;
+}
+.hero-bar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 4px; }
+.back-button { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border-radius: 12px; background: #102033; color: #fff; font-size: 13px; font-weight: 800; }
+.status-pill { display: inline-flex; align-items: center; min-height: 30px; padding: 0 11px; border-radius: 999px; background: #e7f7f2; color: #0f766e; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+.client-block { position: relative; z-index: 1; padding: 12px 16px 16px; }
+.client-head { display: grid; grid-template-columns: 54px minmax(0,1fr); gap: 12px; align-items: center; }
+.client-avatar { width: 54px; height: 54px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#0f766e,#2563eb); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 14px 26px rgba(37,99,235,.24); }
+.client-name { font-size: 22px; line-height: 1.1; font-weight: 900; color: #102033; }
+.client-address { margin-top: 5px; font-size: 12px; color: #64748b; }
+.summary-panel { margin-top: 16px; border-radius: 18px; background: #102033; color: #fff; overflow: hidden; }
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.summary-cell { padding: 14px; min-width: 0; }
+.summary-cell + .summary-cell { border-left: 1px solid rgba(255,255,255,.10); }
+.summary-label { color: rgba(226,232,240,.72); font-size: 11px; font-weight: 700; }
+.summary-value { margin-top: 4px; color: #34d399; font-size: 18px; line-height: 1.15; font-weight: 900; overflow-wrap: anywhere; }
+.progress-strip { padding: 12px 14px 14px; border-top: 1px solid rgba(255,255,255,.10); }
+.progress-top { display: flex; justify-content: space-between; gap: 12px; color: rgba(226,232,240,.82); font-size: 12px; font-weight: 700; }
+.progress-track { height: 8px; margin-top: 10px; border-radius: 999px; background: rgba(255,255,255,.13); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#34d399,#f59e0b); }
+.detail-grid { display: grid; gap: 10px; margin-top: 14px; }
+.detail-row { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(15,35,51,.045); }
+.detail-label { color: #64748b; font-size: 12px; font-weight: 800; }
+.detail-value { color: #102033; font-size: 13px; font-weight: 900; text-align: right; overflow-wrap: anywhere; }
+.detail-value.accent, .detail-value a { color: #0f766e; }
+.action-grid { display: grid; gap: 10px; padding: 0 16px 16px; }
+.action-button { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; border-radius: 14px; color: #fff; font-size: 13px; font-weight: 900; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.action-button:hover { transform: translateY(-1px); filter: brightness(1.03); }
+.action-image { background: linear-gradient(135deg,#2563eb,#0ea5e9); box-shadow: 0 14px 28px rgba(37,99,235,.24); }
+.action-history { background: linear-gradient(135deg,#102033,#334155); box-shadow: 0 14px 28px rgba(16,32,51,.22); }
+.action-map { background: linear-gradient(135deg,#0f766e,#14b8a6); box-shadow: 0 14px 28px rgba(15,118,110,.22); }
+.flash-panel { margin: 0 16px 16px; }
+.section-head { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin: 22px 2px 12px; }
+.section-title { font-size: 18px; font-weight: 950; color: #102033; }
+.section-subtitle { margin-top: 2px; font-size: 12px; color: #64748b; }
+.mini-stat { padding: 8px 10px; border-radius: 12px; background: #fff; color: #0f766e; font-size: 12px; font-weight: 900; white-space: nowrap; box-shadow: 0 10px 22px rgba(16,32,51,.08); }
+.payments-list { display: grid; gap: 12px; }
+.payment-card { display: grid; grid-template-columns: 46px minmax(0,1fr) 42px; gap: 12px; align-items: center; min-height: 76px; padding: 12px; border-radius: 18px; background: rgba(255,255,255,.94); color: #102033; transition: transform .18s ease, box-shadow .18s ease; }
+.payment-card.is-clickable:hover { transform: translateY(-2px); box-shadow: 0 24px 46px rgba(16,32,51,.16); }
+.payment-card.is-paid { border-color: rgba(22,163,74,.22); }
+.payment-card.is-partial { border-color: rgba(245,158,11,.28); }
+.payment-card.is-overdue { border-color: rgba(220,38,38,.22); }
+.payment-number { width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: #e8f0ff; color: #2563eb; font-weight: 950; }
+.is-paid .payment-number { background: #dcfce7; color: #15803d; }
+.is-partial .payment-number { background: #fef3c7; color: #b45309; }
+.is-overdue .payment-number { background: #fee2e2; color: #dc2626; }
+.payment-amount { font-size: 16px; font-weight: 950; color: #102033; }
+.payment-date, .payment-note { margin-top: 2px; font-size: 12px; color: #64748b; }
+.payment-note.positive { color: #0f766e; font-weight: 800; }
+.payment-note.warning { color: #b45309; font-weight: 800; }
+.payment-note.danger { color: #dc2626; font-weight: 800; }
+.small-progress { width: 132px; max-width: 100%; height: 6px; margin-top: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.small-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#0f766e,#34d399); }
+.payment-state { width: 38px; height: 38px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; }
+.state-paid { background: #16a34a; }
+.state-partial { background: #f59e0b; }
+.state-pending { background: #64748b; }
+.modal-panel { background: #fff; color: #102033; border-radius: 22px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid rgba(15,35,51,.08); }
+.modal-title { font-size: 16px; font-weight: 950; }
+.icon-close { width: 34px; height: 34px; border-radius: 12px; background: #f1f5f9; color: #334155; }
+.payment-sheet { width: 100%; max-width: 380px; border-radius: 24px 24px 0 0; }
+.loading-payment { background: rgba(255,255,255,.92); border-radius: 24px 24px 0 0; }
+.next-gallery { background: #102033; }
+.next-gallery:hover { background: #1e293b; }
+.pay-confirm { background: #0f766e; }
+.pay-confirm:hover { background: #115e59; }
+.pay-badge { background: #ecfdf5; color: #0f766e; }
+.teal-spinner {
+    width: 56px;
+    height: 56px;
+    border: 4px solid #ccfbf1;
+    border-top-color: #0f766e;
+    animation: credit-spin .8s linear infinite;
+}
+.modal-scroll { max-height: 80vh; }
+.receipt-spinner { animation: credit-spin .8s linear infinite; }
+@keyframes credit-spin { to { transform: rotate(360deg); } }
+.gallery-caption { margin-top: 9px; text-align: center; color: #64748b; font-size: 12px; font-weight: 800; }
+.modal-soft { border-radius: 18px; background: #f8fafc; border: 1px solid rgba(15,35,51,.08); }
+.payment-modal-backdrop { background: rgba(12,10,9,.72); backdrop-filter: blur(10px); }
+.payment-sheet { background: #fff; color: #18181b; border: 1px solid rgba(24,24,27,.08); box-shadow: 0 -18px 60px rgba(24,24,27,.28); }
+.payment-sheet::before { content: ""; position: absolute; inset: 0 0 auto; height: 118px; background: linear-gradient(135deg, rgba(249,115,22,.12), rgba(6,182,212,.10)); pointer-events: none; }
+.payment-handle { width: 44px; height: 5px; border-radius: 999px; background: #d4d4d8; }
+.payment-icon { width: 54px; height: 54px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#18181b,#f97316); color: #fff; box-shadow: 0 14px 28px rgba(249,115,22,.24); }
+.payment-amount-panel { border-radius: 22px; background: #fafafa; border: 1px solid rgba(24,24,27,.10); box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
+.payment-amount-input { height: 58px; border-radius: 16px !important; background: #fff !important; color: #18181b !important; border: 1px solid rgba(24,24,27,.14) !important; box-shadow: 0 10px 24px rgba(24,24,27,.06); }
+.payment-total { color: #f97316; font-size: 30px; line-height: 1.05; font-weight: 950; }
+.pay-confirm { min-height: 52px; border-radius: 16px; background: linear-gradient(135deg,#18181b,#f97316); color: #fff !important; box-shadow: 0 18px 32px rgba(249,115,22,.24); }
+.pay-cancel { min-height: 52px; border-radius: 16px; background: #f4f4f5 !important; color: #3f3f46 !important; }
+.payment-note-line { color: #71717a; font-size: 12px; font-weight: 800; }
+@media (min-width: 640px) {
+    .payment-sheet,
+    .loading-payment { border-radius: 24px; }
+}
+@media (max-width: 360px) {
+    .summary-value { font-size: 15px; }
+    .detail-row { grid-template-columns: 1fr; }
+    .detail-value { text-align: left; }
+}
+</style>
 
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 19l-7-7 7-7"/>
-            </svg>
+<div class="credit-screen">
+    <section class="credit-hero">
+        <div class="hero-bar">
+            <button onclick="history.back()" class="back-button" aria-label="Regresar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Volver
+            </button>
 
-            Regresar
-        </button>
-
-        <div class="text-lg font-semibold text-blue-200 mb-2">
-            {{ credito.clientes.nombre }}
+            <span class="status-pill">Credito activo</span>
         </div>
 
-        <div class="flex justify-between items-center">
-            <span class="opacity-70">Teléfono</span>
+        <div class="client-block">
+            <div class="client-head">
+                <div class="client-avatar">
+                    {{ (credito.clientes.nombre or 'C')[:1] }}
+                </div>
 
-            {% set codigo = credito.clientes.codigo_pais or '57' %}
-            {% set telefono_limpio = (credito.clientes.telefono_principal or '')
-                | replace(' ', '')
-                | replace('-', '')
-                | replace('(', '')
-                | replace(')', '')
-            %}
+                <div class="min-w-0">
+                    <div class="client-name">{{ credito.clientes.nombre }}</div>
+                    <div class="client-address">{{ credito.clientes.direccion or 'Sin direccion registrada' }}</div>
+                </div>
+            </div>
 
-            <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}"
-               target="_blank"
-               class="text-green-400 font-semibold">
-                +{{ codigo }} {{ credito.clientes.telefono_principal }}
+            <div class="summary-panel">
+                <div class="summary-grid">
+                    <div class="summary-cell">
+                        <div class="summary-label">Saldo restante</div>
+                        <div class="summary-value">${{ "{:,.2f}".format(saldo) }}</div>
+                    </div>
+                    <div class="summary-cell">
+                        <div class="summary-label">Venta total</div>
+                        <div class="summary-value">${{ "{:,.2f}".format(credito.valor_total) }}</div>
+                    </div>
+                </div>
+
+                <div class="progress-strip">
+                    <div class="progress-top">
+                        <span>{{ cuotas_pagadas }} de {{ total_cuotas }} cuotas pagadas</span>
+                        <span>{{ "{:.0f}".format(avance_credito) }}%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ avance_credito }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-row">
+                    <span class="detail-label">Telefono</span>
+
+                    {% set codigo = credito.clientes.codigo_pais or '57' %}
+                    {% set telefono_limpio = (credito.clientes.telefono_principal or '')
+                        | replace(' ', '')
+                        | replace('-', '')
+                        | replace('(', '')
+                        | replace(')', '')
+                    %}
+
+                    <span class="detail-value accent">
+                        <a href="https://wa.me/{{ codigo }}{{ telefono_limpio }}" target="_blank" rel="noopener">
+                            +{{ codigo }} {{ credito.clientes.telefono_principal }}
+                        </a>
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Tipo prestamo</span>
+                    <span class="detail-value">{{ credito.tipo_prestamo }}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Registro credito</span>
+                    <span class="detail-value">
+                        {{ credito.created_at[8:10] }}/{{ credito.created_at[5:7] }}/{{ credito.created_at[:4] }}
+                        {{ credito.created_at[11:16] }}
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Proxima cuota</span>
+                    <span class="detail-value accent">{{ proxima_cuota or 'Sin pendiente' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-grid">
+            <button onclick="abrirGaleria()" class="action-button action-image" aria-label="Ver imagenes de la venta">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14m-16 6h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Ver imagenes de la venta
+            </button>
+
+            <a href="{{ url_for('historial_cliente', cliente_id=credito.clientes.id) }}" class="action-button action-history">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-3-6.7"/>
+                </svg>
+                Historial de creditos
+            </a>
+
+            <a href="javascript:void(0);" onclick="verUbicacion()" class="action-button action-map">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21s7-4.6 7-11a7 7 0 10-14 0c0 6.4 7 11 7 11z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10.5h.01"/>
+                </svg>
+                Ir a ubicacion del cliente
             </a>
         </div>
 
-        <div class="flex justify-between">
-            <span class="opacity-70">Dirección</span>
-            <span class="text-blue-300">
-                {{ credito.clientes.direccion }}
-            </span>
-        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-panel space-y-2">
+                    {% for category, message in messages %}
+                        <div class="rounded-xl px-4 py-3 text-sm font-bold
+                            {% if category == 'warning' %}
+                                bg-yellow-100 text-yellow-800 border border-yellow-200
+                            {% elif category == 'error' %}
+                                bg-red-100 text-red-700 border border-red-200
+                            {% else %}
+                                bg-green-100 text-green-700 border border-green-200
+                            {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </section>
 
-        <div class="flex justify-between">
-            <span class="opacity-70">Tipo Préstamo</span>
-            <span class="text-blue-300">
-                {{ credito.tipo_prestamo }}
-            </span>
-        </div>
-
-        <div class="flex justify-between">
-            <span class="opacity-70">Registro Crédito</span>
-            <span class="text-blue-300">
-                {{ credito.created_at[8:10] }}/{{ credito.created_at[5:7] }}/{{ credito.created_at[:4] }}
-                {{ credito.created_at[11:16] }}
-            </span>
-        </div>
-
-        <div class="flex justify-between">
-            <span class="opacity-70">Cuotas Pactadas</span>
-            <span class="text-blue-300">
-                {{ cuotas|length }}
-            </span>
-        </div>
-
-        <div class="flex justify-between">
-            <span class="opacity-70">Próxima Cuota</span>
-            <span class="text-green-400 font-semibold">
-                {{ proxima_cuota }}
-            </span>
-        </div>
-
-        <div class="flex justify-between pt-3 border-t border-blue-500/30">
-            <span>Total Venta Con Intereses</span>
-            <span class="text-green-400 font-semibold">
-                ${{ "{:,.2f}".format(credito.valor_total) }}
-            </span>
-        </div>
-
-        <div class="flex justify-between">
-            <span>Saldo Restante Venta</span>
-            <span class="text-green-400 font-semibold">
-                ${{ "{:,.2f}".format(saldo) }}
-            </span>
-        </div>
-
-    </div>
-
-    <button onclick="abrirGaleria()"
-            class="w-full mt-5 bg-blue-600 hover:bg-blue-700
-                py-3 rounded-xl text-sm font-semibold shadow-md transition">
-        Ver Imagen de la Venta
-    </button>
-
-    <a href="{{ url_for('historial_cliente', cliente_id=credito.clientes.id) }}"
-       class="w-full mt-3 block bg-indigo-600 hover:bg-indigo-700
-              py-2 rounded-xl text-sm font-semibold text-center transition">
-        Ver historial de créditos
-    </a>
-
-    <a href="javascript:void(0);"
-       onclick="verUbicacion()"
-       class="w-full mt-3 block bg-green-600 hover:bg-green-700
-              py-2 rounded-xl text-sm font-semibold text-center transition">
-        📍 Ir a ubicación del cliente
-    </a>
-
-    <!-- FLASH -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="mt-4 space-y-2">
-                {% for category, message in messages %}
-                    <div class="rounded-xl px-4 py-3 text-sm font-medium
-                        {% if category == 'warning' %}
-                            bg-yellow-500/20 text-yellow-200 border border-yellow-400/30
-                        {% elif category == 'error' %}
-                            bg-red-500/20 text-red-200 border border-red-400/30
-                        {% else %}
-                            bg-green-500/20 text-green-200 border border-green-400/30
-                        {% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+    <section>
+        <div class="section-head">
+            <div>
+                <div class="section-title">Plan de pagos</div>
+                <div class="section-subtitle">Toca una cuota pendiente para registrar el pago.</div>
             </div>
-        {% endif %}
-    {% endwith %}
+            <div class="mini-stat">{{ total_cuotas }} cuotas</div>
+        </div>
 
-    <!-- ================= MODAL GALERÍA MODERNO ================= -->
-    <div id="modalGaleria"
-         class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="payments-list">
+            {% for cuota in cuotas %}
+                {% set cuota_pagada = cuota.estado == "pagado" %}
+                {% set cuota_parcial = cuota.pagado > 0 and not cuota_pagada %}
+                {% set cuota_mora = cuota.dias_mora > 0 and not cuota_pagada %}
+                {% set aplicado = cuota.pagado if cuota.pagado <= cuota.valor else cuota.valor %}
+                {% set restante = cuota.valor - aplicado %}
+                {% set saldo_favor = cuota.pagado - cuota.valor if cuota.pagado > cuota.valor else 0 %}
+                {% set progreso = ((aplicado / cuota.valor) * 100) if cuota.valor else 0 %}
 
-        <div class="relative w-full max-w-md
-                bg-gradient-to-br from-[#123b63] to-[#0b2847]
-                rounded-3xl shadow-2xl overflow-hidden text-white">
+                <div
+                    {% if not cuota_pagada %}
+                        onclick="handleCardClick(event,'{{ cuota.id }}',{{ cuota.valor }})"
+                    {% endif %}
+                    class="payment-card
+                        {% if not cuota_pagada %}is-clickable cursor-pointer{% endif %}
+                        {% if cuota_pagada %}is-paid{% elif cuota_mora %}is-overdue{% elif cuota_parcial %}is-partial{% endif %}">
 
-            <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-                <div class="text-sm font-semibold text-blue-200">
-                    Documentos del Crédito
+                    <div class="payment-number">{{ cuota.numero }}</div>
+
+                    <div class="min-w-0">
+                        <div class="payment-amount">${{ "{:,.2f}".format(cuota.valor) }}</div>
+                        <div class="payment-date">Vence: {{ cuota.fecha_pago }}</div>
+
+                        {% if cuota.pagado > 0 %}
+                            <div class="payment-note positive">Abonado: ${{ "{:,.2f}".format(cuota.pagado) }}</div>
+                            <div class="payment-note">Aplicado: ${{ "{:,.2f}".format(aplicado) }}</div>
+
+                            {% if saldo_favor > 0 %}
+                                <div class="payment-note positive">Saldo a favor: ${{ "{:,.2f}".format(saldo_favor) }}</div>
+                            {% endif %}
+
+                            {% if restante > 0 %}
+                                <div class="payment-note warning">Restante: ${{ "{:,.2f}".format(restante) }}</div>
+                            {% endif %}
+
+                            <div class="small-progress">
+                                <span style="width: {{ progreso }}%"></span>
+                            </div>
+                        {% endif %}
+
+                        {% if cuota.dias_mora > 0 %}
+                            <div class="payment-note danger">Mora: {{ cuota.dias_mora }} dias</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="payment-state {% if cuota_pagada %}state-paid{% elif cuota_parcial %}state-partial{% else %}state-pending{% endif %}">
+                        {% if cuota_pagada %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        {% elif cuota_parcial %}
+                            <span class="font-bold">$</span>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V8a4 4 0 118 0v3m-9 0h10v9H7v-9z"/>
+                            </svg>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div id="modalGaleria" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="relative w-full max-w-md modal-panel overflow-hidden">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Documentos del credito</div>
+                    <div class="text-xs text-gray-500 font-bold mt-1">Imagenes asociadas a la venta</div>
                 </div>
 
-                <button onclick="cerrarGaleria()"
-                        class="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200
-                               flex items-center justify-center text-gray-600 transition">
-                    ✕
+                <button onclick="cerrarGaleria()" class="icon-close flex items-center justify-center" aria-label="Cerrar galeria">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
 
-            <div class="relative bg-transparent">
-                <div id="sliderImagenes"
-                     class="flex transition-transform duration-300">
-
+            <div class="relative overflow-hidden">
+                <div id="sliderImagenes" class="flex transition-transform duration-300">
                     {% if credito.foto_cliente %}
-                    <div class="w-full flex-shrink-0 p-6">
-                        <img src="{{ credito.foto_cliente }}"
-                             class="w-full h-72 object-contain rounded-xl shadow">
-                        <div class="text-center text-xs text-gray-500 mt-2">
-                            Foto Cliente
-                        </div>
+                    <div class="w-full flex-shrink-0 p-5">
+                        <img src="{{ credito.foto_cliente }}" class="w-full h-72 object-contain rounded-2xl bg-slate-100 border border-slate-200">
+                        <div class="gallery-caption">Foto cliente</div>
                     </div>
                     {% endif %}
 
                     {% if credito.foto_cedula %}
-                    <div class="w-full flex-shrink-0 p-6">
-                        <img src="{{ credito.foto_cedula }}"
-                             class="w-full h-72 object-contain rounded-xl shadow">
-                        <div class="text-center text-xs text-gray-500 mt-2">
-                            Foto Cédula
-                        </div>
+                    <div class="w-full flex-shrink-0 p-5">
+                        <img src="{{ credito.foto_cedula }}" class="w-full h-72 object-contain rounded-2xl bg-slate-100 border border-slate-200">
+                        <div class="gallery-caption">Foto cedula</div>
                     </div>
                     {% endif %}
 
                     {% if credito.foto_negocio %}
-                    <div class="w-full flex-shrink-0 p-6">
-                        <img src="{{ credito.foto_negocio }}"
-                             class="w-full h-72 object-contain rounded-xl shadow">
-                        <div class="text-center text-xs text-gray-500 mt-2">
-                            Foto Negocio
-                        </div>
+                    <div class="w-full flex-shrink-0 p-5">
+                        <img src="{{ credito.foto_negocio }}" class="w-full h-72 object-contain rounded-2xl bg-slate-100 border border-slate-200">
+                        <div class="gallery-caption">Foto negocio</div>
                     </div>
                     {% endif %}
 
                     {% if credito.firma_cliente %}
-                    <div class="w-full flex-shrink-0 p-6">
-                        <img src="{{ credito.firma_cliente }}"
-                             class="w-full h-48 object-contain bg-white rounded-xl shadow">
-                        <div class="text-center text-xs text-gray-500 mt-2">
-                            Firma Cliente
-                        </div>
+                    <div class="w-full flex-shrink-0 p-5">
+                        <img src="{{ credito.firma_cliente }}" class="w-full h-56 object-contain rounded-2xl bg-white border border-slate-200">
+                        <div class="gallery-caption">Firma cliente</div>
                     </div>
                     {% endif %}
 
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between px-6 py-4 border-t border-white/10 bg-transparent">
-                <button onclick="prevImagen()"
-                        class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition">
-                    ← Anterior
-                </button>
-
-                <div id="contadorImagen"
-                     class="text-xs text-gray-500">
-                    1 / 3
-                </div>
-
-                <button onclick="nextImagen()"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">
-                    Siguiente →
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- =========================
-     LISTA DE CUOTAS
-========================= -->
-<div class="space-y-4">
-
-{% for cuota in cuotas %}
-
-<div
-{% if cuota.estado != "pagado" %}
-onclick="handleCardClick(event,'{{ cuota.id }}',{{ cuota.valor }})"
-class="cursor-pointer hover:scale-[1.02] transition"
-{% endif %}
-class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
-
-<div class="flex justify-between items-center">
-
-    <div class="flex items-center gap-4">
-        <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
-            {{ cuota.numero }}
-        </div>
-
-        <div class="space-y-1 text-sm">
-
-            <div class="text-white font-semibold">
-                ${{ cuota.valor }}
-            </div>
-
-            <div class="text-xs text-gray-300">
-                Vence: {{ cuota.fecha_pago }}
-            </div>
-
-            {% if cuota.pagado > 0 %}
-
-                {% set aplicado = cuota.pagado if cuota.pagado <= cuota.valor else cuota.valor %}
-                {% set restante = cuota.valor - aplicado %}
-                {% set saldo_favor = cuota.pagado - cuota.valor if cuota.pagado > cuota.valor else 0 %}
-
-                <div class="text-xs text-green-400">
-                    Total abonado: ${{ "{:,.2f}".format(cuota.pagado) }}
-                </div>
-
-                <div class="text-xs text-emerald-300">
-                    Aplicado a cuota: ${{ "{:,.2f}".format(aplicado) }}
-                </div>
-
-                {% if saldo_favor > 0 %}
-                <div class="text-xs text-blue-300">
-                    Saldo a favor: ${{ "{:,.2f}".format(saldo_favor) }}
-                </div>
-
-                <div class="text-xs text-gray-400">
-                    Se aplicará a la siguiente cuota
-                </div>
-                {% endif %}
-
-                {% if restante > 0 %}
-                <div class="text-xs text-yellow-300">
-                    Restante cuota: ${{ "{:,.2f}".format(restante) }}
-                </div>
-                {% endif %}
-
-                {% set progreso = (aplicado / cuota.valor) * 100 %}
-
-                <div class="w-32 bg-white/10 rounded-full h-1.5 mt-1">
-                    <div class="bg-green-400 h-1.5 rounded-full"
-                        style="width: {{ progreso }}%">
+                    {% if not credito.foto_cliente and not credito.foto_cedula and not credito.foto_negocio and not credito.firma_cliente %}
+                    <div class="w-full flex-shrink-0 p-8 text-center">
+                        <div class="modal-soft p-6">
+                            <div class="text-sm font-bold text-gray-700">Sin imagenes cargadas</div>
+                            <div class="text-xs text-gray-500 mt-2">Este credito no tiene documentos adjuntos.</div>
+                        </div>
                     </div>
+                    {% endif %}
                 </div>
-
-            {% endif %}
-
-            {% if cuota.dias_mora > 0 %}
-            <div class="text-xs text-red-400">
-                Mora: {{ cuota.dias_mora }} días
             </div>
-            {% endif %}
 
+            <div class="flex items-center justify-between gap-3 p-4 border-t border-slate-200">
+                <button onclick="prevImagen()" class="px-4 py-2 bg-slate-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold transition">Anterior</button>
+                <div id="contadorImagen" class="text-xs text-gray-500 font-bold">1 / 1</div>
+                <button onclick="nextImagen()" class="next-gallery px-4 py-2 text-white rounded-xl text-sm font-bold transition">Siguiente</button>
+            </div>
         </div>
     </div>
 
-    <div>
-        {% if cuota.estado == "pagado" %}
-        <div class="h-9 w-9 rounded-full bg-green-500 flex items-center justify-center font-bold">
-            ✓
-        </div>
+    <div id="modalPago" class="payment-modal-backdrop fixed inset-0 hidden items-end sm:items-center justify-center z-50 transition">
+        <div class="payment-sheet relative w-full max-w-md p-5 sm:p-6 overflow-hidden">
+            <div id="loadingPago" class="loading-payment absolute inset-0 backdrop-blur-sm hidden items-center justify-center z-20">
+                <div class="text-center px-6">
+                    <div class="teal-spinner mx-auto rounded-full"></div>
+                    <h4 class="mt-5 text-lg font-bold text-gray-800">Generando comprobante</h4>
+                    <p class="text-sm text-gray-500 mt-2">Estamos registrando el abono.</p>
+                </div>
+            </div>
 
-        {% elif cuota.pagado > 0 %}
-        <div class="h-9 w-9 rounded-full bg-yellow-500 flex items-center justify-center font-bold">
-            $
-        </div>
+            <div class="payment-handle mx-auto mb-5 sm:hidden"></div>
 
-        {% else %}
-        <div class="h-9 w-9 rounded-full bg-gray-500 flex items-center justify-center font-bold">
-            🔒
+            <div class="relative text-center mb-5">
+                <div class="payment-icon mb-3">
+                    <span class="font-bold">$</span>
+                </div>
+                <h3 class="text-2xl font-black tracking-normal">Registrar abono</h3>
+                <p class="payment-note-line mt-2">Confirma el valor recibido antes de generar el comprobante.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('registrar_pago') }}" id="formPago">
+                <input type="hidden" name="cuota_id" id="cuota_id">
+
+                <div class="payment-amount-panel p-4 mb-5 text-center">
+                    <label class="text-sm font-black text-gray-700">Valor recibido</label>
+                    <input type="number" name="monto_pago" id="valorPago" step="0.01" min="0" class="payment-amount-input w-full mt-3 p-3 text-center text-xl font-black" oninput="calcularTotal()" required>
+                    <div class="payment-note-line mt-5">Total a registrar</div>
+                    <div id="totalTexto" class="payment-total mt-1"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <button type="submit" id="btnConfirmarPago" class="pay-confirm w-full py-3 font-black transition flex items-center justify-center gap-2">
+                        <span>Confirmar abono</span>
+                    </button>
+
+                    <button type="button" onclick="cerrarModal()" id="btnCancelarPago" class="pay-cancel w-full py-3 font-black transition">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
         </div>
-        {% endif %}
     </div>
 
-</div>
-</div>
-
-{% endfor %}
-</div>
-
-<!-- =========================
-     MODAL MODERNO DE PAGO
-========================= -->
-<!-- =========================
-     MODAL MODERNO DE PAGO
-========================= -->
-<div id="modalPago"
-     class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 transition">
-
-    <div class="relative bg-white w-full sm:w-[380px] rounded-t-3xl sm:rounded-3xl p-6 text-gray-800 shadow-2xl animate-fadeInUp overflow-hidden">
-
-        <!-- Loader moderno -->
-        <div id="loadingPago"
-             class="absolute inset-0 bg-white/90 backdrop-blur-sm hidden items-center justify-center z-20 rounded-t-3xl sm:rounded-3xl">
-            <div class="text-center px-6">
-                <div class="mx-auto h-16 w-16 rounded-full border-4 border-green-200 border-t-green-600 animate-spin"></div>
-                <h4 class="mt-5 text-lg font-bold text-gray-800">
-                    Generando recibo
-                </h4>
-                <p class="text-sm text-gray-500 mt-2">
-                    Espera un momento, estamos registrando el pago.
-                </p>
-            </div>
-        </div>
-
-        <!-- Handle estilo app móvil -->
-        <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-5 sm:hidden"></div>
-
-        <!-- Título -->
-        <h3 class="text-xl font-bold text-center mb-5">
-            Registrar Pago
-        </h3>
-
-        <form method="POST" action="{{ url_for('registrar_pago') }}" id="formPago">
-
-            <input type="hidden" name="cuota_id" id="cuota_id">
-
-            <!-- Tarjeta resumen -->
-            <div class="bg-gray-100 rounded-2xl p-4 mb-5 text-center">
-
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-600">
-                        Cuota
-                    </label>
-
-                    <input type="number"
-                        name="monto_pago"
-                        id="valorPago"
-                        step="0.01"
-                        min="0"
-                        class="w-full mt-2 border border-gray-300
-                               focus:border-green-500 focus:ring-2
-                               focus:ring-green-200 rounded-xl
-                               p-3 text-center text-lg font-semibold"
-                        oninput="calcularTotal()"
-                        required>
-                </div>
-
-                <div class="text-xs text-gray-500 mt-4">
-                    Total
-                </div>
-                <div id="totalTexto"
-                     class="text-xl font-semibold text-gray-800 mt-1">
-                </div>
-
-            </div>
-
-            <!-- Botones -->
-            <div class="space-y-3">
-
-                <button type="submit"
-                        id="btnConfirmarPago"
-                        class="w-full bg-green-600 hover:bg-green-700
-                               text-white py-3 rounded-xl font-semibold shadow-md transition flex items-center justify-center gap-2">
-                    <span>Confirmar Pago</span>
+    <div id="modalPagos" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="modal-panel modal-scroll w-full max-w-md p-5 overflow-y-auto">
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <h3 class="text-lg font-bold">Pagos realizados</h3>
+                <button onclick="cerrarPagos()" class="icon-close flex items-center justify-center" aria-label="Cerrar pagos">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
-
-                <button type="button"
-                        onclick="cerrarModal()"
-                        id="btnCancelarPago"
-                        class="w-full bg-gray-200 hover:bg-gray-300
-                               text-gray-700 py-3 rounded-xl font-medium transition">
-                    Cancelar
-                </button>
-
             </div>
 
-        </form>
-
-    </div>
-
-</div>
-<div id="modalPagos"
-     class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
-
-    <div class="bg-white w-full max-w-md rounded-2xl p-5 max-h-[80vh] overflow-y-auto">
-
-        <h3 class="text-lg font-bold mb-4">Pagos realizados</h3>
-
-        {% for pago in historial_pagos %}
-        <div class="bg-gray-100 rounded-xl p-4 mb-3 shadow">
-
-            <div class="text-sm text-gray-500">
-                {{ pago.fecha }}
+            {% for pago in historial_pagos %}
+            <div class="modal-soft p-4 mb-3">
+                <div class="text-xs text-gray-500 font-bold">{{ pago.fecha }}</div>
+                <div class="font-bold text-green-600 mt-1">${{ "{:,.0f}".format(pago.monto) }}</div>
+                <div class="text-xs text-gray-600 mt-1">Cuota: {{ pago.cuota_numero }}</div>
+                <div class="text-xs text-gray-600">Registrado por: {{ pago.registrado_por or "Cobrador" }}</div>
             </div>
-
-            <div class="font-semibold text-green-600">
-                ${{ "{:,.0f}".format(pago.monto) }}
-            </div>
-
-            <div class="text-xs text-gray-600 mt-1">
-                Cuota: {{ pago.cuota_numero }}
-            </div>
-
-            <div class="text-xs text-gray-600">
-                Registrado por: {{ pago.registrado_por or "Cobrador" }}
-            </div>
-
+            {% else %}
+            <div class="modal-soft p-5 text-sm text-gray-500 text-center font-bold">Aun no hay pagos registrados.</div>
+            {% endfor %}
         </div>
-        {% endfor %}
-
-        <button onclick="cerrarPagos()"
-                class="w-full mt-3 bg-gray-200 py-2 rounded-xl">
-            Cerrar
-        </button>
-
     </div>
 </div>
 
@@ -486,9 +484,9 @@ function toggleAcciones() {
     menu.classList.toggle("hidden");
 
     if(menu.classList.contains("hidden")){
-        icon.innerText = "▾";
+        icon.innerText = "v";
     } else {
-        icon.innerText = "▴";
+        icon.innerText = "^";
     }
 }
 
@@ -508,7 +506,7 @@ function verUbicacion(){
     if(lat && lng){
         window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
     } else {
-        alert("Este crédito no tiene ubicación registrada.");
+        alert("Este credito no tiene ubicacion registrada.");
     }
 }
 
@@ -542,7 +540,11 @@ function cerrarGaleria() {
 
 function actualizarSlider() {
     const slider = document.getElementById("sliderImagenes");
-    const total = document.querySelectorAll("#sliderImagenes > div").length;
+    const total = document.querySelectorAll("#sliderImagenes > div").length || 1;
+
+    if (indexImagen > total - 1) {
+        indexImagen = total - 1;
+    }
 
     slider.style.transform = `translateX(-${indexImagen * 100}%)`;
 
@@ -551,7 +553,7 @@ function actualizarSlider() {
 }
 
 function nextImagen() {
-    const total = document.querySelectorAll("#sliderImagenes > div").length;
+    const total = document.querySelectorAll("#sliderImagenes > div").length || 1;
     if (indexImagen < total - 1) {
         indexImagen++;
         actualizarSlider();
@@ -565,9 +567,9 @@ function prevImagen() {
     }
 }
 </script>
+
 <script>
 function abrirModal(cuotaId, valor) {
-
     document.getElementById("cuota_id").value = cuotaId;
     document.getElementById("valorPago").value = parseFloat(valor).toFixed(2);
     calcularTotal();
@@ -578,7 +580,7 @@ function abrirModal(cuotaId, valor) {
     const inputPago = document.getElementById("valorPago");
 
     btn.disabled = false;
-    btn.innerHTML = "<span>Confirmar Pago</span>";
+    btn.innerHTML = "<span>Confirmar abono</span>";
     btn.classList.remove("opacity-70", "cursor-not-allowed");
 
     btnCancelar.disabled = false;
@@ -597,7 +599,11 @@ function cerrarModal() {
 
 function calcularTotal() {
     let valor = parseFloat(document.getElementById("valorPago").value) || 0;
-    document.getElementById("totalTexto").innerText = "$" + valor.toFixed(2);
+    document.getElementById("totalTexto").innerText = valor.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 2
+    });
 }
 
 document.getElementById("formPago").addEventListener("submit", function(e) {
@@ -617,11 +623,11 @@ document.getElementById("formPago").addEventListener("submit", function(e) {
 
     btn.classList.add("opacity-70", "cursor-not-allowed");
     btn.innerHTML = `
-        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="receipt-spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
         </svg>
-        <span>Generando recibo...</span>
+        <span>Generando comprobante...</span>
     `;
 
     loading.classList.remove("hidden");
