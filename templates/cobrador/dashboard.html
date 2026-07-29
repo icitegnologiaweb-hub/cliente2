@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0B3C5D">
+<meta name="theme-color" content="#102033">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_app.png') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_cobros.svg') }}">
 <title>Mis Rutas</title>
 
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
 <style>
 body {
@@ -52,7 +53,7 @@ body {
 </style>
 </head>
 
-<body class="text-white">
+<body class="text-white mobile-page">
 
 <div class="max-w-md mx-auto p-4">
 
@@ -69,7 +70,8 @@ body {
 
     <!-- Logo -->
     <div class="flex justify-center mb-10">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" 
+        <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
+             alt="Gestion de Cobros"
              class="h-20 logo-glow">
     </div>
 

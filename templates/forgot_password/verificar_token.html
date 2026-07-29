@@ -2,6 +2,7 @@
     <meta charset="UTF-8">
     <title>Recuperar Contraseña</title>
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -53,13 +54,13 @@
 </head>
 
 
-<div class="relative min-h-screen flex items-center justify-center bg-gray-900">
+<div class="relative min-h-screen flex items-center justify-center auth-page">
 
   <!-- Overlay sutil y degradado -->
   <div class="absolute inset-0 bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-900/80 backdrop-blur-sm"></div>
 
   <!-- Card central tipo bancario -->
-  <div class="relative z-10 w-full max-w-md px-10 py-12 rounded-3xl
+  <div class="relative z-10 w-full max-w-md px-10 py-12 rounded-3xl auth-panel
               bg-gray-800/70 backdrop-blur-xl border border-gray-700/50
               shadow-2xl shadow-black/40 transform transition-all duration-500 hover:scale-[1.02]">
 

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Iniciar Sesión</title>
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
 <style>
 body{
@@ -71,13 +72,13 @@ body{
 </style>
 </head>
 
-<body class="flex items-center justify-center px-4">
+<body class="flex items-center justify-center px-4 auth-page">
 
-<div class="w-full max-w-sm login-card p-8">
+<div class="w-full max-w-sm login-card auth-panel p-8">
 
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" class="h-16">
+        <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}" alt="Gestion de Cobros" class="h-16 gc-logo">
     </div>
 
     <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">

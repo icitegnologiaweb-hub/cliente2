@@ -1,0 +1,277 @@
+:root {
+    --gc-ink: #102033;
+    --gc-muted: #64748b;
+    --gc-surface: #ffffff;
+    --gc-page: #eef4f7;
+    --gc-line: rgba(15, 23, 42, 0.1);
+    --gc-primary: #2563eb;
+    --gc-primary-dark: #1d4ed8;
+    --gc-teal: #14b8a6;
+    --gc-amber: #f59e0b;
+    --gc-danger: #dc2626;
+    --gc-success: #16a34a;
+    --gc-sidebar: #102033;
+    --gc-sidebar-2: #17324a;
+    --gc-radius: 14px;
+    --gc-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+    --gc-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+* {
+    letter-spacing: 0;
+}
+
+body {
+    color: var(--gc-ink);
+    background:
+        radial-gradient(circle at 10% -10%, rgba(20, 184, 166, 0.18), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(37, 99, 235, 0.14), transparent 28%),
+        linear-gradient(180deg, #f7fafc 0%, var(--gc-page) 100%) !important;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+.gc-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.gc-brand img,
+img.gc-logo {
+    height: 52px;
+    width: auto;
+    display: block;
+}
+
+.gc-brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--gc-teal), var(--gc-primary));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.24);
+}
+
+.gc-shell-header,
+header.gc-shell-header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid var(--gc-line);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07) !important;
+    backdrop-filter: blur(16px);
+}
+
+.gc-main,
+main.gc-main {
+    background: transparent;
+}
+
+#sidebar,
+.sidebar {
+    background:
+        linear-gradient(180deg, rgba(20, 184, 166, 0.1), transparent 22%),
+        linear-gradient(180deg, var(--gc-sidebar), #081826 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 18px 0 40px rgba(15, 23, 42, 0.18);
+}
+
+.sidebar-user,
+.profile-card {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px;
+    margin: 14px;
+}
+
+.sidebar-avatar,
+.avatar {
+    background: linear-gradient(135deg, var(--gc-teal), var(--gc-primary)) !important;
+    box-shadow: 0 12px 28px rgba(20, 184, 166, 0.25);
+}
+
+.sidebar-section {
+    color: rgba(226, 232, 240, 0.58) !important;
+    font-weight: 800;
+}
+
+.menu-item,
+.sidebar .nav-link {
+    border-radius: 12px !important;
+    color: rgba(226, 232, 240, 0.84) !important;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.menu-item:hover,
+.sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #fff !important;
+}
+
+.menu-item.active,
+.sidebar .nav-link.active,
+.menu-route {
+    background: linear-gradient(135deg, var(--gc-teal), var(--gc-primary)) !important;
+    color: #fff !important;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.24) !important;
+}
+
+.oficina-selector,
+.btn,
+button,
+select,
+input,
+textarea {
+    border-radius: 12px !important;
+}
+
+.btn-primary,
+.btn-primary-custom,
+.btn-slide,
+a.bg-blue-600,
+a.from-blue-600,
+button.from-blue-600 {
+    background: linear-gradient(135deg, var(--gc-teal), var(--gc-primary)) !important;
+    border: 0 !important;
+    color: #fff !important;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.btn-primary:hover,
+.btn-primary-custom:hover,
+.btn-slide:hover,
+a.bg-blue-600:hover,
+a.from-blue-600:hover,
+button.from-blue-600:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.26);
+}
+
+.card,
+.login-card,
+.bg-white,
+.modal-content,
+.dropdown-menu {
+    border-color: var(--gc-line) !important;
+}
+
+.login-card,
+.card,
+.modal-content {
+    border-radius: var(--gc-radius) !important;
+    box-shadow: var(--gc-shadow) !important;
+}
+
+.rounded-3xl,
+.rounded-2xl {
+    border-radius: var(--gc-radius) !important;
+}
+
+.shadow-2xl,
+.shadow-xl,
+.shadow-lg,
+.shadow-md {
+    box-shadow: var(--gc-shadow-soft) !important;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead,
+thead.bg-\[\#0B3C5D\] {
+    background: linear-gradient(135deg, #17324a, #102033) !important;
+}
+
+tbody tr {
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+tbody tr:hover {
+    background: #f5fbfb !important;
+}
+
+input,
+select,
+textarea,
+.form-control-custom,
+.input-custom {
+    border: 1px solid rgba(15, 23, 42, 0.12) !important;
+    background: #f8fafc !important;
+    color: var(--gc-ink) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control-custom:focus,
+.input-custom:focus {
+    border-color: var(--gc-teal) !important;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14) !important;
+    background: #fff !important;
+    outline: none !important;
+}
+
+.auth-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 20% 5%, rgba(20, 184, 166, 0.26), transparent 26%),
+        linear-gradient(135deg, #102033 0%, #17324a 52%, #eef4f7 52%, #ffffff 100%) !important;
+}
+
+.auth-panel {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(255, 255, 255, 0.72) !important;
+    box-shadow: var(--gc-shadow) !important;
+    border-radius: 18px !important;
+}
+
+.mobile-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.26), transparent 34%),
+        linear-gradient(180deg, #102033 0%, #17324a 46%, #eef4f7 46%, #eef4f7 100%) !important;
+}
+
+.mobile-card,
+.card-ruta,
+.header-card {
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: var(--gc-ink) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: var(--gc-shadow-soft) !important;
+}
+
+.topbar {
+    color: #fff;
+}
+
+.menu-btn {
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.13) !important;
+}
+
+.card-icon {
+    background: linear-gradient(135deg, var(--gc-amber), var(--gc-primary)) !important;
+}
+
+@media (max-width: 768px) {
+    .gc-brand img,
+    img.gc-logo {
+        height: 42px;
+    }
+
+    main.gc-main {
+        padding: 16px !important;
+    }
+}

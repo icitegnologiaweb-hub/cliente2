@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0B3C5D">
+<meta name="theme-color" content="#102033">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_app.png') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_cobros.svg') }}">
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
 <style>
 body {
@@ -144,7 +145,7 @@ body {
 
 </head>
 
-<body class="text-white">
+<body class="text-white mobile-page">
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 <div id="toast-container"
@@ -171,6 +172,12 @@ body {
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar">
+<div class="mb-5">
+    <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
+         alt="Gestion de Cobros"
+         class="gc-logo"
+         style="filter: brightness(0) invert(1);">
+</div>
 <div class="profile-card mb-8">
 
     <div class="flex items-center justify-between">

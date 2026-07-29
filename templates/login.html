@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Iniciar Sesión</title>
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
 
     <style>
     :root {
@@ -63,7 +64,7 @@
 
 </head>
 
-<body class="min-h-screen flex">
+<body class="min-h-screen flex auth-page">
 
 <!-- LADO IZQUIERDO - CARRUSEL -->
 <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative items-center justify-center p-10">
@@ -106,11 +107,13 @@
 <!-- LADO DERECHO - LOGIN -->
 <div class="flex w-full lg:w-1/2 items-center justify-center p-6">
 
-    <div class="w-full max-w-md login-card p-10">
+    <div class="w-full max-w-md login-card auth-panel p-10">
 
         <!-- Logo -->
         <div class="flex justify-center mb-8">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" 
+            <img src="{{ url_for('static', filename='img/logo_cobros.svg') }}"
+                 alt="Gestion de Cobros"
+                 class="gc-logo"
                  style="height:70px;">
         </div>
 

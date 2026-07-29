@@ -28,10 +28,27 @@ app = Flask(__name__)
 app.secret_key = "clave_super_segura"
 
 load_dotenv()
+load_dotenv(override=True)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 DATABASE_URL = os.getenv("SUPABASE_DB_URL")
+
+print("SUPABASE ACTUAL:", SUPABASE_URL)
+print("HOST BD:", DATABASE_URL.split("@")[-1] if DATABASE_URL else "NO CONFIGURADA")
+
+try:
+    prueba = (
+        create_client(SUPABASE_URL, SUPABASE_KEY)
+        .table("usuarios")
+        .select("id,email,rol,estado")
+        .execute()
+    )
+
+    print("USUARIOS DE LA BD CONECTADA:", prueba.data)
+
+except Exception as error:
+    print("ERROR CONECTANDO A SUPABASE:", repr(error))
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 

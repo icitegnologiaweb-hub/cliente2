@@ -1,21 +1,21 @@
 {
-  "name": "ML",
-  "short_name": "ML",
+  "name": "Gestion de Cobros",
+  "short_name": "Cobros",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0B3C5D",
-  "theme_color": "#0B3C5D",
+  "background_color": "#102033",
+  "theme_color": "#102033",
   "icons": [
     {
-      "src": "/static/img/logo_app.png",
+      "src": "/static/img/logo_cobros.svg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/svg+xml"
     },
     {
-      "src": "/static/img/logo_app.png",
+      "src": "/static/img/logo_cobros.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
