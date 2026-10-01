@@ -1,19 +1,19 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
-<div class="min-h-screen bg-gray-100 py-10 px-4">
+<div class="min-h-screen bg-gray-100 py-5 sm:py-10 px-3 sm:px-4">
 
   <div class="max-w-6xl mx-auto">
 
     <!-- Título -->
-    <div class="mb-8">
-      <h2 class="text-3xl font-bold text-gray-800">Registrar Pagos</h2>
+    <div class="mb-6 sm:mb-8">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Registrar Pagos</h2>
       <p class="text-gray-500 text-sm">Gestión de recaudo diario</p>
     </div>
 
     <!-- Filtros -->
-    <div class="bg-white shadow-lg rounded-2xl p-6 mb-8">
+    <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
 
-      <form method="GET" class="grid md:grid-cols-2 gap-6">
+      <form method="GET" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
         <!-- Ruta -->
         <div>
@@ -53,44 +53,44 @@
     {% if credito %}
 
     <!-- Información Cliente -->
-    <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Nombre</p>
         <p class="text-lg font-semibold text-gray-800">
           {{ credito.clientes.nombre }}
         </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Identificación</p>
         <p class="text-lg font-semibold text-gray-800">
           {{ credito.clientes.identificacion }}
         </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Fecha Inicio</p>
         <p class="text-lg font-semibold text-gray-800">
           {{ credito.fecha_inicio }}
         </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Valor Total</p>
         <p class="text-xl font-bold text-blue-600">
           ${{ credito.valor_total }}
         </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Saldo</p>
         <p class="text-xl font-bold text-red-500">
           ${{ saldo }}
         </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-4 sm:p-6">
         <p class="text-sm text-gray-500">Cuotas</p>
         <p class="text-xl font-bold text-gray-800">
           {{ credito.cantidad_cuotas }}
@@ -107,7 +107,7 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-left">
+        <table class="min-w-[560px] text-sm text-left">
           <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
             <tr>
               <th class="px-6 py-3">#</th>
@@ -160,7 +160,7 @@
             action="{{ url_for('registrar_pago', credito_id=credito.id) }}">
 
         <button type="submit"
-          class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition transform duration-200">
+          class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition transform duration-200">
 
           Registrar pago del día
         </button>

@@ -5,13 +5,22 @@
 action="{{ url_for('actualizar_cliente') }}"
 enctype="multipart/form-data">
 
-<div class="max-w-6xl mx-auto space-y-8">
+<div class="max-w-6xl mx-auto space-y-5 sm:space-y-8 px-3 sm:px-0">
+
+<div class="bg-gradient-to-r from-[#062f2b] to-[#0f766e] rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-7 text-white">
+<h1 class="text-2xl sm:text-3xl font-extrabold">
+Editar cliente
+</h1>
+<p class="text-sm text-white/75 mt-1">
+Actualiza datos, documentos y soportes del historial del cliente.
+</p>
+</div>
 
 <!-- ================= INFO CLIENTE ================= -->
 
-<div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+<div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-8">
 
-<h2 class="text-xl font-bold text-gray-800 mb-6">
+<h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 sm:mb-6">
 Información del Cliente
 </h2>
 
@@ -24,7 +33,7 @@ Información del Cliente
 <input type="text"
 name="nombre"
 value="{{ cliente.nombre }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 <div>
@@ -32,7 +41,7 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 <input type="text"
 name="identificacion"
 value="{{ cliente.identificacion }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 <div>
@@ -40,7 +49,7 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 <input type="text"
 name="telefono"
 value="{{ cliente.telefono_principal }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 <div>
@@ -48,7 +57,7 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 <input type="text"
 name="codigo_pais"
 value="{{ cliente.codigo_pais }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 <div class="md:col-span-2">
@@ -56,7 +65,7 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 <input type="text"
 name="direccion"
 value="{{ cliente.direccion }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 <div class="md:col-span-2">
@@ -64,7 +73,7 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 <input type="text"
 name="direccion_negocio"
 value="{{ cliente.direccion_negocio }}"
-class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
 </div>
 
 </div>
@@ -73,13 +82,13 @@ class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:rin
 
 <!-- ================= DOCUMENTOS ================= -->
 
-<div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-10">
+<div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-8 lg:p-10">
 
-<h2 class="text-xl font-bold text-gray-800 mb-8">
+<h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 sm:mb-8">
 Documentos del Cliente
 </h2>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-10">
 
 <!-- FOTO CLIENTE -->
 <div class="flex flex-col items-center text-center">
@@ -88,7 +97,7 @@ Documentos del Cliente
 Foto Cliente
 </p>
 
-<div class="w-full h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
+<div class="w-full h-44 sm:h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
 <img id="preview_cliente"
 src="{{ fotos.cliente }}"
 class="w-full h-full object-cover cursor-pointer"
@@ -109,7 +118,7 @@ class="text-xs w-full">
 Cédula
 </p>
 
-<div class="w-full h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
+<div class="w-full h-44 sm:h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
 <img id="preview_cedula"
 src="{{ fotos.cedula }}"
 class="w-full h-full object-cover cursor-pointer"
@@ -131,7 +140,7 @@ class="text-xs w-full">
 Negocio
 </p>
 
-<div class="w-full h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
+<div class="w-full h-44 sm:h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3">
 <img id="preview_negocio"
 src="{{ fotos.negocio }}"
 class="w-full h-full object-cover cursor-pointer"
@@ -153,7 +162,7 @@ class="text-xs w-full">
 Firma
 </p>
 
-<div class="w-full h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3 flex items-center justify-center">
+<div class="w-full h-44 sm:h-40 rounded-xl overflow-hidden shadow bg-gray-100 mb-3 flex items-center justify-center">
 <img id="preview_firma"
 src="{{ fotos.firma }}"
 class="max-h-full object-contain cursor-pointer"
@@ -177,7 +186,7 @@ class="text-xs w-full">
 <button
 class="w-full bg-gradient-to-r from-blue-600 to-blue-500
 hover:scale-[1.02]
-text-white py-4 rounded-2xl font-semibold shadow-xl
+text-white py-4 rounded-2xl font-bold shadow-xl
 transition">
 
 Guardar Cambios
@@ -189,13 +198,13 @@ Guardar Cambios
 </form>
 
 <div id="modalImagen"
-class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
 
 <img id="imagenGrande"
 class="max-h-[90vh] max-w-[90vw] rounded-xl shadow-2xl">
 
 <button onclick="cerrarImagen()"
-class="absolute top-6 right-8 text-white text-3xl">
+class="absolute top-4 right-5 sm:top-6 sm:right-8 text-white text-3xl">
 ✕
 </button>
 

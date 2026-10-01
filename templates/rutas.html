@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-10 bg-[#f4f7fb] min-h-screen">
+<div class="px-3 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 bg-[#f4f7fb] min-h-screen">
 
 <!-- ================= HEADER ================= -->
-<div class="flex justify-between items-center mb-10">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10">
 
     <div>
-        <h1 class="text-3xl font-bold text-[#1e293b]">
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1e293b]">
             Gestión de Rutas
         </h1>
         <p class="text-sm text-gray-500 mt-2">
@@ -17,14 +17,14 @@
 
     <button onclick="abrirModalRuta()" 
         class="bg-[#0B3C5D] hover:bg-[#092f47]
-               text-white px-6 py-3 rounded-lg shadow-lg transition">
+               text-white px-5 sm:px-6 py-3 rounded-xl shadow-lg transition font-bold">
         + Nueva Ruta
     </button>
 
 </div>
 
 <!-- ================= TABLA ================= -->
-<div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+<div class="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
 
 <table class="min-w-full text-sm">
 
@@ -96,18 +96,93 @@
 </td>
 
 </tr>
+{% else %}
+<tr>
+    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+        No hay rutas registradas.
+    </td>
+</tr>
 {% endfor %}
 
 </tbody>
 </table>
 </div>
 
+<!-- ================= TARJETAS MÓVIL ================= -->
+<div class="lg:hidden space-y-4">
+{% for ruta in rutas %}
+<div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+            <h3 class="font-extrabold text-gray-800 leading-tight">
+                {{ ruta.nombre }}
+            </h3>
+            <p class="text-xs text-gray-500 mt-1">
+                Pos. {{ ruta.posicion }} · Código {{ ruta.codigo }}
+            </p>
+        </div>
+
+        {% if ruta.estado %}
+            <span class="shrink-0 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                Activa
+            </span>
+        {% else %}
+            <span class="shrink-0 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+                Inactiva
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="p-4 grid grid-cols-2 gap-3 text-sm">
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+            <div class="text-[11px] uppercase text-gray-500">Tasa</div>
+            <div class="font-bold text-gray-800 mt-1">{{ ruta.tasa }}%</div>
+        </div>
+
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+            <div class="text-[11px] uppercase text-gray-500">Venta máxima</div>
+            <div class="font-black text-green-700 mt-1">
+                $ {{ "{:,.0f}".format(ruta.venta_maxima) }}
+            </div>
+        </div>
+
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 col-span-2">
+            <div class="text-[11px] uppercase text-gray-500">Cobrador asignado</div>
+            <div class="font-bold text-gray-800 mt-1">
+                {% if ruta.usuarios %}
+                    {{ ruta.usuarios.nombres }} {{ ruta.usuarios.apellidos }}
+                {% else %}
+                    Sin asignar
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="px-4 pb-4 grid grid-cols-2 gap-2">
+        <button onclick="abrirModalEditar({{ ruta.id }}, {{ ruta.venta_maxima }})"
+            class="bg-yellow-50 text-yellow-700 px-3 py-2.5 rounded-xl text-xs font-bold">
+            Editar venta
+        </button>
+
+        <button onclick="abrirModalAsignar({{ ruta.id }})"
+            class="bg-[#0B3C5D] text-white px-3 py-2.5 rounded-xl text-xs font-bold">
+            Asignar
+        </button>
+    </div>
+</div>
+{% else %}
+<div class="bg-white rounded-2xl border border-gray-200 p-6 text-center text-gray-500">
+    No hay rutas registradas.
+</div>
+{% endfor %}
+</div>
+
 </div>
 <!-- ================= MODAL EDITAR VENTA MAXIMA ================= -->
 <div id="modalEditarVenta"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative">
+<div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 relative">
 
 <button onclick="cerrarModalEditar()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -128,10 +203,10 @@
                name="venta_maxima"
                id="venta_maxima_editar"
                required
-               class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500">
+               class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-500">
     </div>
 
-    <div class="flex justify-end gap-3">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
         <button type="button"
                 onclick="cerrarModalEditar()"
                 class="px-4 py-2 bg-gray-200 rounded-lg">
@@ -150,9 +225,9 @@
 </div>
 <!-- ================= MODAL ASIGNAR COBRADOR ================= -->
 <div id="modalAsignar"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 relative">
+<div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 relative">
 
 <button onclick="cerrarModalAsignar()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -171,7 +246,7 @@
 <label class="text-sm text-gray-600">Seleccionar Cobrador</label>
 
 <select name="usuario_id" required
-class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0B3C5D]">
+class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#0B3C5D]">
 
 <option value="">Seleccione cobrador</option>
 
@@ -186,7 +261,7 @@ class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0B3C5D]">
 </select>
 </div>
 
-<div class="flex justify-end gap-3">
+<div class="flex flex-col sm:flex-row sm:justify-end gap-3">
 <button type="button"
         onclick="cerrarModalAsignar()"
         class="px-4 py-2 bg-gray-200 rounded-lg">
@@ -205,9 +280,9 @@ Asignar
 </div>
 <!-- ================= MODAL NUEVA RUTA ================= -->
 <div id="modalNuevaRuta"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-<div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-8 relative">
+<div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 relative max-h-[92vh] overflow-y-auto">
 
 <button onclick="cerrarModalRuta()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -221,30 +296,30 @@ Asignar
 <form method="POST" action="{{ url_for('crear_ruta') }}" class="space-y-4">
     <input type="number" name="posicion" placeholder="Posición"
        required
-       class="w-full border rounded-lg px-4 py-2">
+       class="w-full border rounded-xl px-4 py-3">
 
     <input type="text" name="codigo" placeholder="Código"
            required
-           class="w-full border rounded-lg px-4 py-2">
+           class="w-full border rounded-xl px-4 py-3">
 
     <input type="text" name="nombre" placeholder="Nombre de la Ruta"
            required
-           class="w-full border rounded-lg px-4 py-2">
+           class="w-full border rounded-xl px-4 py-3">
 
     <input type="number" name="tasa" placeholder="Tasa (%)"
            required
-           class="w-full border rounded-lg px-4 py-2">
+           class="w-full border rounded-xl px-4 py-3">
 
     <input type="number" name="venta_maxima" placeholder="Venta Máxima"
            required
-           class="w-full border rounded-lg px-4 py-2">
+           class="w-full border rounded-xl px-4 py-3">
 
     <div class="flex items-center gap-3">
         <input type="checkbox" name="estado" checked>
         <label class="text-sm text-gray-600">Ruta Activa</label>
     </div>
 
-    <div class="flex justify-end gap-3">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
         <button type="button"
                 onclick="cerrarModalRuta()"
                 class="px-4 py-2 bg-gray-200 rounded-lg">

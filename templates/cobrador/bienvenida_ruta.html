@@ -3,238 +3,421 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0B3C5D">
-<title>Bienvenido</title>
+<meta name="theme-color" content="#062f2b">
+<title>Arranque de ruta</title>
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
 <style>
+:root {
+    --brand-dark: #062f2b;
+    --brand: #0f766e;
+    --brand-soft: #14b8a6;
+    --gold: #d97706;
+    --gold-light: #fbbf24;
+    --ink: #f8fafc;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background:
-        radial-gradient(circle at top, #143b63 0%, #081e33 55%, #050f1c 100%);
     min-height: 100vh;
-}
-
-.welcome-wrap {
-    position: relative;
-    overflow: hidden;
-    border-radius: 24px;
+    margin: 0;
+    color: var(--ink);
     background:
-        linear-gradient(135deg, rgba(18,59,99,.96), rgba(11,40,71,.97));
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow:
-        0 18px 45px rgba(0,0,0,.38),
-        inset 0 1px 0 rgba(255,255,255,.05);
+        radial-gradient(circle at 12% 0%, rgba(20,184,166,.35), transparent 30%),
+        radial-gradient(circle at 92% 18%, rgba(217,119,6,.24), transparent 26%),
+        linear-gradient(160deg, #083c35 0%, #062f2b 48%, #021715 100%);
 }
 
-.welcome-track {
-    display: flex;
-    transition: transform .55s ease;
+.page-shell {
+    width: min(100%, 430px);
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
 }
 
-.welcome-slide {
-    min-width: 100%;
-    padding: 28px 22px 24px;
-    position: relative;
-}
-
-.welcome-title {
-    font-size: 30px;
-    line-height: 1.05;
-    font-weight: 800;
-    color: white;
-    margin-bottom: 12px;
-}
-
-.welcome-title .accent {
-    color: #7bc2ff;
-}
-
-.welcome-text {
-    font-size: 14px;
-    color: #d4e4f5;
-    line-height: 1.6;
-    max-width: 88%;
-}
-
-.welcome-badge {
-    display: inline-block;
-    margin-bottom: 16px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: #d6ecff;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.08);
-    padding: 7px 12px;
-    border-radius: 999px;
-}
-
-.welcome-icon {
-    position: absolute;
-    top: 20px;
-    right: 18px;
-    width: 76px;
-    height: 76px;
-    border-radius: 22px;
+.topbar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.icon-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    font-size: 32px;
-    background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(37,99,235,.22));
+    color: white;
+    background: rgba(255,255,255,.09);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    max-width: 64%;
+    padding: 10px 13px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #d1fae5;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.12);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 999px;
+    background: #34d399;
+    box-shadow: 0 0 0 6px rgba(52,211,153,.14);
+}
+
+.hero-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    padding: 24px 20px 20px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.035)),
+        linear-gradient(160deg, rgba(15,118,110,.98), rgba(4,43,39,.98));
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow:
+        0 24px 55px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.hero-card::after {
+    content: "";
+    position: absolute;
+    width: 168px;
+    height: 168px;
+    right: -82px;
+    top: -60px;
+    border-radius: 999px;
+    background: rgba(251,191,36,.20);
+}
+
+.eyebrow {
+    position: relative;
+    z-index: 1;
+    width: fit-content;
+    max-width: 100%;
+    padding: 9px 13px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .12em;
+    color: #fff7ed;
+    text-transform: uppercase;
+    background: rgba(251,191,36,.18);
+    border: 1px solid rgba(251,191,36,.25);
+}
+
+.hero-title {
+    position: relative;
+    z-index: 1;
+    margin: 22px 0 12px;
+    font-size: clamp(32px, 10vw, 44px);
+    line-height: .98;
+    font-weight: 950;
+    letter-spacing: 0;
+}
+
+.hero-title span {
+    color: var(--gold-light);
+}
+
+.hero-text {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    max-width: 315px;
+    color: #d7fff6;
+    font-size: 15px;
+    line-height: 1.62;
+    font-weight: 600;
+}
+
+.route-strip {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 22px;
+    padding: 14px;
+    border-radius: 22px;
+    background: rgba(2,23,21,.44);
     border: 1px solid rgba(255,255,255,.10);
 }
 
-.welcome-dots {
-    display: flex;
-    justify-content: center;
+.label {
+    display: block;
+    margin-bottom: 5px;
+    color: #99f6e4;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.route-code {
+    display: block;
+    color: #ffffff;
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: 950;
+    overflow-wrap: anywhere;
+}
+
+.route-name {
+    color: #d9f99d;
+    font-size: 13px;
+    font-weight: 850;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.mini-map {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    padding: 0 0 16px;
+    margin-top: 14px;
 }
 
-.welcome-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.22);
-    transition: all .25s ease;
+.map-step {
+    min-height: 86px;
+    padding: 12px 10px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.11);
 }
 
-.welcome-dot.active {
-    width: 24px;
-    background: #4ea1ff;
+.step-number {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    color: #062f2b;
+    background: #ccfbf1;
+    font-size: 12px;
+    font-weight: 950;
 }
 
-.action-card {
-    background: linear-gradient(135deg, #123b63, #0b2847);
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.06);
-    box-shadow: 0 12px 28px rgba(0,0,0,.28);
+.step-text {
+    display: block;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.25;
+}
+
+.focus-card {
+    margin-top: 14px;
+    padding: 18px;
+    border-radius: 24px;
+    color: #0f172a;
+    background: #f8fafc;
+    box-shadow: 0 18px 40px rgba(0,0,0,.24);
+}
+
+.focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.focus-tile {
+    min-height: 94px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #eef7f5;
+}
+
+.focus-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.focus-value {
+    display: block;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 900;
+}
+
+.cta-button {
+    width: 100%;
+    min-height: 56px;
+    margin-top: 16px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+    background: linear-gradient(135deg, var(--brand), var(--gold));
+    font-size: 16px;
+    font-weight: 950;
+    box-shadow: 0 18px 30px rgba(15,118,110,.25);
+}
+
+.cta-button:active {
+    transform: translateY(1px);
+}
+
+.soft-note {
+    margin: 14px auto 0;
+    max-width: 315px;
+    color: #baf3e8;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 .fade-in-up {
-    animation: fadeInUp .6s ease both;
+    animation: fadeInUp .62s ease both;
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(16px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
+@media (max-width: 360px) {
+    .page-shell {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hero-card {
+        padding: 22px 16px 18px;
+        border-radius: 26px;
+    }
+
+    .mini-map,
+    .focus-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .map-step {
+        min-height: auto;
+    }
+}
 </style>
 </head>
 
-<body class="text-white">
-
-<div class="max-w-md mx-auto px-4 pt-5 pb-10">
-
-    <div class="flex items-center justify-between mb-5">
-        <a href="javascript:history.back()" class="text-white/80 text-lg">‹</a>
-        <div class="text-sm font-semibold tracking-wide text-white/90">Bienvenida</div>
-        <div></div>
-    </div>
-
-    <div class="welcome-wrap fade-in-up mb-5">
-        <div class="welcome-track" id="welcomeTrack">
-
-            <div class="welcome-slide">
-                <div class="welcome-badge">Ruta seleccionada</div>
-                <div class="welcome-title">
-                    Bienvenido a <span class="accent">ML</span>
-                </div>
-                <div class="welcome-text">
-                    Has ingresado correctamente a la ruta <strong>{{ ruta.codigo }}</strong>.
-                    Prepárate para iniciar tu jornada con una experiencia más rápida, clara y moderna.
-                </div>
-                <div class="welcome-icon">👋</div>
-            </div>
-
-            <div class="welcome-slide">
-                <div class="welcome-badge">Control diario</div>
-                <div class="welcome-title">
-                    Todo listo para <span class="accent">{{ ruta.nombre }}</span>
-                </div>
-                <div class="welcome-text">
-                    Desde aquí podrás continuar con tu gestión diaria, revisar metas,
-                    visualizar tu avance y empezar tus recorridos con mejor organización.
-                </div>
-                <div class="welcome-icon">🛵</div>
-            </div>
-
-            <div class="welcome-slide">
-                <div class="welcome-badge">Comienza ahora</div>
-                <div class="welcome-title">
-                    Inicia con <span class="accent">confianza</span>
-                </div>
-                <div class="welcome-text">
-                    Tu ruta ya está cargada. Continúa al panel principal para comenzar
-                    con tus actividades del día.
-                </div>
-                <div class="welcome-icon">📍</div>
-            </div>
-
-        </div>
-
-        <div class="welcome-dots">
-            <span class="welcome-dot active"></span>
-            <span class="welcome-dot"></span>
-            <span class="welcome-dot"></span>
-        </div>
-    </div>
-
-    <div class="action-card p-5 fade-in-up">
-        <div class="text-xs uppercase tracking-[0.25em] text-blue-200 mb-2">
-            Ruta activa
-        </div>
-
-        <div class="text-xl font-bold">
-            {{ ruta.codigo }}
-        </div>
-
-        <div class="text-sm text-blue-200 mt-1">
-            {{ ruta.nombre }}
-        </div>
-
-        <a href="{{ url_for('metas_dia') }}"
-           class="mt-5 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 transition py-3.5 rounded-2xl font-semibold shadow-lg">
-            Continuar al panel
+<body>
+<main class="page-shell">
+    <header class="topbar fade-in-up">
+        <a href="javascript:history.back()" class="icon-button" aria-label="Volver">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </a>
-    </div>
 
-</div>
+        <div class="status-pill">
+            <span class="status-dot"></span>
+            Ruta lista
+        </div>
+    </header>
 
-<script>
-const welcomeTrack = document.getElementById("welcomeTrack");
-const welcomeDots = document.querySelectorAll(".welcome-dot");
-let currentSlide = 0;
-const totalSlides = 3;
+    <section class="hero-card fade-in-up">
+        <div class="eyebrow">Hoy vamos con toda</div>
 
-function updateWelcomeCarousel(index) {
-    welcomeTrack.style.transform = `translateX(-${index * 100}%)`;
-    welcomeDots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === index);
-    });
-}
+        <h1 class="hero-title">
+            Iniciamos hoy <span>con toda</span>
+        </h1>
 
-function nextWelcomeSlide() {
-    currentSlide = (currentSlide + 1) % totalSlides;
-    updateWelcomeCarousel(currentSlide);
-}
+        <p class="hero-text">
+            Tu jornada ya está preparada. Revisa tus metas, sal a cobrar con orden
+            y mantén cada crédito bajo control desde el panel.
+        </p>
 
-setInterval(nextWelcomeSlide, 3500);
+        <div class="route-strip">
+            <div>
+                <span class="label">Ruta activa</span>
+                <span class="route-code">{{ ruta.codigo }}</span>
+            </div>
 
-welcomeDots.forEach((dot, index) => {
-    dot.addEventListener("click", () => {
-        currentSlide = index;
-        updateWelcomeCarousel(currentSlide);
-    });
-});
-</script>
+            <div>
+                <span class="label">Nombre</span>
+                <span class="route-name">{{ ruta.nombre }}</span>
+            </div>
+        </div>
 
+        <div class="mini-map" aria-label="Pasos de la jornada">
+            <div class="map-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Revisar metas</span>
+            </div>
+            <div class="map-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Gestionar créditos</span>
+            </div>
+            <div class="map-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Cerrar al día</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="focus-card fade-in-up" style="animation-delay: .08s;">
+        <span class="label" style="color:#0f766e;">Arranque del día</span>
+        <div class="focus-grid">
+            <div class="focus-tile">
+                <span class="focus-label">Enfoque</span>
+                <span class="focus-value">Recaudo claro y ordenado</span>
+            </div>
+            <div class="focus-tile">
+                <span class="focus-label">Siguiente paso</span>
+                <span class="focus-value">Entrar al panel de ruta</span>
+            </div>
+        </div>
+
+        <a href="{{ url_for('metas_dia') }}" class="cta-button">
+            Empezar mi ruta
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </section>
+
+    <p class="soft-note fade-in-up" style="animation-delay: .14s;">
+        Mantén el avance actualizado durante el recorrido para que el cierre sea más rápido.
+    </p>
+</main>
 </body>
 </html>

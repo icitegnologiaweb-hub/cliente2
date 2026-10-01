@@ -4,23 +4,23 @@
 {% block content %}
 
 
-<div class="max-w-md mx-auto p-4 space-y-4">
+<div class="max-w-md mx-auto px-3 sm:px-4 py-3 space-y-4">
 
     <!-- Botón -->
     <button onclick="abrirModal()"
-            class="w-full bg-[#123b63] text-white py-3 rounded-xl shadow">
+            class="w-full bg-[#123b63] text-white py-3 rounded-xl shadow font-bold">
         + Registrar Gasto
     </button>
 
     <!-- Lista -->
     {% for gasto in gastos %}
-    <div class="bg-white rounded-xl shadow p-4">
+    <div class="bg-white rounded-2xl shadow p-4">
 
-        <div class="flex justify-between items-center">
-            <div class="font-semibold">
+        <div class="flex justify-between items-start gap-3">
+            <div class="font-semibold min-w-0">
                 {{ gasto.categoria }}
             </div>
-            <div class="text-red-600 font-bold">
+            <div class="text-red-600 font-bold shrink-0">
                 $ {{ "{:,.0f}".format(gasto.valor) }}
             </div>
         </div>
@@ -34,15 +34,19 @@
         </div>
 
     </div>
+    {% else %}
+    <div class="bg-white/10 border border-white/10 rounded-2xl p-5 text-center text-white/70">
+        No hay gastos registrados.
+    </div>
     {% endfor %}
 
 </div>
 
 <!-- MODAL -->
 <div id="modalGasto"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative animate-scaleIn">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 shadow-2xl relative animate-scaleIn">
 
         <!-- Cerrar -->
         <button onclick="cerrarModal()"
@@ -59,7 +63,7 @@
             <div class="space-y-4">
 
                 <select name="categoria"
-                    class="w-full border border-gray-300 bg-white text-gray-800 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    class="w-full border border-gray-300 bg-white text-gray-800 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     required>
                     <option value="">Seleccionar categoría</option>
                     <option>Gasolina</option>
@@ -78,13 +82,13 @@
                 <input type="text"
                     name="descripcion"
                     placeholder="Descripción"
-                    class="w-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    class="w-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
 
                 <input type="number"
                     step="0.01"
                     name="valor"
                     placeholder="Valor $"
-                    class="w-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    class="w-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     required>
 
                 <button class="w-full bg-[#123b63] hover:bg-[#184a78] text-white py-3 rounded-xl font-semibold transition">

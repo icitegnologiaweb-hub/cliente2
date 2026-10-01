@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --brand-ink: #062f2b;
+    --brand-dark: #064e3b;
+    --brand-main: #0f766e;
+    --brand-mid: #14b8a6;
+    --brand-soft: #ccfbf1;
+    --brand-accent: #d97706;
+    --brand-ring: rgba(20, 184, 166, .32);
+}
+
 
 .menu-item {
     @apply flex items-center gap-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition;
@@ -9,4 +19,117 @@
 
 .menu-item.active {
     @apply bg-blue-600 text-white shadow-md;
+}
+
+.bg-\[\#0B3C5D\],
+.bg-\[\#0b2847\],
+.bg-\[\#123b63\],
+.bg-\[\#1d4f7a\],
+.bg-blue-500,
+.bg-blue-600,
+.bg-blue-700,
+.bg-blue-800,
+.peer:checked ~ .peer-checked\:bg-\[\#0B3C5D\] {
+    background-color: var(--brand-main) !important;
+}
+
+.bg-\[\#0b2847\] {
+    background-color: var(--brand-ink) !important;
+}
+
+.bg-\[\#123b63\] {
+    background-color: var(--brand-dark) !important;
+}
+
+.hover\:bg-\[\#092f47\]:hover,
+.hover\:bg-\[\#184a78\]:hover,
+.hover\:bg-blue-400:hover,
+.hover\:bg-blue-500:hover,
+.hover\:bg-blue-600:hover,
+.hover\:bg-blue-700:hover,
+.hover\:bg-blue-800:hover {
+    background-color: var(--brand-dark) !important;
+}
+
+.text-\[\#0B3C5D\],
+.text-\[\#0b2847\],
+.text-blue-500,
+.text-blue-600,
+.text-blue-700,
+.text-blue-800 {
+    color: var(--brand-main) !important;
+}
+
+.text-blue-100,
+.text-blue-200,
+.text-blue-300,
+.text-blue-400 {
+    color: var(--brand-soft) !important;
+}
+
+.hover\:text-blue-300:hover,
+.hover\:text-blue-600:hover,
+.hover\:text-blue-700:hover,
+.hover\:text-blue-800:hover {
+    color: var(--brand-dark) !important;
+}
+
+.border-blue-200,
+.border-blue-300,
+.border-blue-400,
+.border-blue-500,
+.border-blue-400\/20,
+.border-blue-400\/30,
+.border-blue-400\/40,
+.border-blue-700\/60,
+.border-blue-800\/40,
+.border-blue-900\/30,
+.border-blue-900\/40,
+.border-blue-900\/50 {
+    border-color: rgba(20, 184, 166, .42) !important;
+}
+
+.bg-blue-50,
+.bg-blue-100,
+.bg-blue-500\/10,
+.bg-blue-600\/20,
+.hover\:bg-blue-50\/50:hover {
+    background-color: rgba(204, 251, 241, .78) !important;
+}
+
+.focus\:ring-blue-400:focus,
+.focus\:ring-blue-500:focus,
+.focus\:ring-\[\#0B3C5D\]:focus {
+    --tw-ring-color: var(--brand-ring) !important;
+}
+
+.focus\:border-blue-500:focus {
+    border-color: var(--brand-main) !important;
+}
+
+.placeholder\:text-blue-300::placeholder {
+    color: rgba(153, 246, 228, .76) !important;
+}
+
+.from-\[\#123b63\],
+.from-blue-500,
+.from-blue-600,
+.from-blue-700,
+.from-indigo-600 {
+    --tw-gradient-from: var(--brand-main) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(15, 118, 110, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.to-\[\#0b2847\],
+.to-blue-500,
+.to-blue-600,
+.to-indigo-600 {
+    --tw-gradient-to: var(--brand-dark) var(--tw-gradient-to-position) !important;
+}
+
+.from-blue-600.to-blue-500,
+.from-blue-700.to-blue-600,
+.from-blue-600.to-indigo-600 {
+    --tw-gradient-to: var(--brand-accent) var(--tw-gradient-to-position) !important;
 }

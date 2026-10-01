@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-14 py-10 bg-slate-100 min-h-screen">
+<div class="px-3 sm:px-6 lg:px-14 py-4 sm:py-8 lg:py-10 bg-slate-100 min-h-screen">
 
     <!-- ================================= HEADER ================================= -->
-    <div class="flex justify-between items-center mb-12">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 sm:mb-10 lg:mb-12">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">
                 Reportes de Caja
             </h1>
             <p class="text-slate-500 text-sm mt-2">
@@ -16,14 +16,14 @@
     </div>
 
     <!-- ================================= FILTRO ================================= -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-10">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-6 sm:mb-10">
 
-        <form method="GET" class="flex flex-wrap gap-6 items-end">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-end">
 
             <div>
                 <label class="text-xs text-slate-500">Ruta</label>
                 <select name="ruta_id"
-                    class="border border-slate-300 rounded-xl px-4 py-2 w-60 focus:ring-2 focus:ring-blue-500">
+                    class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     <option value="">Seleccionar Ruta</option>
                     {% for r in rutas %}
                     <option value="{{ r.id }}"
@@ -38,17 +38,17 @@
                 <label class="text-xs text-slate-500">Desde</label>
                 <input type="date" name="fecha_inicio"
                        value="{{ fecha_inicio }}"
-                       class="border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                       class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div>
                 <label class="text-xs text-slate-500">Hasta</label>
                 <input type="date" name="fecha_fin"
                        value="{{ fecha_fin }}"
-                       class="border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                       class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-xl shadow-md transition">
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl shadow-md transition font-bold">
                 Consultar
             </button>
 
@@ -56,30 +56,30 @@
     </div>
 
     <!-- ================================= KPI CARDS ================================= -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-12">
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="text-xs text-slate-500 uppercase">Total Ventas</div>
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+            <div class="text-xs text-slate-500 uppercase">Total Créditos</div>
             <div class="text-2xl font-bold mt-2 text-slate-800">
                 {{ ventas|length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="text-xs text-slate-500 uppercase">Ventas Activas</div>
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+            <div class="text-xs text-slate-500 uppercase">Créditos Activos</div>
             <div class="text-2xl font-bold mt-2 text-amber-600">
                 {{ ventas_activas|length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="text-xs text-slate-500 uppercase">Ventas Finalizadas</div>
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+            <div class="text-xs text-slate-500 uppercase">Créditos Finalizados</div>
             <div class="text-2xl font-bold mt-2 text-emerald-600">
                 {{ ventas_finalizadas|length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
             <div class="text-xs text-slate-500 uppercase">Saldo total con intereses</div>
             <div class="text-2xl font-bold mt-2 text-blue-600">
                 $ {{ "{:,.0f}".format(ventas|sum(attribute='valor_total') or 0) }}
@@ -91,34 +91,34 @@
     <!-- ================================= TABS ================================= -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
-        <div class="flex border-b bg-slate-50">
+        <div class="flex border-b bg-slate-50 overflow-x-auto">
 
-            <button onclick="showTab('tab1')" class="tab-btn px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                Ventas Registradas
+            <button onclick="showTab('tab1')" class="tab-btn shrink-0 px-5 sm:px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                Créditos Registrados
             </button>
 
-            <button onclick="showTab('tab2')" class="tab-btn px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                Ventas Activas
+            <button onclick="showTab('tab2')" class="tab-btn shrink-0 px-5 sm:px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                Créditos Activos
             </button>
 
-            <button onclick="showTab('tab3')" class="tab-btn px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                Ventas Finalizadas
+            <button onclick="showTab('tab3')" class="tab-btn shrink-0 px-5 sm:px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                Créditos Finalizados
             </button>
 
         </div>
 
         <!-- ================= TAB 1 ================= -->
-        <div id="tab1" class="tab-content p-8">
+        <div id="tab1" class="tab-content p-4 sm:p-8">
 
             <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
+            <table class="min-w-[760px] text-sm">
 
                 <thead class="bg-slate-100 text-xs uppercase text-slate-600">
                     <tr>
                         <th class="px-4 py-3 text-left">Cliente</th>
                         <th class="px-4 py-3 text-left">Tipo</th>
                         <th class="px-4 py-3 text-center">Cuotas</th>
-                        <th class="px-4 py-3 text-right">Venta</th>
+                        <th class="px-4 py-3 text-right">Crédito</th>
                         <th class="px-4 py-3 text-right">Tasa</th>
                         <th class="px-4 py-3 text-right">Interés</th>
                         <th class="px-4 py-3 text-right">Total Crédito</th>
@@ -174,9 +174,9 @@
         </div>
 
         <!-- ================= TAB 2 ================= -->
-        <div id="tab2" class="tab-content hidden p-8">
+        <div id="tab2" class="tab-content hidden p-4 sm:p-8 overflow-x-auto">
 
-            <table class="min-w-full text-sm">
+            <table class="min-w-[620px] text-sm">
                 <thead class="bg-slate-100 text-xs uppercase text-slate-600">
                     <tr>
                         <th class="px-4 py-3 text-left">Cliente</th>
@@ -211,13 +211,13 @@
         </div>
 
         <!-- ================= TAB 3 ================= -->
-        <div id="tab3" class="tab-content hidden p-8">
+        <div id="tab3" class="tab-content hidden p-4 sm:p-8 overflow-x-auto">
 
-            <table class="min-w-full text-sm">
+            <table class="min-w-[620px] text-sm">
                 <thead class="bg-slate-100 text-xs uppercase text-slate-600">
                     <tr>
                         <th class="px-4 py-3 text-left">Cliente</th>
-                        <th class="px-4 py-3 text-right">Venta</th>
+                        <th class="px-4 py-3 text-right">Crédito</th>
                         <th class="px-4 py-3 text-right">Interés</th>
                         <th class="px-4 py-3 text-right">Total Crédito</th>
                     </tr>

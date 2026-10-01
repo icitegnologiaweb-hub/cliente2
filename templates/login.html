@@ -2,229 +2,255 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
+    <title>Acceso Administrativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
     <style>
     :root {
-        --primary: #111827; /* Negro elegante */
-        --primary-hover: #1F2937;
-        --bg-light: #F3F4F6;
-        --text-muted: #6B7280;
-        --border-light: #E5E7EB;
+        --primary: #064e3b;
+        --primary-hover: #062f2b;
+        --accent: #d97706;
+        --surface: rgba(255,255,255,.94);
+        --border-light: #dbe7e3;
     }
 
     body {
-        background: var(--bg-light);
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 15% 12%, rgba(20,184,166,.34), transparent 28%),
+            radial-gradient(circle at 90% 18%, rgba(217,119,6,.24), transparent 26%),
+            linear-gradient(135deg, #eef7f4 0%, #d9eee8 45%, #f5faf8 100%);
+        color: #0f172a;
+    }
+
+    .auth-shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: center;
+        padding: 20px;
+    }
+
+    .showcase {
+        display: none;
     }
 
     .login-card {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+        width: 100%;
+        max-width: 440px;
+        margin: 0 auto;
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,.72);
+        border-radius: 28px;
+        box-shadow: 0 24px 70px rgba(6,47,43,.18);
+        padding: 28px;
+        backdrop-filter: blur(16px);
+    }
+
+    .brand-mark {
+        width: 62px;
+        height: 62px;
+        border-radius: 22px;
+        display: grid;
+        place-items: center;
+        color: white;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        box-shadow: 0 16px 32px rgba(15,118,110,.28);
     }
 
     .form-control-custom {
+        width: 100%;
         border: 1px solid var(--border-light);
-        border-radius: 12px;
-        padding: 14px 16px;
+        border-radius: 16px;
+        padding: 15px 16px;
         transition: .2s ease;
-        background: #F9FAFB;
+        background: #f8fbfa;
+        color: #10231f;
     }
 
     .form-control-custom:focus {
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+        box-shadow: 0 0 0 4px rgba(20,184,166,.18);
         background: white;
         outline: none;
     }
 
     .btn-primary-custom {
-        background: var(--primary);
-        border-radius: 12px;
-        padding: 14px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 16px;
+        padding: 15px;
         transition: .2s ease;
-        font-weight: 500;
+        font-weight: 700;
+        box-shadow: 0 14px 30px rgba(15,118,110,.24);
     }
 
     .btn-primary-custom:hover {
-        background: var(--primary-hover);
         transform: translateY(-1px);
+        box-shadow: 0 18px 38px rgba(15,118,110,.30);
     }
 
-    .carousel-slide {
-        display: none;
+    .info-pill {
+        border: 1px solid rgba(255,255,255,.18);
+        background: rgba(255,255,255,.09);
+        border-radius: 18px;
+        padding: 16px;
     }
 
-    .carousel-slide.active {
-        display: block;
-    }
-</style>
+    @media (min-width: 1024px) {
+        .auth-shell {
+            grid-template-columns: minmax(0, 1.05fr) minmax(440px, .95fr);
+            padding: 36px;
+            gap: 36px;
+        }
 
+        .showcase {
+            min-height: calc(100vh - 72px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 34px;
+            padding: 46px;
+            color: white;
+            background:
+                linear-gradient(145deg, rgba(6,47,43,.96), rgba(6,78,59,.94)),
+                radial-gradient(circle at top right, rgba(217,119,6,.30), transparent 32%);
+            box-shadow: 0 24px 80px rgba(6,47,43,.24);
+            overflow: hidden;
+        }
+
+        .login-card {
+            padding: 36px;
+        }
+    }
+    </style>
 </head>
 
-<body class="min-h-screen flex">
+<body>
+<main class="auth-shell">
+    <section class="showcase">
+        <div>
+            <div class="inline-flex items-center gap-3 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold">
+                <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                Plataforma operativa
+            </div>
 
-<!-- LADO IZQUIERDO - CARRUSEL -->
-<div class="hidden lg:flex w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative items-center justify-center p-10">
-
-    <div class="w-full max-w-md text-center">
-
-        <!-- Slides -->
-        <div class="carousel-slide active">
-            <h2 class="text-3xl font-bold mb-4">Bienvenido al Sistema</h2>
-            <p class="opacity-90">
-                Gestiona clientes, cobradores y movimientos en tiempo real.
-            </p>
+            <div class="mt-16 max-w-xl">
+                <h1 class="text-5xl font-black leading-tight">
+                    Control claro para cartera, rutas y recaudo.
+                </h1>
+                <p class="mt-5 text-white/80 text-lg">
+                    Consulta movimientos, usuarios y reportes con una experiencia limpia para trabajo diario.
+                </p>
+            </div>
         </div>
 
-        <div class="carousel-slide">
-            <h2 class="text-3xl font-bold mb-4">Control Total</h2>
-            <p class="opacity-90">
-                Visualiza reportes y controla toda la operación desde el panel.
-            </p>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="info-pill">
+                <div class="text-2xl font-bold">24/7</div>
+                <div class="text-sm text-white/70 mt-1">Acceso seguro</div>
+            </div>
+            <div class="info-pill">
+                <div class="text-2xl font-bold">Rutas</div>
+                <div class="text-sm text-white/70 mt-1">Operación diaria</div>
+            </div>
+            <div class="info-pill">
+                <div class="text-2xl font-bold">Caja</div>
+                <div class="text-sm text-white/70 mt-1">Reportes rápidos</div>
+            </div>
         </div>
+    </section>
 
-        <div class="carousel-slide">
-            <h2 class="text-3xl font-bold mb-4">Acceso Seguro</h2>
-            <p class="opacity-90">
-                Sistema protegido y disponible 24/7.
-            </p>
-        </div>
-
-        <!-- Indicadores -->
-        <div class="flex justify-center mt-8 space-x-2">
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-100"></span>
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-40"></span>
-            <span class="dot w-3 h-3 bg-white rounded-full opacity-40"></span>
-        </div>
-
-    </div>
-</div>
-
-
-<!-- LADO DERECHO - LOGIN -->
-<div class="flex w-full lg:w-1/2 items-center justify-center p-6">
-
-    <div class="w-full max-w-md login-card p-10">
-
-        <!-- Logo -->
-        <div class="flex justify-center mb-8">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                 style="height:70px;">
-        </div>
-
-        <h2 class="text-xl font-semibold text-center mb-8 text-gray-800">
-            Acceso al Sistema
-        </h2>
-
-        <form method="POST" class="space-y-6" autocomplete="on">
-
+    <section class="login-card">
+        <div class="flex items-start justify-between gap-4">
             <div>
-                <label class="block text-sm mb-2" style="color: var(--text-muted);">
+                <div class="brand-mark mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 4v5c0 4.5-2.8 7.6-7 9-4.2-1.4-7-4.5-7-9V7l7-4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-5" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900">
+                    Portal administrativo
+                </h2>
+                <p class="mt-2 text-sm text-slate-500">
+                    Ingresa con tus credenciales autorizadas.
+                </p>
+            </div>
+            <span class="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700 border border-teal-100">
+                Seguro
+            </span>
+        </div>
+
+        <form method="POST" class="mt-8 space-y-5" autocomplete="on">
+            <div>
+                <label class="block text-sm mb-2 font-medium text-slate-600">
                     Correo electrónico
                 </label>
-                <input type="email" name="email" required 
-                    class="w-full form-control-custom"
+                <input type="email" name="email" required
+                    class="form-control-custom"
                     autocomplete="username">
             </div>
+
             <div class="relative">
-                <label class="block text-sm mb-2" style="color: var(--text-muted);">
+                <label class="block text-sm mb-2 font-medium text-slate-600">
                     Contraseña
                 </label>
 
-                <input 
-                    type="password" 
-                    name="password" 
+                <input
+                    type="password"
+                    name="password"
                     id="password"
                     required
-                    class="w-full form-control-custom pr-12"
+                    class="form-control-custom pr-12"
                     autocomplete="current-password">
 
-                <!-- Botón ojo -->
-                <button 
+                <button
                     type="button"
                     onclick="togglePassword()"
-                    class="absolute right-3 top-[38px] text-gray-400 hover:text-white transition">
-
-                    <!-- Ojo cerrado -->
-                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
+                    class="absolute right-4 top-[43px] text-slate-400 hover:text-teal-700 transition"
+                    aria-label="Mostrar u ocultar contraseña">
+                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-7-9-7a17.1 17.1 0 012.805-3.565M6.18 6.18A9.953 9.953 0 0112 5c5 0 9 7 9 7a16.978 16.978 0 01-4.043 4.943M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
                     </svg>
-
-                    <!-- Ojo abierto -->
-                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" 
+                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.938 0C21.729 14.943 17.74 18 12 18c-5.74 0-9.729-3.057-10.938-6C2.271 9.057 6.26 6 12 6c5.74 0 9.729 3.057 10.938 6z" />
                     </svg>
-
                 </button>
             </div>
-            <!-- Guardar sesión -->
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="recordar" class="rounded border-gray-300">
-                    <span class="text-gray-600">Guardar sesión</span>
+
+            <div class="flex items-center justify-between gap-3 text-sm">
+                <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+                    <input type="checkbox" name="recordar" class="rounded border-slate-300 text-teal-700 focus:ring-teal-600">
+                    <span>Guardar sesión</span>
                 </label>
-            </div>
-
-            <button type="submit"
-                class="w-full text-white btn-primary-custom">
-                Ingresar
-            </button>
-
-            <div class="text-right">
-                <a href="{{ url_for('forgot_password') }}" 
-                class="text-sm text-gray-500 hover:text-gray-800">
-                    ¿Olvidaste tu contraseña?
+                <a href="{{ url_for('forgot_password') }}"
+                   class="font-semibold text-teal-700 hover:text-teal-900">
+                    Recuperar
                 </a>
             </div>
 
-
+            <button type="submit" class="w-full text-white btn-primary-custom">
+                Ingresar
+            </button>
         </form>
 
         {% if error %}
-        <div id="errorToast" 
-            class="fixed top-6 right-6 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg 
+        <div id="errorToast"
+            class="fixed top-6 right-6 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg
                     text-sm font-medium opacity-0 translate-y-2 transition-all duration-500">
             {{ error }}
         </div>
         {% endif %}
-
-        <div class="mt-10 text-center text-xs" style="color: var(--text-muted);">
-            © 2026 ML. Todos los derechos reservados.
-        </div>
-
-    </div>
-
-</div>
+    </section>
+</main>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-
-    // ==== CARRUSEL ====
-    const slides = document.querySelectorAll(".carousel-slide");
-    const dots = document.querySelectorAll(".dot");
-    let index = 0;
-
-    function showSlide(i) {
-        slides.forEach(slide => slide.classList.remove("active"));
-        dots.forEach(dot => dot.classList.replace("opacity-100","opacity-40"));
-        
-        slides[i].classList.add("active");
-        dots[i].classList.replace("opacity-40","opacity-100");
-    }
-
-    setInterval(() => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-    }, 4000);
-
-
-    // ==== TOAST ERROR ====
     const toast = document.getElementById("errorToast");
     if (toast) {
         setTimeout(() => {
@@ -237,7 +263,6 @@ document.addEventListener("DOMContentLoaded", function() {
             toast.classList.add("opacity-0", "translate-y-2");
         }, 3000);
     }
-
 });
 </script>
 <script>
@@ -257,6 +282,5 @@ function togglePassword() {
     }
 }
 </script>
-
 </body>
 </html>

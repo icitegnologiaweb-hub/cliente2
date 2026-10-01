@@ -1,21 +1,154 @@
 {% extends "cobrador/layout.html" %}
-{% block titulo %}Todas las Ventas{% endblock %}
+{% block titulo %}Todos los Créditos{% endblock %}
 
 {% block content %}
+{% set filtros = filtros if filtros is defined else {'q': '', 'estado': 'todos', 'frecuencia': 'todos'} %}
+{% set estado_actual = filtros.estado|default('todos') %}
+{% set frecuencia_actual = filtros.frecuencia|default('todos') %}
+
+<style>
+.credit-filter-panel {
+    padding: 0 12px 12px;
+}
+
+.credit-filter-box {
+    border-radius: 20px;
+    padding: 12px;
+    background: rgba(5,47,42,.78);
+    border: 1px solid rgba(153,246,228,.16);
+}
+
+.filter-row + .filter-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.filter-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #ccfbf1;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.filter-current {
+    max-width: 135px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fef3c7;
+    font-size: 11px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.filter-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.filter-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    flex: 0 0 auto;
+    min-height: 36px;
+    border-radius: 999px;
+    padding: 8px 14px;
+    color: rgba(255,255,255,.76);
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.10);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.15;
+    white-space: nowrap;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
+}
+
+.filter-chip:active {
+    transform: scale(.98);
+}
+
+.filter-chip-active {
+    color: #fff;
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    border-color: rgba(153,246,228,.42);
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.16);
+    opacity: 1;
+}
+
+.filter-chip-active.filter-chip-green {
+    background: linear-gradient(135deg, #16a34a, #0f766e);
+}
+
+.filter-chip-active.filter-chip-gold {
+    background: linear-gradient(135deg, #ca8a04, #d97706);
+}
+
+.filter-chip-active.filter-chip-teal {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+}
+
+.filter-chip-active.filter-chip-orange {
+    background: linear-gradient(135deg, #b45309, #d97706);
+}
+
+.filter-chip-active.filter-chip-purple {
+    background: linear-gradient(135deg, #7c3aed, #0f766e);
+}
+
+.credit-search {
+    min-height: 46px;
+    border-radius: 16px;
+    padding: 12px 14px 12px 42px;
+    width: 100%;
+    color: white;
+    background: rgba(2,44,34,.94);
+    border: 1px solid rgba(153,246,228,.22);
+    outline: none;
+}
+
+.credit-search::placeholder {
+    color: rgba(204,251,241,.52);
+}
+
+.search-wrap {
+    position: relative;
+}
+
+.search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(204,251,241,.65);
+}
+</style>
 
 <div class="max-w-md mx-auto px-4 pt-4 pb-28 space-y-4">
 
     <!-- HEADER SUPERIOR -->
-    <div class="sticky top-0 z-30 bg-[#0b2847] rounded-2xl shadow-lg mb-4 overflow-hidden border border-blue-900/40">
+    <div class="sticky top-0 z-30 bg-[#064e3b] rounded-2xl shadow-lg mb-4 overflow-hidden border border-emerald-400/20">
 
         <!-- RESUMEN -->
-        <div class="p-4 bg-gradient-to-br from-[#123b63] to-[#0b2847]">
+        <div class="p-4 bg-gradient-to-br from-[#0f766e] to-[#064e3b]">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <div class="text-white font-bold text-lg">
                         Gestión de créditos
                     </div>
-                    <div class="text-xs text-blue-200">
+                    <div class="text-xs text-emerald-100">
                         Control diario de créditos y recaudo
                     </div>
                 </div>
@@ -26,28 +159,129 @@
             </div>
         </div>
 
-        <!-- BUSCADOR -->
-        <div class="p-3 border-t border-white/5">
-            <input type="text"
-                   id="buscador"
-                   placeholder="Buscar por nombre o cédula..."
-                   class="w-full bg-[#123b63] border border-gray-600 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+        <form id="formFiltrosCreditos" method="GET" class="border-t border-white/5">
+            <input type="hidden" name="estado" id="filtroEstado" value="{{ estado_actual }}">
+            <input type="hidden" name="frecuencia" id="filtroFrecuencia" value="{{ frecuencia_actual }}">
+
+            <!-- BUSCADOR -->
+            <div class="p-3">
+                <div class="search-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                <input type="search"
+                       id="buscador"
+                       name="q"
+                       value="{{ filtros.q|default('') }}"
+                       placeholder="Buscar por nombre o cédula..."
+                       class="credit-search">
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="credit-filter-panel">
+                <div class="credit-filter-box">
+                    <div class="filter-row">
+                        <div class="filter-heading">
+                            <span>Estado</span>
+                            <span class="filter-current">
+                                {% if estado_actual == 'pago_hoy' %}
+                                    Pago para hoy
+                                {% else %}
+                                    {{ estado_actual|capitalize }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="filter-scroll">
+                            <button type="button"
+                                    onclick="aplicarFiltro('estado', 'todos')"
+                                    class="filter-chip {% if estado_actual == 'todos' %}filter-chip-active{% endif %}">
+                                Todos
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('estado', 'activos')"
+                                    class="filter-chip filter-chip-green {% if estado_actual == 'activos' %}filter-chip-active{% endif %}">
+                                Activos
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('estado', 'vencidos')"
+                                    class="filter-chip filter-chip-gold {% if estado_actual == 'vencidos' %}filter-chip-active{% endif %}">
+                                Vencidos
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('estado', 'finalizados')"
+                                    class="filter-chip filter-chip-teal {% if estado_actual == 'finalizados' %}filter-chip-active{% endif %}">
+                                Finalizados
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('estado', 'pago_hoy')"
+                                    class="filter-chip filter-chip-orange {% if estado_actual == 'pago_hoy' %}filter-chip-active{% endif %}">
+                                Pago hoy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filter-row">
+                        <div class="filter-heading">
+                            <span>Frecuencia</span>
+                            <span class="filter-current">{{ frecuencia_actual|capitalize }}</span>
+                        </div>
+                        <div class="filter-scroll">
+                            <button type="button"
+                                    onclick="aplicarFiltro('frecuencia', 'todos')"
+                                    class="filter-chip {% if frecuencia_actual == 'todos' %}filter-chip-active{% endif %}">
+                                Todas
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('frecuencia', 'diario')"
+                                    class="filter-chip {% if frecuencia_actual == 'diario' %}filter-chip-active{% endif %}">
+                                Diario
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('frecuencia', 'semanal')"
+                                    class="filter-chip filter-chip-teal {% if frecuencia_actual == 'semanal' %}filter-chip-active{% endif %}">
+                                Semanal
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('frecuencia', 'quincenal')"
+                                    class="filter-chip filter-chip-purple {% if frecuencia_actual == 'quincenal' %}filter-chip-active{% endif %}">
+                                Quincenal
+                            </button>
+                            <button type="button"
+                                    onclick="aplicarFiltro('frecuencia', 'mensual')"
+                                    class="filter-chip filter-chip-gold {% if frecuencia_actual == 'mensual' %}filter-chip-active{% endif %}">
+                                Mensual
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if estado_actual != 'todos' or frecuencia_actual != 'todos' or filtros.q %}
+            <div class="px-3 pb-3">
+                <a href="{{ url_for('todas_las_ventas', ruta_id=ruta_id) }}"
+                   class="block w-full text-center rounded-xl bg-white/10 border border-white/10 py-2.5 text-sm font-semibold text-white">
+                    Limpiar filtros
+                </a>
+            </div>
+            {% endif %}
+        </form>
 
         <!-- TABS -->
         <div class="px-3 pb-3">
-            <div class="bg-[#123b63] rounded-2xl p-1 flex gap-1 border border-blue-800/40">
+            <div class="bg-[#083f38] rounded-2xl p-1 flex gap-1 border border-emerald-300/20">
                 <button type="button"
                         id="tabPendientes"
                         onclick="cambiarTab('pendientes')"
-                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
-                    Por cobrar
+                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#0f766e] text-white shadow-md border border-emerald-300/30">
+                    Créditos
                 </button>
 
                 <button type="button"
                         id="tabPagados"
                         onclick="cambiarTab('pagados')"
-                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#1d4f7a] text-white shadow-md border border-blue-400/30">
+                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition bg-[#0f766e] text-white shadow-md border border-emerald-300/30">
                     Pagados hoy
                 </button>
             </div>
@@ -60,15 +294,19 @@
         {% for c in creditos %}
 
         <a href="{{ url_for('detalle_credito', credito_id=c.id) }}"
-           class="credito-item credito-pendiente block bg-gradient-to-br from-[#123b63] to-[#0b2847]
+           class="credito-item credito-pendiente block bg-gradient-to-br from-[#0f766e] to-[#064e3b]
                   rounded-2xl p-4 shadow-lg text-white
-                  transition hover:scale-[1.02] active:scale-[0.98] relative border border-blue-900/30"
+                  transition hover:scale-[1.02] active:scale-[0.98] relative border border-emerald-400/20"
            data-nombre="{{ c.cliente|lower }}"
            data-cedula="{{ c.identificacion|default('')|lower }}"
            data-tab="pendientes"
            data-posicion="{{ c.posicion }}">
 
-            {% if c.color_estado == "rojo" %}
+            {% if c.credito_finalizado %}
+            <div class="absolute right-0 top-0 bg-emerald-500 text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl shadow">
+                FINALIZADO
+            </div>
+            {% elif c.color_estado == "rojo" %}
             <div class="absolute right-0 top-0 bg-red-500 text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl shadow">
                 MORA ALTA
             </div>
@@ -97,11 +335,13 @@
                             {{ c.posicion }}
                         </div>
 
+                        {% if not c.credito_finalizado %}
                         <button type="button"
                                 onclick="editarPosicion(event, '{{ c.id }}', '{{ c.posicion }}')"
                                 class="absolute -bottom-1 -right-1 bg-blue-500 hover:bg-blue-600 text-xs px-1.5 py-0.5 rounded-full shadow">
                             ✏
                         </button>
+                        {% endif %}
                     </div>
 
                     <!-- INFO -->
@@ -123,6 +363,12 @@
                         {% if c.proxima_cuota %}
                         <div class="text-xs text-blue-300 mt-1">
                             📆 Próx: {{ c.proxima_cuota }}
+                        </div>
+                        {% endif %}
+
+                        {% if c.tipo_prestamo %}
+                        <div class="text-xs text-emerald-100 mt-1">
+                            Frecuencia: {{ c.tipo_prestamo }}
                         </div>
                         {% endif %}
                     </div>
@@ -156,7 +402,7 @@
 
             <!-- BLOQUE FINANCIERO -->
             <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <div class="bg-[#0b2847] rounded-xl p-3 text-center border border-blue-900/30">
+                <div class="bg-[#052f2a] rounded-xl p-3 text-center border border-emerald-400/20">
                     <div class="text-xs opacity-70">
                         Total Crédito
                     </div>
@@ -181,9 +427,9 @@
         {% else %}
         <div class="bg-gradient-to-br from-[#123b63] to-[#0b2847] rounded-2xl p-6 text-center text-white shadow-lg border border-blue-900/30">
             <div class="text-4xl mb-2">🎉</div>
-            <div class="font-bold text-lg">No hay créditos por cobrar</div>
+            <div class="font-bold text-lg">No hay créditos para mostrar</div>
             <div class="text-sm text-blue-200 mt-1">
-                Todo lo del día ya fue gestionado.
+                Ajusta los filtros o la búsqueda para ver más resultados.
             </div>
         </div>
         {% endfor %}
@@ -412,6 +658,26 @@
 let tabActual = "pendientes";
 let posicionActualModal = null;
 
+function aplicarFiltro(tipo, valor) {
+    const form = document.getElementById("formFiltrosCreditos");
+    const estado = document.getElementById("filtroEstado");
+    const frecuencia = document.getElementById("filtroFrecuencia");
+
+    if (!form || !estado || !frecuencia) {
+        return;
+    }
+
+    if (tipo === "estado") {
+        estado.value = valor;
+    }
+
+    if (tipo === "frecuencia") {
+        frecuencia.value = valor;
+    }
+
+    form.submit();
+}
+
 /* ===============================
    TABS Y BÚSQUEDA
 ================================ */
@@ -424,7 +690,7 @@ function cambiarTab(tab) {
     const tabPendientes = document.getElementById("tabPendientes");
     const tabPagados = document.getElementById("tabPagados");
 
-    const activeClasses = ["bg-[#1d4f7a]", "text-white", "shadow-md", "border", "border-blue-400/30"];
+    const activeClasses = ["bg-[#0f766e]", "text-white", "shadow-md", "border", "border-emerald-300/30"];
     const inactiveClasses = ["text-white/80"];
 
     if (tab === "pendientes") {

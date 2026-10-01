@@ -5,14 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0B3C5D">
+<meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo_app.png') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/app_icon.png') }}">
 <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
 <style>
+:root {
+    --brand-ink: #062f2b;
+    --brand-dark: #064e3b;
+    --brand-main: #0f766e;
+    --brand-mid: #14b8a6;
+    --brand-accent: #d97706;
+}
+
 body {
-    background: radial-gradient(circle at top, #163a5f 0%, #0b223a 50%, #061423 100%);
+    background: radial-gradient(circle at top, #0f766e 0%, #064e3b 48%, #031f1c 100%);
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -24,7 +32,9 @@ body {
     left: -320px;
     width: 300px;
     height: 100%;
-    background: linear-gradient(180deg, #0e2a47 0%, #071a2d 100%);
+    background:
+        linear-gradient(180deg, rgba(6,78,59,.98) 0%, rgba(3,31,28,.98) 100%),
+        radial-gradient(circle at top left, rgba(217,119,6,.22), transparent 38%);
     box-shadow: 0 0 50px rgba(0,0,0,.6);
     transition: .35s cubic-bezier(.4,0,.2,1);
     z-index: 1000;
@@ -68,7 +78,7 @@ body {
     height: 50px;
     width: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    background: linear-gradient(135deg, var(--brand-main), var(--brand-accent));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -81,7 +91,7 @@ body {
     margin-top: 16px;
     padding: 8px 12px;
     border-radius: 14px;
-    background: linear-gradient(90deg, #1e40af, #2563eb);
+    background: linear-gradient(90deg, var(--brand-dark), var(--brand-main));
     font-size: 12px;
     font-weight: 500;
 }
@@ -104,16 +114,16 @@ body {
 }
 
 .menu-item.active {
-    background: linear-gradient(90deg,#2563eb,#1d4ed8);
+    background: linear-gradient(90deg, var(--brand-main), var(--brand-dark));
 }
 
 /* Cambio ruta especial */
 .menu-route {
-    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    background: linear-gradient(90deg, var(--brand-accent), var(--brand-main));
 }
 
 .menu-route:hover {
-    background: linear-gradient(90deg,#0284c7,#1d4ed8);
+    background: linear-gradient(90deg, #b45309, var(--brand-dark));
 }
 
 /* ===== TOPBAR ===== */
@@ -209,24 +219,24 @@ body {
 <!--
     <a href="{{ url_for('ver_ruta', ruta_id=session.get('ruta_id')) }}"
     class="flex items-center gap-3 menu-item">
-             Ventas 
+             Créditos
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
              fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
         </svg>
-        <span>Ventas por cobrar</span>
+        <span>Créditos por cobrar</span>
     </a>
 -->
     <a href="{{ url_for('todas_las_ventas', ruta_id=session.get('ruta_id')) }}"
     class="flex items-center gap-3 menu-item">
-            <!-- Ventas -->
+            <!-- Créditos -->
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80"
              fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/>
         </svg>
-        <span>Todas las ventas</span>
+        <span>Todos los créditos</span>
     </a>
 
     <a href="{{ url_for('caja_cobrador') }}"
@@ -267,7 +277,7 @@ body {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                   d="M12 6v6l4 2"/>
         </svg>
-        <span>Solicitudes</span>
+        <span>Solicitudes de créditos</span>
     </a>
 
 

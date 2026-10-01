@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 py-6 px-4 md:px-6">
+<div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 py-4 sm:py-6 px-3 sm:px-4 md:px-6">
   <div class="max-w-7xl mx-auto">
 
     {% set credito_principal = creditos[0] if creditos else None %}
@@ -14,23 +14,23 @@
       <div class="lg:col-span-4 space-y-6">
 
         <!-- PERFIL -->
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
           <div class="h-24 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800"></div>
 
-          <div class="px-6 pb-6 -mt-12">
+          <div class="px-4 sm:px-6 pb-5 sm:pb-6 -mt-12">
             <div class="flex flex-col items-center text-center">
 
               {% if credito_principal and credito_principal.foto_cliente %}
                 <img src="{{ credito_principal.foto_cliente }}"
                      onclick="verImagen(this.src)"
-                     class="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-xl cursor-pointer bg-white">
+                class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-xl cursor-pointer bg-white">
               {% else %}
-                <div class="w-28 h-28 md:w-32 md:h-32 rounded-full bg-white border-4 border-white shadow-xl flex items-center justify-center text-gray-400 text-4xl">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full bg-white border-4 border-white shadow-xl flex items-center justify-center text-gray-400 text-4xl">
                   👤
                 </div>
               {% endif %}
 
-              <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 mt-4 leading-tight">
+              <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-800 mt-4 leading-tight">
                 {{ cliente.nombre }}
               </h2>
 
@@ -44,15 +44,15 @@
             </div>
 
             <!-- RESUMEN -->
-            <div class="grid grid-cols-2 gap-4 mt-6">
-              <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-6">
+              <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3 sm:p-4">
                 <div class="text-xs uppercase tracking-wide text-gray-500">Créditos</div>
                 <div class="text-2xl font-extrabold text-slate-800 mt-2">
                   {{ creditos|length }}
                 </div>
               </div>
 
-              <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+              <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3 sm:p-4">
                 <div class="text-xs uppercase tracking-wide text-gray-500">Cliente</div>
                 <div class="text-sm font-bold text-slate-800 mt-2 break-all">
                   {{ cliente.identificacion }}
@@ -65,23 +65,23 @@
             <div class="mt-6">
               <h3 class="text-sm font-bold text-gray-700 mb-3">Soportes del cliente</h3>
 
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-3 gap-2 sm:gap-3">
                 {% if credito_principal.foto_cedula %}
                 <img src="{{ credito_principal.foto_cedula }}"
                      onclick="verImagen(this.src)"
-                     class="w-full h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition">
+                     class="w-full h-20 sm:h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition">
                 {% endif %}
 
                 {% if credito_principal.foto_negocio %}
                 <img src="{{ credito_principal.foto_negocio }}"
                      onclick="verImagen(this.src)"
-                     class="w-full h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition">
+                     class="w-full h-20 sm:h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition">
                 {% endif %}
 
                 {% if credito_principal.firma_cliente %}
                 <img src="{{ credito_principal.firma_cliente }}"
                      onclick="verImagen(this.src)"
-                     class="w-full h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition bg-white">
+                     class="w-full h-20 sm:h-24 object-cover rounded-xl shadow cursor-pointer hover:scale-105 transition bg-white">
                 {% endif %}
               </div>
             </div>
@@ -91,8 +91,8 @@
         </div>
 
         <!-- MODULO CREDITOS RELACIONADOS -->
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-          <div class="px-6 py-5 border-b border-gray-100">
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+          <div class="px-4 sm:px-6 py-5 border-b border-gray-100">
             <h3 class="text-xl font-extrabold text-gray-800">
               Créditos relacionados
             </h3>
@@ -101,7 +101,7 @@
             </p>
           </div>
 
-          <div class="p-4 space-y-3 max-h-[580px] overflow-y-auto">
+          <div class="p-3 sm:p-4 space-y-3 max-h-[580px] overflow-y-auto">
             {% if creditos %}
               {% for credito in creditos %}
               <div id="mini-credito-{{ credito.id }}"
@@ -148,7 +148,7 @@
                   </div>
                 </div>
 
-                <div class="mt-4 flex gap-2">
+                <div class="mt-4 flex flex-col sm:flex-row gap-2">
                   <button type="button"
                           onclick="irADetalleCredito('{{ credito.id }}')"
                           class="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold shadow transition">
@@ -181,7 +181,7 @@
       <div class="lg:col-span-8 space-y-6">
 
         <!-- HEADER -->
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 p-4 sm:p-6">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h2 class="text-2xl font-extrabold text-gray-800">
@@ -227,10 +227,10 @@
         {% if creditos %}
           {% for credito in creditos %}
           <div id="credito-{{ credito.id }}"
-               class="grupo-credito bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden scroll-mt-24 transition-all duration-300">
+               class="grupo-credito bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden scroll-mt-24 transition-all duration-300">
 
             <!-- CABECERA -->
-            <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-white to-slate-50">
+            <div class="px-4 sm:px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-white to-slate-50">
               <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
 
                 <div>
@@ -259,7 +259,7 @@
                   </p>
                 </div>
 
-                <div class="flex gap-2 flex-wrap">
+                <div class="flex flex-col sm:flex-row gap-2 sm:flex-wrap">
                   <button type="button"
                           onclick="irATopModulo()"
                           class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
@@ -278,11 +278,11 @@
             </div>
 
             <!-- RESUMEN -->
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 
                 <div class="rounded-2xl border border-gray-100 bg-slate-50 p-4">
-                  <div class="text-xs uppercase tracking-wide text-gray-500">Valor venta</div>
+                  <div class="text-xs uppercase tracking-wide text-gray-500">Valor crédito</div>
                   <div class="text-xl font-extrabold text-slate-800 mt-2">
                     $ {{ "{:,.2f}".format(credito.valor_venta|float) }}
                   </div>

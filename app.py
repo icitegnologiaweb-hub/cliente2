@@ -50,11 +50,12 @@ fin_dia = hoy_iso + "T23:59:59"
 
 
 def get_db_connection():
+    print("DATABASE_URL:", DATABASE_URL)
+
     return psycopg2.connect(
         DATABASE_URL,
         cursor_factory=RealDictCursor
     )
-
 @app.route("/")
 def index():
     return redirect(url_for("login"))
@@ -2455,7 +2456,7 @@ def procesar_solicitud(id, accion):
 
         supabase.table("notificaciones").insert({
             "usuario_id": solicitud["usuario_id"],
-            "titulo": "Solicitud de cupo actualizada",
+            "titulo": "Solicitud de crédito actualizada",
             "mensaje": f"Tu solicitud para {solicitud['cliente_nombre']} fue {accion.upper()}",
             "tipo": "success" if accion == "aprobado" else "danger",
             "leida": False
@@ -4102,11 +4103,73 @@ def todas_las_ventas(ruta_id):
 # Reparar automáticamente posiciones de esta ruta
     hoy = date.today().isoformat()
     hoy_fecha = date.today()
+    buscar = (request.args.get("q") or "").strip().lower()
+    estado_filtro = (request.args.get("estado") or "todos").strip().lower()
+    frecuencia_filtro = (request.args.get("frecuencia") or "todos").strip().lower()
+
+    estados_validos = {"todos", "activos", "vencidos", "finalizados", "pago_hoy"}
+    frecuencias_validas = {"todos", "diario", "semanal", "quincenal", "mensual"}
+
+    if estado_filtro not in estados_validos:
+        estado_filtro = "todos"
+
+    if frecuencia_filtro not in frecuencias_validas:
+        frecuencia_filtro = "todos"
+
+    filtros_creditos = {
+        "q": buscar,
+        "estado": estado_filtro,
+        "frecuencia": frecuencia_filtro,
+    }
 
     def solo_fecha(valor):
         if not valor:
             return None
         return str(valor)[:10]
+
+    def frecuencia_key(tipo_prestamo):
+        tipo = (tipo_prestamo or "").strip().lower()
+
+        if "diario" in tipo:
+            return "diario"
+        if "semanal" in tipo:
+            return "semanal"
+        if "quincenal" in tipo:
+            return "quincenal"
+        if "mensual" in tipo:
+            return "mensual"
+
+        return "otros"
+
+    def coincide_filtros(item):
+        if buscar:
+            texto_busqueda = (
+                f"{item.get('cliente', '')} "
+                f"{item.get('identificacion', '')}"
+            ).lower()
+
+            if buscar not in texto_busqueda:
+                return False
+
+        if frecuencia_filtro != "todos" and item.get("frecuencia_key") != frecuencia_filtro:
+            return False
+
+        finalizado = bool(item.get("credito_finalizado"))
+        dias_mora = int(item.get("dias_mora") or 0)
+        tiene_cuota_hoy = bool(item.get("tiene_cuota_hoy"))
+
+        if estado_filtro == "todos":
+            return not finalizado
+        if estado_filtro == "activos":
+            return not finalizado and dias_mora == 0
+        if estado_filtro == "vencidos":
+            return not finalizado and dias_mora > 0
+        if estado_filtro == "finalizados":
+            return finalizado
+        if estado_filtro == "pago_hoy":
+            return not finalizado and tiene_cuota_hoy
+
+        return True
 
     conn = None
     cur = None
@@ -4152,6 +4215,7 @@ def todas_las_ventas(ruta_id):
                 total_pagados_hoy=0,
                 total_recaudo_hoy="0",
                 total_saldo_pendiente="0",
+                filtros=filtros_creditos,
             )
 
         # 🔥 convertir ids a texto para evitar problema uuid=text
@@ -4209,6 +4273,7 @@ def todas_las_ventas(ruta_id):
             cuotas_pagadas = 0
             todas_pagadas = True if cuotas else False
             fecha_mora_mas_antigua = None
+            tiene_cuota_hoy = False
 
             for cuota in cuotas:
                 fecha_pago_raw = cuota.get("fecha_pago")
@@ -4222,6 +4287,7 @@ def todas_las_ventas(ruta_id):
 
                 # cuota con fecha de hoy
                 if fecha_pago_txt == hoy:
+                    tiene_cuota_hoy = True
                     valor_hoy = valor_cuota
                     pago_hoy = True if cuota["estado"] == "pagado" else False
 
@@ -4253,8 +4319,8 @@ def todas_las_ventas(ruta_id):
             if ya_pago_hoy:
                 pago_hoy = True
 
-            # excluir completamente finalizados/terminados
-            credito_finalizado = todas_pagadas or c.get("estado") in ["finalizado", "pagado"]
+            estado_credito_db = (c.get("estado") or "").strip().lower()
+            credito_finalizado = todas_pagadas or estado_credito_db in ["finalizado", "pagado"]
 
             # semáforo
             if dias_mora >= 30:
@@ -4273,6 +4339,9 @@ def todas_las_ventas(ruta_id):
             porcentaje_pagado = 0
             if total_cuotas > 0:
                 porcentaje_pagado = int((cuotas_pagadas / total_cuotas) * 100)
+
+            if credito_finalizado:
+                estado_texto = "Finalizado"
 
             item = {
                 "id": credito_id_key,
@@ -4297,14 +4366,20 @@ def todas_las_ventas(ruta_id):
                 "total_pagado_cuotas": "{:,.0f}".format(float(total_pagado_cuotas or 0)),
                 "ya_pago_hoy": ya_pago_hoy,
                 "tipo_prestamo": c.get("tipo_prestamo"),
+                "frecuencia_key": frecuencia_key(c.get("tipo_prestamo")),
+                "tiene_cuota_hoy": tiene_cuota_hoy,
+                "credito_finalizado": credito_finalizado,
                 "cuotas_pagadas": cuotas_pagadas,
                 "total_cuotas": total_cuotas,
                 "porcentaje_pagado": porcentaje_pagado,
             }
 
-            # REGLA FINAL
-            if credito_finalizado:
+            if not coincide_filtros(item):
                 continue
+
+            # REGLA FINAL DE PRESENTACIÓN
+            if credito_finalizado:
+                pendientes.append(item)
             elif ya_pago_hoy:
                 pagados_hoy.append(item)
             else:
@@ -4342,6 +4417,7 @@ def todas_las_ventas(ruta_id):
             total_pagados_hoy=total_pagados_hoy,
             total_recaudo_hoy="{:,.0f}".format(total_recaudo_hoy),
             total_saldo_pendiente="{:,.0f}".format(total_saldo_pendiente),
+            filtros=filtros_creditos,
         )
 
     except Exception as e:
@@ -5091,6 +5167,9 @@ def caja_reportes():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
+
+    flash("El módulo de reportes está inhabilitado temporalmente.", "warning")
+    return redirect(url_for("dashboard"))
 
     oficina_id = session.get("oficina_id")
 
@@ -8839,6 +8918,9 @@ def transferencias():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+    flash("El módulo de transferencias está inhabilitado temporalmente.", "warning")
+    return redirect(url_for("dashboard"))
+
     oficina_id = session.get("oficina_id")
 
     if not oficina_id:
@@ -8994,6 +9076,12 @@ def retiros():
 # -----------------------
 @app.route("/reportes")
 def reportes():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    flash("El módulo de reportes está inhabilitado temporalmente.", "warning")
+    return redirect(url_for("dashboard"))
 
     pestaña = request.args.get("tab", "ventas")
 

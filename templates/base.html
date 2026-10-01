@@ -15,6 +15,13 @@
 </head>
 
 <style>
+    :root {
+        --brand-ink: #062f2b;
+        --brand-dark: #064e3b;
+        --brand-main: #0f766e;
+        --brand-mid: #14b8a6;
+        --brand-accent: #d97706;
+    }
 
     /* Quitar subrayado del sidebar */
 .sidebar a,
@@ -39,7 +46,7 @@
 
 /* Activo elegante */
 .sidebar .nav-link.active {
-    background: linear-gradient(90deg, #2563eb, #1e40af);
+    background: linear-gradient(90deg, var(--brand-main), var(--brand-dark));
     color: #fff;
     border-radius: 8px;
 }
@@ -47,9 +54,15 @@ header {
     backdrop-filter: blur(8px);
 }
 
+.sidebar-backdrop {
+    display: none;
+}
+
 /* SIDEBAR BASE */
 #sidebar {
-    background: linear-gradient(180deg,#0f172a,#0b1220);
+    background:
+        linear-gradient(180deg, rgba(6,47,43,.98), rgba(4,32,29,.98)),
+        radial-gradient(circle at top left, rgba(20,184,166,.22), transparent 34%);
     min-height: 100vh;
 }
 
@@ -68,7 +81,7 @@ header {
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    background: linear-gradient(135deg, var(--brand-main), var(--brand-accent));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,9 +112,9 @@ header {
 
 /* Activo */
 .menu-item.active {
-    background: linear-gradient(90deg,#2563eb,#1d4ed8);
+    background: linear-gradient(90deg, var(--brand-main), var(--brand-dark));
     color: white;
-    box-shadow: 0 4px 12px rgba(37,99,235,.3);
+    box-shadow: 0 4px 12px rgba(15,118,110,.28);
 }
 
 /* Secciones */
@@ -157,6 +170,96 @@ header {
     background: rgba(0,0,0,0.05);
 }
 
+@media (max-width: 767.98px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 280px !important;
+        min-height: 100dvh;
+        z-index: 1045;
+        transform: translateX(-100%);
+        transition: transform .28s ease;
+        box-shadow: 20px 0 60px rgba(0,0,0,.35);
+    }
+
+    #sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    #sidebar.collapsed {
+        width: 280px !important;
+    }
+
+    #sidebar.collapsed .sidebar-text,
+    #sidebar.collapsed .sidebar-user div:last-child {
+        display: inline !important;
+    }
+
+    #sidebar.collapsed .sidebar-user div:last-child {
+        display: block !important;
+    }
+
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        display: none;
+        background: rgba(3, 31, 28, .55);
+        backdrop-filter: blur(3px);
+    }
+
+    .sidebar-backdrop.active {
+        display: block;
+    }
+
+    .admin-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        padding: .75rem .8rem !important;
+        gap: .65rem;
+    }
+
+    .admin-header-left {
+        gap: .65rem !important;
+        min-width: 0;
+    }
+
+    .admin-header-actions {
+        gap: .35rem !important;
+        min-width: 0;
+    }
+
+    .oficina-selector {
+        max-width: 135px;
+        padding: 7px 8px;
+    }
+
+    .office-name {
+        display: inline-block;
+        max-width: 82px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .user-meta {
+        display: none;
+    }
+
+    main.admin-main {
+        padding: 1rem !important;
+    }
+
+    .custom-toast {
+        max-width: calc(100vw - 2rem);
+    }
+}
 
 </style>
 <body class="bg-gray-100">
@@ -203,6 +306,8 @@ header {
 {% endif %}
 {% endwith %}
 
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
 <div class="min-h-screen flex">
     <aside id="sidebar"
     class="w-64 transition-all duration-300 flex flex-col shadow-lg">
@@ -232,27 +337,27 @@ header {
 
         <a href="{{ url_for('listar_ventas') }}" class="menu-item {{ is_active('listar_ventas') }}">
             <i class="bi bi-map"></i>
-            <span class="sidebar-text">Ventas Activas</span>
+            <span class="sidebar-text">Créditos Activos</span>
         </a>
 
         <a href="{{ url_for('clientes') }}" class="menu-item {{ is_active('clientes') }}">
                 <i class="bi bi-people"></i>
-            <span class="sidebar-text">Clientes</span>
+            <span class="sidebar-text">Historial de Clientes</span>
         </a>
 
         <a href="{{ url_for('filtro_pagos') }}" class="menu-item {{ is_active('clientes') }}">
-                <i class="bi bi-people"></i>
-            <span class="sidebar-text">Filtro pagos</span>
+                <i class="bi bi-receipt"></i>
+            <span class="sidebar-text">Filtro de Pagos</span>
         </a>
 
         <a href="{{ url_for('ver_solicitudes_cupo') }}" class="menu-item {{ is_active('ver_solicitudes_cupo') }}" >
-            <i class="bi bi-people"></i>
-            <span class="sidebar-text">Solicitudes AC</span>
+            <i class="bi bi-file-earmark-text"></i>
+            <span class="sidebar-text">Solicitudes de Créditos</span>
         </a>
 
         <a href="{{ url_for('capital') }}" class="menu-item {{ is_active('capital') }}">
             <i class="bi bi-cash-stack"></i>
-            <span class="sidebar-text">Capital</span>
+            <span class="sidebar-text">Capital en Movimiento</span>
         </a>
 
         <a href="{{ url_for('gastos') }}" class="menu-item {{ is_active('gastos') }}">
@@ -260,19 +365,9 @@ header {
             <span class="sidebar-text">Gastos</span>
         </a>
 
-        <a href="{{ url_for('transferencias') }}" class="menu-item {{ is_active('transferencias') }}">
-            <i class="bi bi-arrow-left-right"></i>
-            <span class="sidebar-text">Transferencias</span>
-        </a>
-
         <a href="{{ url_for('caja_oficina') }}" class="menu-item {{ is_active('caja_oficina') }}">
             <i class="bi bi-archive"></i>
             <span class="sidebar-text">Caja</span>
-        </a>
-
-        <a href="{{ url_for('caja_reportes') }}" class="menu-item {{ is_active('caja_reportes') }}">
-            <i class="bi bi-graph-up-arrow"></i>
-            <span class="sidebar-text">Reportes</span>
         </a>
 
         <a href="{{ url_for('liquidacion') }}" class="menu-item {{ is_active('liquidacion') }}">
@@ -284,7 +379,7 @@ header {
 
         <a  href="{{ url_for('usuarios') }}" class="menu-item {{ is_active('usuarios') }}">
             <i class="bi bi-person-gear"></i>
-            <span class="sidebar-text">Usuarios</span>
+            <span class="sidebar-text">Gestión de Cobradores</span>
         </a>
 
         <a href="{{ url_for('listar_rutas') }}" class="menu-item {{ is_active('listar_rutas') }}">
@@ -302,10 +397,10 @@ header {
 
     <!-- CONTENIDO -->
     <div class="flex-1 flex flex-col">
-        <header class="bg-white bg-opacity-75 px-4 py-3 d-flex justify-content-between align-items-center shadow-sm">
+        <header class="admin-header bg-white bg-opacity-75 px-4 py-3 d-flex justify-content-between align-items-center shadow-sm">
 
     <!-- Título -->
-<div class="d-flex align-items-center gap-4">
+<div class="admin-header-left d-flex align-items-center gap-4">
     <!-- Toggle -->
     <button id="toggleSidebar"
         class="btn btn-light border-0 shadow-sm rounded-circle 
@@ -313,16 +408,22 @@ header {
         style="width:38px;height:38px;">
         <i class="bi bi-list fs-5"></i>
     </button>
-        <img src="{{ url_for('static', filename='img/logo.png') }}"
-            alt="Logo"
-            class="img-fluid"
-            style="height:50px; width:auto;">
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center justify-content-center text-white shadow-sm"
+                 style="height:42px;width:42px;border-radius:14px;background:linear-gradient(135deg,#0f766e,#d97706);">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="d-none d-sm-block lh-sm">
+                <div class="fw-bold text-dark" style="font-size:14px;">Portal</div>
+                <div class="text-muted" style="font-size:12px;">Administrativo</div>
+            </div>
+        </div>
 
     </div>
 
 
     <!-- Derecha OFIICNA -->
-        <div class="d-flex align-items-center gap-3">
+        <div class="admin-header-actions d-flex align-items-center gap-3">
     {% if session.get('oficina_nombre') %}
     <div class="dropdown">
 
@@ -332,7 +433,7 @@ header {
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-buildings fs-5 text-secondary"></i>
 
-                <span class="fw-semibold">
+                <span class="office-name fw-semibold">
                     {{ session.get('oficina_nombre') }}
                 </span>
 
@@ -376,7 +477,7 @@ header {
         <div class="d-flex align-items-center gap-3">
 
             <!-- Nombre y rol -->
-            <div class="text-end lh-sm">
+            <div class="user-meta text-end lh-sm">
                 <div class="fw-semibold text-dark" style="font-size:14px;">
                     {{ session.get('nombre') }} {{ session.get('apellido') }}
                 </div>
@@ -429,7 +530,7 @@ header {
 
 
         <!-- MAIN -->
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="admin-main flex-1 overflow-y-auto p-6">
             {% block content %}{% endblock %}
         </main>
 
@@ -465,18 +566,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("toggleSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
 
     if (!sidebar || !toggleBtn) return;
 
-    // Restaurar estado guardado
+    const isMobile = () => window.matchMedia("(max-width: 767.98px)").matches;
+
+    function closeMobileSidebar() {
+        sidebar.classList.remove("mobile-open");
+        backdrop?.classList.remove("active");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    function openMobileSidebar() {
+        sidebar.classList.remove("collapsed");
+        sidebar.classList.add("mobile-open");
+        backdrop?.classList.add("active");
+        document.body.classList.add("overflow-hidden");
+    }
+
+    // Restaurar estado guardado solo en escritorio
     const isCollapsed = localStorage.getItem("sidebarCollapsed");
 
-    if (isCollapsed === "true") {
+    if (!isMobile() && isCollapsed === "true") {
         sidebar.classList.add("collapsed");
     }
 
     // Evento toggle
     toggleBtn.addEventListener("click", function () {
+        if (isMobile()) {
+            sidebar.classList.contains("mobile-open")
+                ? closeMobileSidebar()
+                : openMobileSidebar();
+            return;
+        }
 
         sidebar.classList.toggle("collapsed");
 
@@ -484,6 +607,25 @@ document.addEventListener("DOMContentLoaded", function () {
             "sidebarCollapsed",
             sidebar.classList.contains("collapsed")
         );
+    });
+
+    backdrop?.addEventListener("click", closeMobileSidebar);
+
+    sidebar.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            if (isMobile()) closeMobileSidebar();
+        });
+    });
+
+    window.addEventListener("resize", () => {
+        if (!isMobile()) {
+            closeMobileSidebar();
+            if (localStorage.getItem("sidebarCollapsed") === "true") {
+                sidebar.classList.add("collapsed");
+            }
+        } else {
+            sidebar.classList.remove("collapsed");
+        }
     });
 
 });

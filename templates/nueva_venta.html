@@ -4,10 +4,10 @@
 <style>
 /* ====== ESTILOS ====== */
 .page-header{
-    font-size:18px;
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:20px;
+    font-size:26px;
+    font-weight:800;
+    color:#111827;
+    margin-bottom:6px;
 }
 .subtitle{
     font-size:14px;
@@ -16,24 +16,26 @@
 }
 .card-venta{
     background:white;
-    border-radius:14px;
-    box-shadow:0 6px 20px rgba(0,0,0,.05);
-    padding:25px;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(15,23,42,.08);
+    padding:24px;
+    border:1px solid #e5e7eb;
 }
 .cliente-card{
     border:1px solid #e5e7eb;
-    border-radius:12px;
+    border-radius:18px;
     padding:18px;
     background:#f9fafb;
 }
 .cliente-card .title{
     font-weight:600;
     margin-bottom:10px;
-    background:#eef2ff;
+    background:#e6fffb;
     padding:6px 12px;
     display:inline-block;
-    border-radius:6px;
+    border-radius:999px;
     font-size:13px;
+    color:#0f766e;
 }
 .label{
     font-size:13px;
@@ -44,17 +46,24 @@
 .input-modern{
     width:100%;
     border:1px solid #d1d5db;
-    border-radius:8px;
-    padding:10px 12px;
+    border-radius:12px;
+    padding:12px 14px;
     font-size:14px;
 }
+.input-modern:focus{
+    outline:none;
+    border-color:#0f766e;
+    box-shadow:0 0 0 3px rgba(15,118,110,.14);
+}
 .btn-save{
-    background:#3b82f6;
+    background:linear-gradient(135deg,#0f766e,#d97706);
     color:white;
     border:none;
-    padding:10px 20px;
-    border-radius:8px;
-    font-weight:600;
+    padding:12px 20px;
+    border-radius:12px;
+    font-weight:800;
+    text-decoration:none;
+    box-shadow:0 14px 28px rgba(15,118,110,.18);
 }
 .alert-pendiente{
     background:#fff7ed;
@@ -66,12 +75,46 @@
     justify-content:space-between;
     align-items:center;
 }
+@media (max-width: 767.98px){
+    .credito-page{
+        padding-inline:12px !important;
+        padding-top:10px !important;
+    }
+    .page-header{
+        font-size:24px;
+    }
+    .card-venta{
+        padding:16px;
+        border-radius:20px;
+    }
+    .cliente-card{
+        padding:16px;
+        margin-bottom:4px;
+    }
+    .btn-save{
+        width:100%;
+        display:block;
+        text-align:center;
+        margin-bottom:8px;
+    }
+    .alert-pendiente{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:6px;
+    }
+    .modal-dialog{
+        margin:.75rem;
+    }
+    .modal-content{
+        border-radius:18px;
+    }
+}
 </style>
 
-<div class="container-fluid px-4 pt-3">
+<div class="container-fluid credito-page px-4 pt-3">
 
-    <div class="page-header">Nueva venta</div>
-    <div class="subtitle">Ingresa los datos para registrar la venta.</div>
+    <div class="page-header">Nuevo crédito</div>
+    <div class="subtitle">Ingresa los datos para registrar el crédito.</div>
 
     <div class="card-venta">
 
@@ -146,7 +189,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <div class="label">Valor venta</div>
+                            <div class="label">Valor crédito</div>
                             <input type="number" name="valor_venta" class="input-modern">
                         </div>
 
@@ -193,7 +236,7 @@
 
                     </div>
 
-                    <button class="btn-save mt-4">Registrar</button>
+                    <button class="btn-save mt-4">Registrar crédito</button>
 
                 </form>
             </div>

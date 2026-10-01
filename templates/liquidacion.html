@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-8 py-6 bg-gray-100 min-h-screen">
+<div class="px-3 sm:px-6 lg:px-8 py-4 sm:py-6 bg-gray-100 min-h-screen">
 
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-800">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-800">
                 Liquidación de rutas
             </h1>
             <p class="text-gray-600 mt-2">
@@ -16,8 +16,8 @@
 
     <!-- FILTROS -->
     <form method="GET" action="{{ url_for('liquidacion') }}"
-          class="bg-white rounded-2xl shadow p-6 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          class="bg-white rounded-2xl shadow p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -26,7 +26,7 @@
                 <input type="date"
                        name="fecha_inicio"
                        value="{{ fecha_inicio }}"
-                       class="w-full border rounded-xl px-4 py-3">
+                       class="w-full border rounded-xl px-4 py-3 text-sm">
             </div>
 
             <div>
@@ -36,14 +36,14 @@
                 <input type="date"
                        name="fecha_fin"
                        value="{{ fecha_fin }}"
-                       class="w-full border rounded-xl px-4 py-3">
+                       class="w-full border rounded-xl px-4 py-3 text-sm">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Ruta
                 </label>
-                <select name="ruta_id" class="w-full border rounded-xl px-4 py-3">
+                <select name="ruta_id" class="w-full border rounded-xl px-4 py-3 text-sm">
                     <option value="">Todas las rutas</option>
                     {% for ruta in rutas_activas %}
                     <option value="{{ ruta.id }}"
@@ -64,32 +64,32 @@
     </form>
 
     <!-- TARJETAS RESUMEN -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
 
-        <div class="bg-white rounded-2xl shadow p-6">
-            <p class="text-sm text-gray-500 uppercase">Promedio saldo rutas</p>
-            <h3 class="text-3xl font-bold text-gray-800 mt-3">
+        <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+            <p class="text-xs sm:text-sm text-gray-500 uppercase">Promedio saldo rutas</p>
+            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mt-3 break-words">
                 $ {{ "{:,.2f}".format(promedio_saldo_rutas or 0) }}
             </h3>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-6">
-            <p class="text-sm text-gray-500 uppercase">Promedio cartera final</p>
-            <h3 class="text-3xl font-bold text-gray-800 mt-3">
+        <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+            <p class="text-xs sm:text-sm text-gray-500 uppercase">Promedio cartera final</p>
+            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mt-3 break-words">
                 $ {{ "{:,.2f}".format(total_estimado_intereses_general or 0) }}
             </h3>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-6">
-            <p class="text-sm text-gray-500 uppercase">Promedio créditos</p>
-            <h3 class="text-3xl font-bold text-gray-800 mt-3">
+        <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+            <p class="text-xs sm:text-sm text-gray-500 uppercase">Promedio créditos</p>
+            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mt-3 break-words">
                 $ {{ "{:,.2f}".format(promedio_creditos_colocados or 0) }}
             </h3>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-6">
-            <p class="text-sm text-gray-500 uppercase">Promedio por recuperar</p>
-            <h3 class="text-3xl font-bold text-gray-800 mt-3">
+        <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+            <p class="text-xs sm:text-sm text-gray-500 uppercase">Promedio por recuperar</p>
+            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mt-3 break-words">
                 $ {{ "{:,.2f}".format(promedio_saldo_recuperar or 0) }}
             </h3>
         </div>
@@ -97,7 +97,7 @@
     </div>
 
     <!-- TABLA -->
-    <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="hidden lg:block bg-white rounded-2xl shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead class="bg-[#0B3C5D] text-white text-xs uppercase tracking-wider">
@@ -160,6 +160,91 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div class="lg:hidden space-y-4">
+        {% for item in rutas %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="font-extrabold text-gray-800">
+                    {{ item.ruta_nombre }}
+                </h3>
+                <p class="text-xs text-gray-500 mt-1">
+                    Consolidado de la ruta
+                </p>
+            </div>
+
+            <div class="p-4 grid grid-cols-2 gap-3 text-sm">
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Saldo anterior</div>
+                    <div class="font-bold text-gray-800 mt-1">$ {{ "{:,.2f}".format(item.saldo_anterior or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Saldo ruta</div>
+                    <div class="font-black text-green-700 mt-1">$ {{ "{:,.2f}".format(item.saldo_final or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Gastos</div>
+                    <div class="font-bold text-red-600 mt-1">$ {{ "{:,.2f}".format(item.gastos or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Capital entregado</div>
+                    <div class="font-bold text-indigo-700 mt-1">$ {{ "{:,.2f}".format(item.capital_entregado or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Créditos</div>
+                    <div class="font-bold text-orange-700 mt-1">$ {{ "{:,.2f}".format(item.creditos_colocados or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Por recuperar</div>
+                    <div class="font-bold text-red-600 mt-1">$ {{ "{:,.2f}".format(item.saldo_por_recuperar or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Cartera final</div>
+                    <div class="font-black text-blue-800 mt-1">$ {{ "{:,.2f}".format(item.total_estimado_con_intereses or 0) }}</div>
+                </div>
+
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[11px] uppercase text-gray-500">Cobros</div>
+                    <div class="font-bold text-purple-700 mt-1">$ {{ "{:,.2f}".format(item.total_cobros or 0) }}</div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 text-center text-gray-500">
+            No hay información para el filtro seleccionado.
+        </div>
+        {% endfor %}
+
+        {% if rutas %}
+        <div class="bg-slate-900 text-white rounded-2xl shadow-lg p-4">
+            <h3 class="font-extrabold mb-3">Totales</h3>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                    <div class="text-white/60 text-xs uppercase">Saldo actual</div>
+                    <div class="font-bold">$ {{ "{:,.2f}".format(total_saldo_final or 0) }}</div>
+                </div>
+                <div>
+                    <div class="text-white/60 text-xs uppercase">Créditos</div>
+                    <div class="font-bold">$ {{ "{:,.2f}".format(total_creditos_colocados or 0) }}</div>
+                </div>
+                <div>
+                    <div class="text-white/60 text-xs uppercase">Por recuperar</div>
+                    <div class="font-bold">$ {{ "{:,.2f}".format(total_saldo_por_recuperar or 0) }}</div>
+                </div>
+                <div>
+                    <div class="text-white/60 text-xs uppercase">Cobros</div>
+                    <div class="font-bold">$ {{ "{:,.2f}".format(total_cobros or 0) }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
 </div>

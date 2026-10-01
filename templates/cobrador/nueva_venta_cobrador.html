@@ -1,5 +1,5 @@
 {% extends "cobrador/layout.html" %}
-{% block titulo %}Nueva Venta{% endblock %}
+{% block titulo %}Nuevo crédito{% endblock %}
 
 {% block content %}
 
@@ -7,7 +7,7 @@
 
     <!-- Header -->
     <div class="text-xl font-semibold">
-        Registrar Venta
+        Registrar crédito
     </div>
 
     <button onclick="history.back()"
@@ -40,7 +40,7 @@
 
     {% if monto_aprobado and not es_renovacion %}
     <div class="bg-blue-600/20 border border-blue-400 text-blue-200 rounded-2xl p-4 text-sm shadow">
-        ✅ Aumento de cupo aprobado: se cargó el cliente y el monto aprobado para registrar la venta.
+        Solicitud de crédito aprobada: se cargó el cliente y el monto aprobado para registrar el crédito.
     </div>
     {% endif %}
 
@@ -204,7 +204,7 @@
 
                 <div class="text-xs opacity-60">
                     {% if monto_aprobado and not es_renovacion %}
-                        Monto aprobado para aumento de cupo
+                        Monto aprobado para solicitud de crédito
                     {% else %}
                         Monto máximo permitido en esta ruta
                     {% endif %}
@@ -221,7 +221,7 @@
 
                 <div id="alertaCupo"
                     class="text-xs text-red-400 mt-1 hidden">
-                    ⚠ El valor supera el cupo permitido, solicitar aumentar al encargado
+                    El valor supera el monto permitido, solicita revisión al encargado
                 </div>
 
             </div>

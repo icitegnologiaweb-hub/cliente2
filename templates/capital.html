@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-10 bg-[#f1f4f8] min-h-screen">
+<div class="px-3 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 bg-[#f1f4f8] min-h-screen">
 
     <!-- ================= HEADER EJECUTIVO ================= -->
-    <div class="flex items-center justify-between mb-12">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-10 lg:mb-12">
 
         <div>
-            <h1 class="text-3xl font-bold text-[#1e293b] tracking-tight">
-                Gestión de Capital y movimientos
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1e293b] tracking-tight">
+                Capital en Movimiento
             </h1>
             <p class="text-sm text-gray-500 mt-2">
                 Administración financiera del capital asignado por rutas
@@ -17,16 +17,16 @@
 
         <button onclick="abrirModal()"
                 class="bg-[#0B3C5D] hover:bg-[#092f47] 
-                       text-white px-7 py-3 rounded-lg 
-                       shadow-lg transition-all duration-200">
-            + Nuevo Capital
+                       text-white px-5 sm:px-7 py-3 rounded-xl
+                       shadow-lg transition-all duration-200 text-center font-bold">
+            + Nuevo movimiento
         </button>
 
     </div>
 <!-- FILTROS -->
     <form method="GET" action="{{ url_for('capital') }}"
-          class="bg-white rounded-2xl shadow p-6 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          class="bg-white rounded-2xl shadow p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -35,7 +35,7 @@
                 <input type="date"
                        name="fecha_inicio"
                        value="{{ fecha_inicio }}"
-                       class="w-full border rounded-xl px-4 py-3">
+                       class="w-full border rounded-xl px-4 py-3 text-sm">
             </div>
 
             <div>
@@ -45,14 +45,14 @@
                 <input type="date"
                        name="fecha_fin"
                        value="{{ fecha_fin }}"
-                       class="w-full border rounded-xl px-4 py-3">
+                       class="w-full border rounded-xl px-4 py-3 text-sm">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Ruta
                 </label>
-                <select name="ruta_id" class="w-full border rounded-xl px-4 py-3">
+                <select name="ruta_id" class="w-full border rounded-xl px-4 py-3 text-sm">
                     {% for ruta in rutas %}
                     <option value="{{ ruta.id }}"
                         {% if ruta_id_filtro == ruta.id|string %}selected{% endif %}>
@@ -73,31 +73,31 @@
 
 
     <!-- ================= RESUMEN FINANCIERO ================= -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 mb-6 sm:mb-10">
 
-        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+        <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-7">
             <div class="text-xs uppercase tracking-wider text-gray-500">
                 Movimientos Registrados
             </div>
-            <div class="text-3xl font-semibold text-[#1e293b] mt-3">
+            <div class="text-2xl sm:text-3xl font-semibold text-[#1e293b] mt-3">
                 {{ capital|length }}
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+        <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-7">
             <div class="text-xs uppercase tracking-wider text-gray-500">
                 Capital Total Asignado
             </div>
-            <div class="text-3xl font-semibold text-[#0B3C5D] mt-3">
+            <div class="text-2xl sm:text-3xl font-semibold text-[#0B3C5D] mt-3 break-words">
                 $ {{ "{:,.2f}".format(capital | sum(attribute='valor') if capital else 0) }}
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-7">
+        <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-7">
             <div class="text-xs uppercase tracking-wider text-gray-500">
                 Rutas Activas
             </div>
-            <div class="text-3xl font-semibold text-[#334155] mt-3">
+            <div class="text-2xl sm:text-3xl font-semibold text-[#334155] mt-3">
                 {{ rutas|length }}
             </div>
         </div>
@@ -108,7 +108,7 @@
  
 
     <!-- ================= TABLA FINANCIERA ================= -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <div class="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
         <div class="overflow-x-auto">
 
@@ -175,14 +175,58 @@
 
     </div>
 
+    <!-- ================= TARJETAS MÓVIL ================= -->
+    <div class="lg:hidden space-y-4">
+        {% for item in capital %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <h3 class="font-extrabold text-gray-800 leading-tight">
+                        {{ item.rutas.nombre }}
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-1">
+                        {{ item.created_at[:10] }}
+                    </p>
+                </div>
+
+                <div class="text-right shrink-0">
+                    <div class="font-black {% if item.valor >= 0 %}text-[#0B3C5D]{% else %}text-red-600{% endif %}">
+                        $ {{ "{:,.2f}".format(item.valor) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 text-sm">
+                    <div class="text-[11px] uppercase text-gray-500">Descripción</div>
+                    <div class="font-bold text-gray-800 mt-1 break-words">
+                        {{ item.descripcion or 'Sin descripción' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-4 pb-4">
+                <button onclick="confirmarEliminar('{{ item.id }}')"
+                        class="w-full rounded-xl bg-red-50 text-red-700 px-4 py-2.5 text-sm font-bold">
+                    Eliminar movimiento
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 text-center text-gray-500">
+            No hay movimientos registrados.
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
 
 
 <!-- ================= MODAL EJECUTIVO ================= -->
 <div id="modalCapital"
-     class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-    <div class="bg-white rounded-xl w-full max-w-lg p-10 shadow-2xl relative">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg p-6 sm:p-10 shadow-2xl relative">
 
         <button onclick="cerrarModal()"
                 class="absolute top-4 right-6 text-gray-400 hover:text-gray-700 text-xl">
@@ -190,7 +234,7 @@
         </button>
 
         <h2 class="text-xl font-semibold mb-8 text-[#1e293b]">
-            Asignar Capital a Ruta
+            Registrar movimiento de capital
         </h2>
 
         <form method="POST" action="{{ url_for('crear_capital') }}">
@@ -236,7 +280,7 @@
                 <button type="submit"
                         class="w-full bg-[#0B3C5D] hover:bg-[#092f47]
                                text-white py-3 rounded-lg font-semibold transition">
-                    Guardar Capital
+                    Guardar movimiento
                 </button>
 
             </div>
@@ -247,9 +291,9 @@
 
 </div>
 <div id="modalEliminar"
-     class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
 
-    <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl text-center">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl text-center">
 
         <div class="mb-4">
             <div class="w-14 h-14 mx-auto bg-red-100 rounded-full flex items-center justify-center">
@@ -265,7 +309,7 @@
             Esta acción no se puede deshacer
         </p>
 
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-3">
             <button onclick="cerrarModalEliminar()"
                     class="w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-100">
                 Cancelar
@@ -292,7 +336,7 @@ function eliminarConfirmado(){
         if(data.success){
             cerrarModalEliminar(); // 👈 clave
 
-            mostrarToast("Capital eliminado correctamente", "success");
+            mostrarToast("Movimiento eliminado correctamente", "success");
 
             setTimeout(() => {
                 location.reload();
@@ -326,7 +370,7 @@ function cerrarModalEliminar(){
 </script>
 
 <div id="toast"
-     class="fixed bottom-6 right-6 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg hidden">
+     class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg hidden">
 </div>
 
 <script>
@@ -346,18 +390,21 @@ function mostrarToast(mensaje, tipo="success"){
 </script>
 <!-- ================= FILTRO JS ================= -->
 <script>
-document.getElementById("filtroRuta").addEventListener("keyup", function() {
-    let filtro = this.value.toLowerCase();
-    let filas = document.querySelectorAll("#tablaCapital tr");
+const filtroRuta = document.getElementById("filtroRuta");
+if (filtroRuta) {
+    filtroRuta.addEventListener("keyup", function() {
+        let filtro = this.value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaCapital tr");
 
-    filas.forEach(fila => {
-        let ruta = fila.querySelector("td");
-        if (ruta) {
-            let texto = ruta.textContent.toLowerCase();
-            fila.style.display = texto.includes(filtro) ? "" : "none";
-        }
+        filas.forEach(fila => {
+            let ruta = fila.querySelector("td");
+            if (ruta) {
+                let texto = ruta.textContent.toLowerCase();
+                fila.style.display = texto.includes(filtro) ? "" : "none";
+            }
+        });
     });
-});
+}
 </script>
 
 <script>

@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-12 py-10 bg-gray-100 min-h-screen">
+<div class="px-3 sm:px-6 lg:px-12 py-4 sm:py-8 lg:py-10 bg-gray-100 min-h-screen">
 
-    <h1 class="text-2xl font-bold mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
         Categorías de Gastos
     </h1>
 
     <!-- FORMULARIO -->
-    <div class="bg-white p-6 rounded-xl shadow mb-8">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow mb-6 sm:mb-8">
 
         <form method="POST" action="{{ url_for('guardar_categoria_gasto') }}"
-              class="flex gap-4">
+              class="grid grid-cols-1 md:grid-cols-[1fr_1.4fr_auto] gap-3 sm:gap-4">
 
             <input type="text" name="nombre"
                    placeholder="Nombre Categoría"
-                   class="border rounded-lg px-4 py-2 w-60"
+                   class="border rounded-xl px-4 py-3 w-full"
                    required>
 
             <input type="text" name="descripcion"
                    placeholder="Descripción"
-                   class="border rounded-lg px-4 py-2 w-80">
+                   class="border rounded-xl px-4 py-3 w-full">
 
-            <button class="bg-blue-600 text-white px-6 rounded-lg">
+            <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">
                 Guardar
             </button>
 
@@ -31,7 +31,7 @@
     </div>
 
     <!-- TABLA -->
-    <div class="bg-white rounded-xl shadow">
+    <div class="hidden sm:block bg-white rounded-2xl shadow overflow-hidden">
 
         <table class="min-w-full text-sm">
 
@@ -52,11 +52,34 @@
                         {{ c.descripcion }}
                     </td>
                 </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" class="px-6 py-10 text-center text-gray-500">
+                        No hay categorías registradas.
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
 
         </table>
 
+    </div>
+
+    <div class="sm:hidden space-y-3">
+        {% for c in categorias %}
+        <div class="bg-white rounded-2xl shadow border border-gray-200 p-4">
+            <div class="font-extrabold text-gray-800">
+                {{ c.nombre }}
+            </div>
+            <div class="text-sm text-gray-500 mt-1">
+                {{ c.descripcion or 'Sin descripción' }}
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 text-center text-gray-500">
+            No hay categorías registradas.
+        </div>
+        {% endfor %}
     </div>
 
 </div>

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-10 py-10 bg-[#f4f7fb] min-h-screen">
+<div class="px-3 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 bg-[#f4f7fb] min-h-screen">
 
 <!-- ================= TOAST ALERTS ================= -->
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-<div class="fixed top-6 right-6 z-50 space-y-4">
+<div class="fixed top-4 left-4 right-4 sm:left-auto sm:top-6 sm:right-6 z-50 space-y-4">
     {% for category, message in messages %}
     <div class="toast-alert px-6 py-4 rounded-xl shadow-2xl border text-sm font-medium
         {% if category == 'danger' %}
@@ -32,28 +32,28 @@
 {% endwith %}
 
 <!-- ================= HEADER ================= -->
-<div class="flex justify-between items-center mb-10">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10">
 
     <div>
-        <h1 class="text-3xl font-bold text-[#1e293b]">
-            Gestión de Usuarios
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1e293b]">
+            Gestión de Cobradores
         </h1>
         <p class="text-sm text-gray-500 mt-2">
-            Administración y control de accesos del sistema
+            Administración y control de cobradores del sistema
         </p>
     </div>
 
     <button type="button"
         onclick="abrirModal()"
         class="bg-[#0B3C5D] hover:bg-[#092f47]
-               text-white px-6 py-3 rounded-lg shadow-lg transition">
-        + Nuevo Usuario
+               text-white px-5 sm:px-6 py-3 rounded-xl shadow-lg transition font-bold">
+        + Nuevo Cobrador
     </button>
 
 </div>
 
 <!-- ================= TABLA ================= -->
-<div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+<div class="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
 
 <table class="min-w-full text-sm">
 
@@ -142,7 +142,7 @@
                    hover:bg-orange-600 hover:text-white
                    hover:scale-110
                    transition-all duration-200 shadow-sm"
-            title="Editar usuario">
+            title="Editar cobrador">
             <i class="bi bi-pencil-fill text-sm"></i>
         </button>
 
@@ -190,7 +190,7 @@
                        hover:bg-red-600 hover:text-white
                        hover:scale-110
                        transition-all duration-200 shadow-sm"
-                title="Eliminar usuario">
+                title="Eliminar cobrador">
             <i class="bi bi-trash-fill text-sm"></i>
         </button>
 
@@ -198,10 +198,126 @@
 </td>
 
 </tr>
+{% else %}
+<tr>
+    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+        No hay cobradores registrados.
+    </td>
+</tr>
 {% endfor %}
 
 </tbody>
 </table>
+</div>
+
+<!-- ================= TARJETAS MÓVIL ================= -->
+<div class="lg:hidden space-y-4">
+{% for usuario in usuarios %}
+<div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+            <h3 class="font-extrabold text-gray-800 leading-tight">
+                {{ usuario["nombres"] }} {{ usuario["apellidos"] }}
+            </h3>
+            <p class="text-xs text-gray-500 mt-1 break-all">
+                {{ usuario["documento"] }} · {{ usuario["email"] }}
+            </p>
+        </div>
+
+        <span class="shrink-0 px-3 py-1 rounded-full text-[11px] font-bold
+            {% if usuario['rol'] == 'Administrador' %}
+                bg-blue-100 text-blue-700
+            {% elif usuario['rol'] == 'Supervisor' %}
+                bg-purple-100 text-purple-700
+            {% else %}
+                bg-gray-100 text-gray-700
+            {% endif %}">
+            {{ usuario["rol"] }}
+        </span>
+    </div>
+
+    <div class="p-4 grid grid-cols-2 gap-3 text-sm">
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+            <div class="text-[11px] uppercase text-gray-500">Estado</div>
+            <div class="font-bold mt-1 {% if usuario['estado'] %}text-green-700{% else %}text-red-700{% endif %}">
+                {{ "Activo" if usuario["estado"] else "Inactivo" }}
+            </div>
+        </div>
+
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+            <div class="text-[11px] uppercase text-gray-500">Registro</div>
+            <div class="font-bold text-gray-800 mt-1">
+                {% if usuario["fecha_registro"] %}
+                    {{ usuario["fecha_registro"][:10] }}
+                {% else %}
+                    --
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="px-4 pb-4">
+        <form method="POST" action="{{ url_for('toggle_usuario', user_id=usuario['id']) }}" class="mb-3">
+            <label class="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                <span class="text-sm font-bold text-gray-700">Cobrador activo</span>
+                <input type="checkbox"
+                       onchange="this.form.submit()"
+                       class="sr-only peer"
+                       {% if usuario["estado"] %}checked{% endif %}>
+                <span class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-[#0B3C5D] relative
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
+                    peer-checked:after:translate-x-full"></span>
+            </label>
+        </form>
+
+        <div class="grid grid-cols-5 gap-2">
+            <button type="button"
+                onclick="abrirEditarUsuario(this)"
+                data-usuario='{{ usuario | tojson }}'
+                class="inline-flex items-center justify-center rounded-xl bg-orange-50 text-orange-700 px-3 py-2.5 text-xs font-bold"
+                title="Editar cobrador">
+                <i class="bi bi-pencil-fill"></i>
+            </button>
+
+            <button type="button"
+                    onclick="verDatosUsuario({{ usuario['id'] }})"
+                    class="inline-flex items-center justify-center rounded-xl bg-blue-50 text-blue-700 px-3 py-2.5 text-xs font-bold"
+                    title="Ver información">
+                <i class="bi bi-eye-fill"></i>
+            </button>
+
+            <button type="button"
+                    onclick="abrirToken({{ usuario['id'] }})"
+                    class="inline-flex items-center justify-center rounded-xl bg-green-50 text-green-700 px-3 py-2.5 text-xs font-bold"
+                    title="Generar token">
+                <i class="bi bi-shield-lock-fill"></i>
+            </button>
+
+            {% if usuario['rol'] in ['Supervisor', 'Administrador'] %}
+            <button onclick="abrirAsignarRutas({{ usuario['id'] }})"
+                    class="inline-flex items-center justify-center rounded-xl bg-purple-50 text-purple-700 px-3 py-2.5 text-xs font-bold"
+                    title="Asignar rutas">
+                <i class="bi bi-diagram-3-fill"></i>
+            </button>
+            {% else %}
+            <span class="rounded-xl bg-gray-50"></span>
+            {% endif %}
+
+            <button type="button"
+                    onclick="abrirEliminarUsuario({{ usuario['id'] }}, '{{ usuario['nombres'] }} {{ usuario['apellidos'] }}')"
+                    class="inline-flex items-center justify-center rounded-xl bg-red-50 text-red-700 px-3 py-2.5 text-xs font-bold"
+                    title="Eliminar cobrador">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="bg-white rounded-2xl border border-gray-200 p-6 text-center text-gray-500">
+    No hay cobradores registrados.
+</div>
+{% endfor %}
 </div>
 
 </div>
@@ -211,9 +327,9 @@
 
 <div class="absolute inset-0 bg-black/60"></div>
 
-<div class="relative flex items-center justify-center min-h-screen">
+<div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
 
-<div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+<div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
 
 <h2 class="text-lg font-bold mb-4">Asignar Rutas</h2>
 
@@ -238,9 +354,9 @@ Guardar rutas
 
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
+<div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
 
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md relative">
 
             <button onclick="cerrarModalEliminar()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
@@ -248,7 +364,7 @@ Guardar rutas
             </button>
 
             <h2 class="text-xl font-bold text-red-600 mb-4">
-                Eliminar Usuario
+                Eliminar cobrador
             </h2>
 
             <p class="text-gray-600 mb-6">
@@ -259,7 +375,7 @@ Guardar rutas
             <form method="POST" action="{{ url_for('eliminar_usuario') }}">
                 <input type="hidden" name="user_id" id="delete_user_id">
 
-                <div class="flex gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button type="button"
                             onclick="cerrarModalEliminar()"
                             class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg">
@@ -280,8 +396,8 @@ Guardar rutas
 <!-- ================= MODAL TOKEN ================= -->
 <div id="modalTokenUsuario" class="fixed inset-0 z-50 hidden">
 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-<div class="relative flex items-center justify-center min-h-screen px-4">
-<div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 relative">
+<div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
+<div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 relative max-h-[92vh] overflow-y-auto">
 
 <button onclick="cerrarModalToken()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
@@ -300,17 +416,16 @@ Guardar rutas
 </div>
 
 <div class="bg-gray-50 rounded-xl p-4">
-    <p class="text-xs text-gray-500 mb-1">Usuario (Correo)</p>
+    <p class="text-xs text-gray-500 mb-1">Correo de acceso</p>
     <p id="modalCorreo" class="font-semibold text-gray-800 break-all"></p>
 </div>
 
 <div class="bg-gray-50 rounded-xl p-4">
     <p class="text-xs text-gray-500 mb-1">Token de Acceso</p>
     <p id="modalToken"
-       class="text-2xl font-bold text-green-600 tracking-widest"></p>
+       class="text-xl sm:text-2xl font-bold text-green-600 tracking-widest break-all"></p>
 </div>
 
-</div>
 </div>
 
 <button onclick="copiarToken()"
@@ -321,7 +436,6 @@ Guardar rutas
 
 </div>
 </div>
-
 </div>
 
 <div id="modalNuevoUsuario"
@@ -329,39 +443,39 @@ Guardar rutas
 
     <div class="absolute inset-0 bg-black/60"></div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg relative max-h-[92vh] overflow-y-auto">
 
             <button onclick="cerrarModal()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
                 ✕
             </button>
 
-            <h2 class="text-xl font-bold mb-6">Nuevo Usuario</h2>
+            <h2 class="text-xl font-bold mb-6">Nuevo cobrador</h2>
 
             <form method="POST" action="{{ url_for('crear_usuario') }}" class="space-y-4">
 
                 <input type="text" name="documento" placeholder="Documento"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="text" name="nombres" placeholder="Nombres"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="text" name="apellidos" placeholder="Apellidos"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="email" name="email" placeholder="Correo"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
                 <input type="password" name="password"
                     placeholder="Contraseña"
                     required
-                    class="w-full border rounded-lg px-4 py-2">
+                    class="w-full border rounded-xl px-4 py-3">
                 
                 <div>
                     <label class="text-sm text-gray-600 block mb-1">Rol</label>
                     <select name="rol"
                             required
-                            class="w-full border rounded-lg px-4 py-2 bg-white">
+                            class="w-full border rounded-xl px-4 py-3 bg-white">
                         <option value="">Seleccionar rol</option>
                         <option value="Administrador">Administrador</option>
                         <option value="Supervisor">Supervisor</option>
@@ -370,8 +484,8 @@ Guardar rutas
                 </div>
 
                 <button type="submit"
-                        class="w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
-                    Crear Usuario
+                        class="w-full bg-[#0B3C5D] text-white py-3 rounded-xl font-bold">
+                    Crear cobrador
                 </button>
 
             </form>
@@ -385,15 +499,15 @@ Guardar rutas
 
     <div class="absolute inset-0 bg-black/60"></div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+    <div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg relative max-h-[92vh] overflow-y-auto">
 
             <button onclick="cerrarModalEditar()"
                     class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl">
                 ✕
             </button>
 
-            <h2 class="text-xl font-bold mb-6">Editar Usuario</h2>
+            <h2 class="text-xl font-bold mb-6">Editar cobrador</h2>
 
             <form method="POST" action="{{ url_for('actualizar_usuario') }}" class="space-y-4">
 
@@ -401,28 +515,28 @@ Guardar rutas
 
                 <input type="text" name="documento" id="edit_documento"
                        placeholder="Documento"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="text" name="nombres" id="edit_nombres"
                        placeholder="Nombres"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="text" name="apellidos" id="edit_apellidos"
                        placeholder="Apellidos"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="email" name="email" id="edit_email"
                        placeholder="Correo"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <input type="password" name="password"
                        placeholder="Nueva contraseña (opcional)"
-                       class="w-full border rounded-lg px-4 py-2">
+                       class="w-full border rounded-xl px-4 py-3">
 
                 <div>
                     <label class="text-sm text-gray-600 block mb-1">Rol</label>
                     <select name="rol" id="edit_rol"
-                            class="w-full border rounded-lg px-4 py-2 bg-white">
+                            class="w-full border rounded-xl px-4 py-3 bg-white">
                         <option value="Administrador">Administrador</option>
                         <option value="Supervisor">Supervisor</option>
                         <option value="Cobrador">Cobrador</option>
@@ -430,7 +544,7 @@ Guardar rutas
                 </div>
 
                 <button type="submit"
-                        class="w-full bg-[#0B3C5D] text-white py-3 rounded-lg">
+                        class="w-full bg-[#0B3C5D] text-white py-3 rounded-xl font-bold">
                     Guardar Cambios
                 </button>
 
@@ -443,8 +557,8 @@ Guardar rutas
 <div id="modalVerUsuario" class="fixed inset-0 z-50 hidden">
 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-<div class="relative flex items-center justify-center min-h-screen px-4">
-<div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 relative">
+<div class="relative flex items-end sm:items-center justify-center min-h-screen sm:px-4">
+<div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 relative max-h-[92vh] overflow-y-auto">
 
 <button onclick="cerrarModalVer()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">
@@ -452,7 +566,7 @@ Guardar rutas
 </button>
 
 <h2 class="text-xl font-bold text-[#1e293b] mb-6">
-    Información del Usuario
+    Información del cobrador
 </h2>
 
 <div class="space-y-4">
@@ -474,7 +588,7 @@ Guardar rutas
 <div class="bg-gray-50 p-4 rounded-xl">
     <p class="text-xs text-gray-500">Token de Acceso</p>
     <p id="modalTokenVer"
-       class="text-2xl font-bold text-green-600 tracking-widest"></p>
+       class="text-xl sm:text-2xl font-bold text-green-600 tracking-widest break-all"></p>
 </div>
 <div class="bg-gray-50 p-4 rounded-xl">
     <p class="text-xs text-gray-500">Estado</p>
@@ -587,7 +701,7 @@ function verDatosUsuario(userId){
     .then(data => {
 
         if(data.error){
-            alert("Usuario no encontrado");
+            alert("Cobrador no encontrado");
             return;
         }
 

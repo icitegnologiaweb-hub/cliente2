@@ -9,11 +9,11 @@
         class="bg-white w-[250px] p-4 
                 text-black font-mono text-[11px] leading-tight rounded-xl">
 
-        <!-- LOGO PEQUEÑO -->
+        <!-- Marca neutral -->
         <div class="text-center mb-2 text-[10px] leading-tight">
-
-            <img src="{{ url_for('static', filename='img/logo.png') }}"
-                class="h-10 mx-auto mb-1">
+            <div class="font-bold text-[13px] mb-1">
+                RECIBO DE PAGO
+            </div>
 
             <div>
                 <strong>Factura:</strong> {{ pago.id[:8] }}

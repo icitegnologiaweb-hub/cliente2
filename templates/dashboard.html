@@ -2,241 +2,135 @@
 {% block content %}
 
 <style>
+.dashboard-home {
+    min-height: calc(100vh - 120px);
+}
 
-/* =========================
-   CARRUSEL DASHBOARD PREMIUM
-========================= */
-
-.dashboard-carousel {
+.dashboard-hero {
     position: relative;
-    width: 95%;              /* más ancho */
-    max-width: 1800px;       /* evita que se estire infinito */
-    margin: 30px auto;
-
-    height: 45vh;
-    min-height: 320px;
-    max-height: 600px;
-    margin: 30px auto;
     overflow: hidden;
-    border-radius: 25px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-}
-
-.carousel-slide {
-    min-width: 100%;
-    height: 55vh;
-    min-height: 320px;
-    max-height: 650px;
-    position: relative;
-    display: flex;
-    align-items: center;
+    border-radius: 28px;
+    background:
+        linear-gradient(135deg, rgba(6,47,43,.96), rgba(6,78,59,.93)),
+        radial-gradient(circle at top right, rgba(217,119,6,.32), transparent 34%);
     color: white;
-    background-size: contain;      /* 🔥 CLAVE */
-    background-repeat: no-repeat;
-    background-position: right center;
-    background-color: #2b2b2b;     /* fondo mientras carga */
+    box-shadow: 0 24px 70px rgba(6,47,43,.18);
 }
 
-/* Imágenes */
-.slide-1 {
-    background-image: url("/static/img/img1.png");
-}
-
-.slide-2 {
-    background-image: url("/static/img/img2.png");
-}
-
-.slide-3 {
-    background-image: url("/static/img/img3.png");
-}
-
-
-.carousel-track {
-    display: flex;
-    height: 100%;
-    transition: transform 0.8s cubic-bezier(.25,.8,.25,1);
-}
-
-
-
-.bg-img {
+.dashboard-hero::after {
+    content: "";
     position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
+    inset: auto -10% -35% 42%;
+    height: 75%;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    transform: rotate(-10deg);
 }
 
-
-/* Overlay oscuro elegante */
-.overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to right,
-        rgba(0, 50, 120, 0.55),
-        rgba(0, 0, 0, 0.05)
-    );
-    z-index: 2;
-}
-
-.slide-content {
+.hero-visual {
     position: relative;
-    z-index: 3;
-    padding: 60px;
-    max-width: 600px;
-    width: 100%;
+    min-height: 260px;
+    border-radius: 24px;
+    background:
+        linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.05)),
+        url("/static/img/img2.png") center / contain no-repeat;
+    border: 1px solid rgba(255,255,255,.14);
 }
 
-
-@media (min-width: 1800px) {
-    .slide-content {
-        margin-left: 12%;
-    }
+.quick-card {
+    background: rgba(255,255,255,.96);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    box-shadow: 0 14px 34px rgba(15,23,42,.07);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
-
-.slide-content h2 {
-    font-size: 40px;
-    font-weight: 900;
-    margin-bottom: 15px;
+.quick-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 44px rgba(15,23,42,.11);
 }
 
-.slide-content p {
-    font-size: 18px;
-    opacity: .9;
-    margin-bottom: 25px;
-}
-
-.btn-slide {
-    background: linear-gradient(45deg, #00c6ff, #0072ff);
-    padding: 12px 28px;
-    border-radius: 40px;
-    text-decoration: none;
+.quick-icon {
+    height: 46px;
+    width: 46px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
     color: white;
-    font-weight: 600;
-    transition: 0.3s;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #0f766e, #d97706);
 }
 
-.btn-slide:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-}
-
-.carousel-dots {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 5;
-}
-
-.carousel-dots span {
-    width: 12px;
-    height: 12px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: .3s;
-}
-
-.carousel-dots span.active {
-    background: white;
-    transform: scale(1.2);
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+@media (max-width: 767.98px) {
+    .dashboard-home {
+        min-height: auto;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .dashboard-hero {
+        border-radius: 22px;
+    }
+
+    .hero-visual {
+        min-height: 190px;
+        background-size: cover;
+        background-position: center;
     }
 }
-
-
 </style>
 
-<div class="dashboard-carousel">
+<div class="dashboard-home space-y-5">
+    <section class="dashboard-hero p-5 sm:p-8 lg:p-10">
+        <div class="relative z-10 grid gap-6 lg:grid-cols-[1fr_420px] lg:items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/10 px-3 py-1 text-xs font-bold text-white/90 mb-5">
+                    <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+                    Panel administrativo
+                </div>
 
-    <div class="carousel-track">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight max-w-3xl">
+                    Gestiona la operación diaria sin perder contexto.
+                </h1>
+                <p class="mt-4 text-white/80 text-base sm:text-lg max-w-2xl">
+                    Accede rápido a créditos, clientes y caja desde una vista cómoda para escritorio y teléfono.
+                </p>
 
-        <!-- SLIDE 1 -->
-        <div class="carousel-slide slide-1">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Control Total de tu Oficina</h2>
-                <p>Gestiona rutas, ventas y capital en tiempo real.</p>
-                <a href="#" class="btn-slide">Ver Reportes</a>
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                    <a href="{{ url_for('listar_ventas') }}"
+                       class="inline-flex items-center justify-center rounded-2xl bg-white text-teal-800 px-5 py-3 font-black shadow-lg">
+                        Ver créditos
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <!-- SLIDE 2 -->
-        <div class="carousel-slide slide-2">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Estadísticas Inteligentes</h2>
-                <p>Visualiza métricas claras y toma decisiones estratégicas.</p>
-                <a href="#" class="btn-slide">Ir a Finanzas</a>
+            <div class="hero-visual"></div>
+        </div>
+    </section>
+
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <a href="{{ url_for('listar_ventas') }}" class="quick-card p-5">
+            <div class="quick-icon mb-4">
+                <i class="bi bi-map"></i>
             </div>
-        </div>
+            <h2 class="font-black text-slate-900">Créditos activos</h2>
+            <p class="text-sm text-slate-500 mt-1">Consulta créditos, saldos y estados de cartera.</p>
+        </a>
 
-        <!-- SLIDE 3 -->
-        <div class="carousel-slide slide-3">
-            <div class="overlay"></div>
-            <div class="slide-content">
-                <h2>Optimización y Crecimiento</h2>
-                <p>Mejora la productividad de tu equipo fácilmente.</p>
-                <a href="#" class="btn-slide">Gestionar</a>
+        <a href="{{ url_for('clientes') }}" class="quick-card p-5">
+            <div class="quick-icon mb-4">
+                <i class="bi bi-people"></i>
             </div>
-        </div>
+            <h2 class="font-black text-slate-900">Historial de clientes</h2>
+            <p class="text-sm text-slate-500 mt-1">Revisa datos, historial y seguimiento.</p>
+        </a>
 
-    </div>
+        <a href="{{ url_for('caja_oficina') }}" class="quick-card p-5">
+            <div class="quick-icon mb-4">
+                <i class="bi bi-archive"></i>
+            </div>
+            <h2 class="font-black text-slate-900">Caja</h2>
+            <p class="text-sm text-slate-500 mt-1">Controla movimientos por ruta y oficina.</p>
+        </a>
 
-    <div class="carousel-dots"></div>
-
+    </section>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const track = document.querySelector(".carousel-track");
-    const slides = document.querySelectorAll(".carousel-slide");
-    const dotsContainer = document.querySelector(".carousel-dots");
-
-    let index = 0;
-
-    slides.forEach((_, i) => {
-        const dot = document.createElement("span");
-        if (i === 0) dot.classList.add("active");
-
-        dot.addEventListener("click", () => {
-            index = i;
-            updateCarousel();
-        });
-
-        dotsContainer.appendChild(dot);
-    });
-
-    const dots = document.querySelectorAll(".carousel-dots span");
-
-    function updateCarousel() {
-        track.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach(dot => dot.classList.remove("active"));
-        dots[index].classList.add("active");
-    }
-
-    setInterval(() => {
-        index = (index + 1) % slides.length;
-        updateCarousel();
-    }, 5000);
-
-});
-</script>
 
 {% endblock %}
